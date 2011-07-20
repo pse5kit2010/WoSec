@@ -1,0 +1,120 @@
+* { 
+	padding: 0;
+	margin: 0;
+}
+body {
+	background-image: url(../images/custom.jpg), url(../images/wosec.png);
+	background-repeat: repeat-all, no-repeat;
+	background-position: top left, bottom right; 
+	font-family: Tahoma, Geneva, sans-serif;
+	font-size: 10pt;
+}
+#header {
+	background: url(../images/dock-bg.gif) repeat-x;
+	height: 50px;
+	padding: 5px;
+}
+#header h1 {
+	font-family: sans-serif;
+	font-size: 20px;
+	color: #fff;
+	padding-top: 10px;
+	height: 50px;
+	/* background: url(../images/logosmall.png) top right no-repeat; */
+	display: inline;
+}
+#biglogo {
+	z-index: -1;
+	width: 298px;
+	height: 296px;
+	position: absolute;
+	right: 0;
+	bottom: 0;
+	background: url(../images/wosec2.png);
+	
+	}
+#login {
+	z-index: 100;
+	margin: 30px auto;
+	text-align: center;
+	padding: 1em;
+	width: 300px;
+	height: 150px;
+	background: #fff;
+	box-shadow: 3px 3px 4px #000;
+	-moz-box-shadow: 3px 3px 4px #000;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+#login table {
+	text-align: left;
+	margin-bottom: 1em;
+}
+#login input[type=text], #login input[type=password] {
+	height: 18px;
+	font-size: 16px;
+	margin-left: 10px;
+}
+#login input[type=submit] {
+	width: 100px;
+}
+p#loginerr {
+	text-align: center;
+	padding: 1em;
+	height: 30px;
+	width: 50%;
+	border: 1px #f77 solid;
+	background: #fcc;
+	margin: 2em auto;
+}
+
+/* All Instances */
+#header #topbar {
+	float: right;
+	color: #fff;
+	height: 50px;
+    display: inline;
+    margin: 0 15px 0 0;
+    text-align: right;
+}
+#userinfo {
+	float: right;
+    margin-bottom: 10px;
+    display: block;
+}
+#userinfo a {
+    margin-left: 10px;
+    text-decoration: none;
+    color: #66f;
+}
+#userinfo a:hover {
+    text-decoration: underline;
+    color: #33f;
+}
+#searchBox {
+	clear: both;
+}
+table#instancestable {
+	width: 95%;
+	opacity: 0.9;
+	border-collapse: separate;
+    border-spacing: 2px;
+    margin: 20px;
+}	
+table#instancestable td, table#instancestable th {
+	background: #fff;
+	padding: 6px;
+	font-size: 10pt;
+}
+
+/* Fehlerseite */
+#errorbox {
+	font: 1.5em sans-serif bold;
+	color: #000;
+	background: #eee;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	padding: 2em;
+	margin: 3em auto;
+	width: 300px;
+	}

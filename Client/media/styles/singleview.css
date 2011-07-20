@@ -1,0 +1,236 @@
+
+body {
+    padding: 0;
+    margin: 0;
+}
+
+#timeslider-play-button-overlay {
+    background-color: orange;
+    border-radius: 15px 15px 15px 15px;
+    height: 30px;
+    opacity: 0.5;
+    width: 30px;
+    z-index: 3;
+	display: none;
+}
+
+#header {
+    font-family: sans-serif;
+    position: fixed;
+    width: 100%;
+    height: 60px;
+    top: 0;
+    background: #000 url(../images/dock-bg.gif) repeat-x;
+    z-index: 1;
+    color: #fff;
+}
+
+#header h1 {
+    position: relative;
+    font-size: 20px;
+    color: #fff;
+    height: 50px;
+    display: inline;
+    top: 20px;
+    margin-left: 20px;
+}
+
+#headerright {
+    height: 50px;
+    float: right;
+    display: inline;
+    margin: 0 15px 0 0;
+    width: 50%;
+}
+
+#userinfo {
+    float: right;
+    margin-bottom: 10px;
+}
+#userinfo a {
+    margin-left: 10px;
+    text-decoration: none;
+    color: #66f;
+}
+#userinfo a:hover {
+    text-decoration: underline;
+    color: #33f;
+}
+#slider {
+    clear: both;
+}
+
+#instancesvg {
+    overflow: scroll;
+    position: absolute;
+    height: auto;
+    bottom: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    margin-top:60px;
+    background: url(../images/custom.jpg);
+
+}
+
+#navigation {
+    width: 100%;
+    position:fixed;
+    margin-bottom: 0;
+    height:60px;
+    bottom:0;
+    left:0;
+    background: url(../images/dock-bg.gif) repeat-x;
+}
+
+#controls {
+    float: left;
+    position:relative;
+    top:15px;
+}
+
+#timeslider-play-button {
+	width: 30px;
+	height: 30px;
+	margin: 0;
+	padding: 0;
+	background: url("../images/play.png") center center no-repeat;
+	background-size: 24px;
+	-moz-background-size: 24px;
+	cursor: pointer;
+	float: left;
+}
+#timeslider-play-button:hover {
+	background-size: 30px;
+	-moz-background-size: 30px;
+}
+
+#timeslider-play-button span, a#fast span, a#pause span {
+    display:none;
+}
+
+
+
+/*Runtime Messages*/
+div#runtime{
+    padding: 5px 0 5px 0;
+}
+
+.timeslider-entry {
+    position: absolute;
+    z-index: 0;
+    width: 0.3em;
+    height: 0.9em;
+    top: -0.05em;
+    display: block;
+}
+
+.timeslider-entry-MarkFinishedEvent {
+    background: cornflowerblue;
+}
+.timeslider-entry-SpecifyingParticipantEvent {
+    background: white;
+}
+.timeslider-entry-HighlightingEvent {
+    background: darkorange;
+}
+.timeslider-entry-TransferingDataEvent {
+    background: white;
+}
+
+
+#rect-obtrusive {
+    color: darkorange;
+}
+#rect-unobtrusive {
+    color: cornflowerblue;
+}
+#rect-reset {
+    color: white;
+}
+
+div#infoboxes {
+    position: absolute;
+}
+
+.infobox {
+    position: absolute;
+    color:#ffffff;
+    background-color: #c99292;
+    border: 1px solid black;
+    border-style:groove;
+    font:bold 12px verdana, sans-serif;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    width:auto;
+    height:auto;
+    padding:3px 3px;
+    display:marker;
+    overflow: hidden;
+    visibility: visible;
+    margin: 4px 0px;
+    z-index:1;
+    }
+
+.infobox-participant {
+    background:#974a4a;
+    font:bold 12px verdana, sans-serif;
+    text-decoration:none;
+    display:block;
+    padding:5px;
+    width:auto;
+    height:auto;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border:1px solid black;
+    }
+
+.infobox-data {
+    background:#974a4a;
+    font:bold 12px verdana, sans-serif;
+    text-decoration:none;
+    display:block;
+    width:auto;
+    height:auto;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    padding:5px;
+    border:1px solid black;
+}
+
+div#databox {
+    position:absolute;
+    width: 410px;
+    
+    bottom:0;
+    top:0;
+    left: -420px;
+    margin-top: 80px;
+    margin-bottom:80px;
+    z-index: 1;
+    padding: 20px 0 20px 20px;
+    color: #000;
+    text-decoration:none;
+    font: bold 12px verdana, sans-serif;
+    background: #a4a4a4;
+    border: 5px solid #333;
+    border-radius: 3px;
+    -moz-border-radius: 3px;
+    -moz-opacity: 0.8;
+    opacity: 0.8;
+}
+
+div#databox-hover {
+    position:absolute;
+    height:auto;
+    right: 0;
+    top:0;
+    bottom:0;
+    width: 10px;
+    margin:0 0 0 auto;
+    z-index: 2;
+    background-color: #333;
+}

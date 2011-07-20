@@ -1,0 +1,250 @@
+htmlRenderer = WoSec.htmlRenderer
+workflow = WoSec.workflow
+eventChain = WoSec.eventChain
+EventCommand = WoSec.EventCommand;
+
+describe 'EventChain'
+
+	before
+		chain = WoSec.eventChain
+	end
+	
+	
+	describe 'addSomeEvents'
+	
+		it 'checks seek() on an empty chain'
+				chain.seek(function(){});
+				//chain.forEach(function(ec) {console.log(ec)});
+				chain.getCurrentPosition().should.be 0
+		end
+		
+		it 'should ignore empty json'
+			chain.add([]);
+			chain.last().should.be_an_instance_of EventCommand
+			chain.last().getTimestamp().should.be 0
+		end
+		
+		it 'checks the Functionality of last()'
+			//chain.forEach(function(ec) {console.log(ec)});
+			var event = chain.last();
+			var time = event.getTimestamp();
+			event.should.be_an_instance_of EventCommand
+			time.should.equal 0
+			
+			chain.add([{
+				       "eventCommand": "MarkFinished",
+				       "activityID": "__fX4gedbEd-f6JWMxJDGcQ",
+				       "timestamp": 123456789,
+					   "information": {
+					   	"participant": {
+					   		"ID": "_sDfw47sd33saeF",
+					   		"name": "Alice"
+					   	}
+					   }
+				    }]);
+					
+			event = chain.last();
+
+			time = event.getTimestamp();
+			event.should.be_an_instance_of EventCommand.StateChanging
+			time.should.be 123456789
+		end
+		
+
+		it 'should add a single event'
+			chain.add([{
+			       "eventCommand": "MarkFinished",
+			       "activityID": "__fX4gedbEd-f6JWMxJDGcQ",
+			       "timestamp": 123,
+				   "information": {
+				   	"participant": {
+				   		"ID": "_sDfw47sd33saeF",
+				   		"name": "Alice"
+				   	}
+				   }
+			    }]);
+				
+			chain.getCurrentPosition().should.be 0
+			chain.seek(function(){});
+			//chain.forEach(function(ec) {console.log(ec)});
+			chain.getCurrentPosition().should.be 1
+		end
+		
+		it 'should add Events to the Chain'
+			stub(workflow, 'getTaskLaneByID').and_return(newTaskLane(svgUtility.getTaskRectangle("someID"), []));
+			chain.add([{
+			       "eventCommand": "MarkFinished",
+			       "activityID": "_ggEwYYBxEd-3VeNHLWdQXA",
+			       "timestamp": 456,
+				   "information": {
+				   	"participant": {
+				   		"ID": "_sDfw47sd33saeF",
+				   		"name": "Alice"
+				   	}
+				   }
+			    },
+				{
+			       "eventCommand": "SpecifyingParticipant",
+			       "activityGroupID": "_7kTKEOdbEd-f6JWMxJDGcQ",
+			       "timestamp": 789,
+				   "information": {
+				   	"participant": {
+				   		"ID": "_sDfw47sd33saeF",
+				   		"name": "Alice"
+				   	}
+				   }
+			    }])
+			chain.seek(function(){});
+			chain.getCurrentPosition().should.be 3
+		end
+		
+		
+		describe 'checkSeekBackwardsFunctionality'
+			it 'checks seek() method for seeking backwards'
+				chain.seek(function(){}, true);
+				//chain.forEach(function(ec) {console.log(ec)});
+				chain.getCurrentPosition().should.be 0
+			end
+		end
+	end
+	
+	describe 'addRubbishAsEvent'
+		it 'should refuse data without activityID'
+			
+			var data = [{
+			       "eventCommand": "MarkFinished",
+			       "rubbishAttribute": "InvalidValue",
+			       "timestamp": 13456789
+			    }];
+				
+			-{chain.add(data)}.should.throw_error TypeError, /ID/
+		end
+
+		it 'should pass data with unused attributes'
+			var data = [{
+			       "eventCommand": "MarkFinished",
+			       "activityID": "_ggEwYYBxEd-3VeNHLWdQXA",
+			       "rubbishAttribute": "InvalidValue",
+			       "timestamp": 13456789
+			    }]
+
+			var result = chain.add(data)
+			result.should.equal chain
+		end
+
+		it 'should refuse data with invalid attribute Type'
+			var data = [{
+			       "eventCommand": "InvalidFinished",
+			       "timestamp": "abcedes"
+			    }];
+				
+			-{chain.add(data)}.should.throw_error Error
+				
+		end
+	end
+	
+	
+	describe 'addUnknownEvent'
+		it 'should throw an Unknown EventCommand error'
+		
+		var data = [{"eventCommand": "InvalidFinished",
+		"activityID": "__fX4gedbEd-f6JWMxJDGcQ",
+		"timestamp": 123456789}];
+		
+		-{chain.add(data)}.should.throw_error Error, /Unknown EventCommand/
+		end
+	end
+
+	describe 'addUnknownAcitivityID'
+		it 'should throw an Unknown activityID error'
+		
+		var data = [{
+			       "eventCommand": "MarkFinished",
+			       "activityID": "notExistingID",
+			       "timestamp": "123456789"
+			    }];
+		
+		-{chain.add(data)}.should.throw_error Error
+				
+		end
+	end
+	
+	describe 'addEventWithInvalideTimestamp'
+		it 'should refuse data without timestamp'
+
+		var data = [{
+			"eventCommand": "MarkFinished",
+			"activityID": "__fX4gedbEd-f6JWMxJDGcQ"
+			}];
+		
+		-{chain.add(data)}.should.throw_error
+		
+		end
+	end
+
+	describe 'addIllegalObserver'
+		it 'should refuse Listener without notify()'
+		
+		//Date() has no notify()-function
+		-{chain.registerObserver(new Date())}.should.throw_error
+		
+		end
+	end
+	
+	describe 'notifyObservers'
+		it 'should notify all registered Observers'
+		
+		var data = [{
+			       "eventCommand": "MarkFinished",
+			       "activityID": "__fX4gedbEd-f6JWMxJDGcQ",
+			       "timestamp": 1234565,
+				   "information": {
+				   	"participant": {
+				   		"ID": "_sDfw47sd33saeF",
+				   		"name": "Alice"
+				   	}
+				   }
+			    }];
+		
+		observer0 = {
+				notify: function() {}
+		}
+		observer1 = {
+				notify: function() {}
+		}
+		chain.registerObserver(observer0)
+		chain.registerObserver(observer1)
+		observer0.should.receive 'notify'
+		observer1.should.receive 'notify'
+		chain.add(data)
+				
+		end
+	end
+	
+	describe 'checkPlayFunctionality'
+		it 'checks functionality of play()'
+		
+			chain.seek(function(){})
+			var data = [{
+			       "eventCommand": "MarkFinished",
+			       "activityID": "__fX4gedbEd-f6JWMxJDGcQ",
+			       "timestamp": 1234565,
+				   "information": {
+				   	"participant": {
+				   		"ID": "_sDfw47sd33saeF",
+				   		"name": "Alice"
+				   	}
+				   }
+			    }];
+			
+			chain.add(data)
+			var eventcommand = chain.last();
+			eventcommand.should.receive 'execute'
+			eventcommand.should.receive 'animate'
+			chain.play()
+			tick(800)
+		end
+	end
+	
+
+end

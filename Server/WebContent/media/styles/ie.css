@@ -1,0 +1,9 @@
+#login { display: none; }
+p {
+	color: #000;
+	background: #fcc;
+	border: 1px red solid;
+	padding: 2em;
+	margin: 3em;
+	width: 60%;
+}

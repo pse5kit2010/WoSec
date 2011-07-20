@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>WoSecServer</display-name>
+
+ <filter>
+           <filter-name>UrlRewriteFilter</filter-name>
+           <filter-class>org.tuckey.web.filters.urlrewrite.UrlRewriteFilter</filter-class>
+        </filter>
+        <filter-mapping>
+           <filter-name>UrlRewriteFilter</filter-name>
+           <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
+	<servlet>
+		<servlet-name>Configuration</servlet-name>
+    	<servlet-class>wosec.util.Configuration</servlet-class>
+    	<load-on-startup>1</load-on-startup>
+	</servlet>
+	
+<!-- UpdateController -->	
+	<servlet>
+		<servlet-name>UpdateController</servlet-name>
+		<servlet-class>wosec.server.controllers.UpdateController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UpdateController</servlet-name>
+		<url-pattern>/UpdateController</url-pattern>
+	</servlet-mapping>
+
+<!-- UserController -->
+	<servlet>
+		<servlet-name>UserController</servlet-name>
+		<servlet-class>wosec.server.controllers.UserController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>UserController</servlet-name>
+		<url-pattern>/UserController</url-pattern>
+	</servlet-mapping>
+	
+<!-- SingleInstanceController -->	
+	<servlet>
+		<servlet-name>SingleInstanceController</servlet-name>
+		<servlet-class>wosec.server.controllers.SingleInstanceController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SingleInstanceController</servlet-name>
+		<url-pattern>/SingleInstanceController</url-pattern>
+	</servlet-mapping>
+	
+<!-- InstancesController -->
+	<servlet>
+		<servlet-name>InstancesController</servlet-name>
+		<servlet-class>wosec.server.controllers.InstancesController</servlet-class>
+	</servlet>
+	
+	<servlet-mapping>
+		<servlet-name>InstancesController</servlet-name>
+		<url-pattern>/InstancesController</url-pattern>
+	</servlet-mapping>
+		
+
+<!-- SearchController -->	
+	<servlet>
+		<servlet-name>SearchController</servlet-name>
+		<servlet-class>wosec.server.controllers.SearchController</servlet-class>
+
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SearchController</servlet-name>
+		<url-pattern>/SearchController</url-pattern>
+	</servlet-mapping>
+
+<!-- EventHandler -->
+	<servlet>
+		<servlet-name>EventHandler</servlet-name>
+		<servlet-class>wosec.server.controllers.eventhandling.EventHandlerService</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>EventHandler</servlet-name>
+		<url-pattern>/EventHandler</url-pattern>	
+	</servlet-mapping>
+	
+<!--  StartFiles-->	
+	<welcome-file-list>
+	    <welcome-file>InstancesController</welcome-file>
+	</welcome-file-list>
+
+<!-- SessionTimeout -->
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
+	
+	<error-page>
+		<exception-type>java.lang.Throwable</exception-type>
+		<location>/WEB-INF/Error.jsp </location>
+	</error-page>
+</web-app>

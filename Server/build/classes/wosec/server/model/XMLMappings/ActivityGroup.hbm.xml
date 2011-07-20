@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="wosec.server.model">
+ <class entity-name="XMLActivityGroup" node="activity_group" table="ActivityGroups">
+     <id name="id" column="id" type="integer">
+        <generator class="increment"/>
+     </id>
+
+     <property name="group-id" column="referenceID" type="string" node="@group-id" />
+     <property name="name" column="name" type="string" node="@name" />
+     <property name="activity_type" column="type" type="string" node="@activity_type" />
+	 <property name="workflow" column="workflowID" type="string" node="@workflowID" />
+ </class>
+</hibernate-mapping>

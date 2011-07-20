@@ -1,0 +1,44 @@
+<html>
+	<head>
+		<link type="text/css" rel="stylesheet" href="media/jspec.css" />
+	    <!--<script type="text/javascript" src="lib/jquery-1.4.4.js"></script>
+	    <script type="text/javascript" src="lib/jquery-ui-1.8.7.custom.min.js"></script>
+	    <script type="text/javascript" src="lib/jquery.svg.js"></script>
+	    <script type="text/javascript" src="lib/jquery.svganim.js"></script>-->
+		<script type="text/javascript" src="spec/jQueryMockUp.js"></script>
+		<script src="lib/jspec.js"></script>
+		<script src="lib/jspec.xhr.js"></script>
+		<script src="lib/jspec.timers.js"></script>
+		
+    <script type="text/javascript" src="src/WoSec.js"></script>
+	<script type="text/javascript" src="src/SVGUtility.js"></script>
+    <script type="text/javascript" src="src/HTMLRenderer.js"></script>
+    <script type="text/javascript" src="src/Task.js"></script>
+    <script type="text/javascript" src="src/TaskLane.js"></script>
+    <script type="text/javascript" src="src/Workflow.js"></script>
+    <script type="text/javascript" src="src/EventCommands.js"></script>
+    <script type="text/javascript" src="src/EventChain.js"></script>
+    <script type="text/javascript" src="src/AJAXUpdater.js"></script>
+		<script>
+			if (navigator.userAgent.toLowerCase().indexOf('chrome') > -1) {
+				console.log("Warning! You need the commandline switch --allow-file-access-from-files to make this work.");
+			}
+			function runSuites() {
+				JSpec
+				.exec('spec/spec.AJAXUpdater.txt')
+				.exec('spec/spec.EventCommands.js')
+				.exec('spec/spec.Infobox.js')
+				.exec('spec/spec.SVGRectangle.js')
+				.exec('spec/spec.EventChain.txt')
+				.run({ fixturePath: 'fixtures' })
+				.report()
+				
+			}
+		</script>
+	</head>
+	<body class="jspec" onLoad="runSuites();">
+		<div id="jspec-top"><h2 id="jspec-title">JSpec <em><script>document.write(JSpec.version)</script></em></h2></div>
+		<div id="jspec"></div>
+		<div id="jspec-bottom"></div>
+	</body>
+</html>

@@ -1,0 +1,122 @@
+htmlRenderer = WoSec.htmlRenderer
+workflow = WoSec.workflow
+eventChain = WoSec.eventChain
+EventCommand = WoSec.EventCommand
+ajaxUpdater = WoSec.ajaxUpdater
+
+describe 'AJAXUpdater'
+
+	before
+		chain = WoSec.eventChain
+	end
+	
+	
+	
+	describe 'checkPlayFunctionality'
+		it 'checks the main functionality'
+		
+			var data = [{
+			       "eventCommand": "MarkFinished",
+			       "activityID": "__fX4gedbEd-f6JWMxJDGcQ",
+			       "timestamp": 123,
+				   "information": {
+				   	"participant": {
+				   		"ID": "_sDfw47sd33saeF",
+				   		"name": "Alice"
+				   	}
+				   }
+			    },
+				{
+			       "eventCommand": "MarkFinished",
+			       "activityID": "_ggEwYYBxEd-3VeNHLWdQXA",
+			       "timestamp": 456,
+				   "information": {
+				   	"participant": {
+				   		"ID": "_sDfw47sd33saeF",
+				   		"name": "Alice"
+				   	}
+				   }
+			    }];
+				
+			chain.add(data)
+			
+			
+			var data1 = [{
+			       "eventCommand": "MarkFinished",
+			       "activityID": "__fX4gedbEd-f6JWMxJDGcQ",
+			       "timestamp": 1234565,
+				   "information": {
+				   	"participant": {
+				   		"ID": "_sDfw47sd33saeF",
+				   		"name": "Alice"
+				   	}
+				   }
+			    }];
+			
+			var commands = new Array();
+			commands[0] = chain.getEventCommand(0);
+			commands[1] = chain.getEventCommand(1);
+			commands[0].should.receive 'execute'
+			commands[0].should_not.receive 'animate'
+			
+			commands[1].should.receive 'execute'
+			commands[1].should.receive 'animate'
+			
+			//stub(jQuery, 'ajax').and_return(data1)
+			
+			//mock_request().and_return(data, 'application/json', 200)
+			//X Klappt nicht weil request im Mockup gar nicht ausgeführt wird
+			
+
+			var ajaxCallback;
+			jQuery.getJSON = function(mock, it, callback) {
+				ajaxCallback = callback;
+			}
+			
+			ajaxUpdater.init(124)
+			
+			ajaxCallback(data1)
+			
+			commands[2] = chain.getEventCommand(2);
+			//console.log(commands)
+			
+			//Testen, ob execute bei den ersten 2 events auch ausgeführt wird
+			tick(5000)
+			
+			chain.getCurrentPosition().should.be 2
+			
+		end
+		
+		it 'checks disconnecting from server'
+			
+			stub(window, 'alert').and_return(false);
+			
+			var errorHandler;
+			//Register ajaxError eventHandler
+			jQuery.ajaxError = function(callback){
+				errorHandler = callback;
+			}
+			
+			var ajaxCallback;
+			//Mock getJSON to send ajaxError
+			jQuery.getJSON = function(mock, it, callback) {
+				errorHandler();
+			}
+			
+			//ajaxUpdater.init()
+			
+			jQuery.should.receive 'getJSON', 3
+			
+			
+			tick(5000)
+			window.should_not.receive 'alert'
+			
+			window.should.receive 'alert'
+			tick(10000)
+			//should now receive alert
+			
+		end
+	end
+	
+
+end

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow workflow-id="_BCoSEIBxEd-3VeNHLWdQXA" workflow-name= "Praktikumvermittlungsprozess" >
+<activity activity-id="__fX4gedbEd-f6JWMxJDGcQ" activity_type="task, human task" name="Starte Stellenvermittlungs-Prozess" activity_group="_j2kGgYKfEd-vC_lT-iTsvQ" lane="other" />
+<activity activity-id="_ggEwYYBxEd-3VeNHLWdQXA" activity_type="event"
+name="Starte Stellenvermittlungs-Prozess" activity_group="_j2kGgYKfEd-vC_lT-iTsvQ" lane="workflow" />
+<activity activity-id="_P2HHwdq2Ed-AhcDaNoYiNA" activity_type="task, ws_call" name="Pruefung auf schon vorhandene Benutzerregistrierung" activity_group="_p4kCgYEzFd-vC_lT-iTsvQ" lane="workflow" />
+<activity activity-id="_mJVSMdq2Ed-AhcDaNoYiNA" activity_type="task, ws_call" name="Datenzugriff lesend" activity_group="_p4kCgYEzFd-vC_lT-iTsvQ" lane="other" corresponding_activity="_P2HHwdq2Ed-AhcDaNoYiNA" />
+<activity activity-id="_WwJSsMpEEd-l67V0iNGzSg" activity_type="task, human_task" name="Registrierungsdaten erheben" activity_group="_j2kGgYKfEd-vC_lT-iTsvQ" lane="workflow" corresponding_activity="_EdDTcOdcEd-f6JWMxJDGcQ" />
+<activity activity-id="_EdDTcOdcEd-f6JWMxJDGcQ" activity_type="task, human_task" name="Registrierungsdaten eingeben" activity_group="_j2kGgYKfEd-vC_lT-iTsvQ" lane="other" />
+
+<activity activity-id="_zh-fUMpEEd-l67V0iNGzSg" activity_type="task, human_task" name="Zulassung des Studenten zu Praktikumsprogramm prüfen" activity_group="_kLRyQIKfEd-vC_lT-iTsvQ" lane="workflow" corresponding_activity="_zh-fUMpEEd-l67V0iNGzS2" />
+<activity activity-id="_zh-fUMpEEd-l67V0iNGzS2" activity_type="task, human_task" name="Zulassung des Studenten zu Praktikumsprogramm prüfen" activity_group="_kLRyQIKfEd-vC_lT-iTsvQ" lane="other" />
+
+<activity activity-id="_KtB5UM1pEd-E28gUOy1WVQ" activity_type="task, ws_call" name="Registrierungsdaten in DB schreiben" activity_group="_p4kCgYEzFd-vC_lT-iTsvQ" lane="workflow" corresponding_activity="_VDEZ0OHSEd-In4HYDc8LtQ" />
+<activity activity-id="_VDEZ0OHSEd-In4HYDc8LtQ" activity_type="task, ws_call" name="Datenzugriff schreibend" activity_group="_p4kCgYEzFd-vC_lT-iTsvQ" lane="other" />
+
+<activity activity-id="_aazjsIIQEd-Ik-oRjTK6iQ" activity_type="task, human_task" name="Auswahl eines Vermittlungsdienstes" activity_group="_kLRyQIKfEd-vC_lT-iTsvQ" lane="workflow" corresponding_activity="_mK9YgOdcEd-f6JWMxJDGcQ" />
+<activity activity-id="_mK9YgOdcEd-f6JWMxJDGcQ" activity_type="task, human_task" name="Auswahl eines Vermittlungsdienstes" activity_group="_kLRyQIKfEd-vC_lT-iTsvQ" lane="other" />
+
+
+<activity activity-id="_3OFh0IIQEd-Ik-oRjTK6iQ" activity_type="task, ws_call" name="Aufruf des Stellenvermittlungs-Dienstes" activity_group="_d2ktVeZaP-vC_lT-iTsvQ" lane="workflow" corresponding_activity="_6P8wUIIQEd-Ik-oRjTK6iQ" />
+<activity activity-id="_6P8wUIIQEd-Ik-oRjTK6iQ" activity_type="task, ws_call" name="Suche nach Praktikumsplätzen" activity_group="_d2ktVeZaP-vC_lT-iTsvQ" lane="other" />
+
+
+<activity activity-id="_r0zOcMrXEd-l67V0iNGzS2" activity_type="task, human_task" name="Such-Ergebnisse anzeigen: verfügbare Stellen" activity_group="_j2kGgYKfEd-vC_lT-iTsvQ" lane="workflow" corresponding_activity="_r0zOcMrXEd-l67V0iNGzSg" />
+<activity activity-id="_r0zOcMrXEd-l67V0iNGzSg" activity_type="task, human_task" name="Registrierungsdaten eingeben" activity_group="_j2kGgYKfEd-vC_lT-iTsvQ" lane="other" />
+
+
+
+<activity_group group-id="_j2kGgYKfEd-vC_lT-iTsvQ" activity_type="human_task" name="Student" />
+ <activity_group group-id="_kLRyQIKfEd-vC_lT-iTsvQ" activity_type="human_task" name="Koordinator (Uni)" />
+<activity_group group-id="_p4kCgYEzFd-vC_lT-iTsvQ" activity_type="ws_call" name="Datenbank" />
+<activity_group group-id="_d2ktVeZaP-vC_lT-iTsvQ" activity_type="ws_call" name="Vermittlungsdienst" />
+</workflow>

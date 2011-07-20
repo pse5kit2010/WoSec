@@ -1,0 +1,60 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>My instances</title>
+
+<link href="media/main.css" rel="stylesheet" type="text/css" />
+
+<link type="text/css" href="jslib/gui/css/overcast/jquery-ui-1.8.7.custom.css" rel="Stylesheet" />
+<script type="text/javascript" src="lib/jquery-1.4.4.js"></script>
+<script type="text/javascript" src="lib/jquery-ui-1.8.7.custom.min.js"></script>
+<script type="text/javascript" src="src/overview.js"></script>
+</head>
+<body>
+<script>
+    $(function() {
+        $( "button", "#head" ).button({icons: {
+                primary: "ui-icon-locked"
+            }});
+    });
+    </script>
+
+        <div id="head">
+            <div id="instance_info">
+                <h1>My instances</h1>
+            </div>
+            <div id="user_info">
+                <div style="float:left;">
+                <!--<jsp:useBean id="user" class="wosec.server.model.User" scope="session" />-->
+                <span>Logged in as Blubb<!--<jsp:getProperty name="user" property="displayname" />--></span>
+                <button><a href="UserController?action=logout">Logout</a></button>
+                </div>
+                <img style="float:right;" id="logo" src="media/images/wosec.png" alt="wosec logo"/>
+            </div>
+        </div>
+        <div id="instance_list">
+                <!--<jsp:useBean id="instance" class="wosec.server.model.Instance" scope="request"/>
+                <jsp:useBean id="workflow" class="wosec.server.model.Workflow" scope="request"/>-->
+            <div style="padding:30px;">
+             <table id="instancestable" style="width: 100%;">
+                 <tr>
+                 <th>ID</th>
+                 <th>Workflow-type</th>
+                 <th>Last event</th>
+                 <th>State</th>
+                 </tr>
+            <!--<c:forEach var="instance" items="${request.instances}">
+                <tr id="entry_prototype" style="visibility:hidden;">
+                <td>${instance.id}</td>
+                <td>${instance.id}</td>
+                <td>${instance.id}</td>
+                <td>${instance.id}</td>
+                </tr>
+            </c:forEach>-->
+            </table>
+        </div>
+       </div>
+
+</body>
+</html>

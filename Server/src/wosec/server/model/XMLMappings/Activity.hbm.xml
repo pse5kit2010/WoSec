@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="wosec.server.model">
+ <class entity-name="XMLActivity" node="activity" table="Activities">
+     <id name="activity-id" column="id" type="string" node="@activity-id" />
+     <property name="name" column="name" type="string" node="@name"></property>
+     <property name="activity_type" column="type" type="string" node="@activity_type" />
+     <property name="corresponding_activity" column="correspondingActivityID" type="string" node="@corresponding_activity" />
+     
+     <!-- Die folgenden Attribute werden dynamisch durch NewInstanceEventHandler erzeugt! -->
+     <property name="activity_group" column="groupID" type="integer" node="@groupID" />
+     <property name="lane" column="inWorkflowPool" type="boolean" node="@inWorkflowPool" />
+ </class>
+</hibernate-mapping>
