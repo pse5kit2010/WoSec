@@ -1,10 +1,11 @@
 
+(function() {
 /**
- * Das Objekt Workflow stellt ein Singleton dar,
- * das Methoden zum Finden und Erstellen von Tasks (Tasklanes) bereitstellt.
- * Es speichert das Task Repository.
+ * Die Klasse Workflow stellt Methoden 
+ * zum Finden und Erstellen von Tasks (Tasklanes) bereit.
+ * Sie speichert ein Task Repository.
  */
-WoSec.workflow = (function() { // Singleton pattern begin
+WoSec.newWorkflow = function Workflow() {
     // import
 	var newTask = WoSec.newTask;
 	var newTaskLane = WoSec.newTaskLane;
@@ -33,6 +34,7 @@ WoSec.workflow = (function() { // Singleton pattern begin
         return newTaskLane(svgUtility.getTaskLaneRectangle(activityGroupID), activitiesInALane[activityGroupID]);
     }
     return {
+        constructor: Workflow,
 		/**
 		 * Initialisiert den Workflow mit den korrespondierenden Tasks und Tasks in einer TaskLane
 		 * @param {String} InstanzID
@@ -58,7 +60,7 @@ WoSec.workflow = (function() { // Singleton pattern begin
 		 */
         getTaskByID: function(activityID) {
 			if (!taskRepository[activityID]) {
-				taskRepository[activityID] = createTask(activityID)
+				taskRepository[activityID] = createTask(activityID);
 			}
             return taskRepository[activityID];
         },
@@ -74,4 +76,6 @@ WoSec.workflow = (function() { // Singleton pattern begin
             return taskLaneRepository[activityGroupID];
         }
     };
-}()); // Singleton pattern end
+};
+
+}());

@@ -1,11 +1,11 @@
 
-
+(function() {
 /**
- * Singleton zur Verwaltung einer Liste von EventCommands
+ * Klasse zur Verwaltung einer Liste von EventCommands
  * und eines Zeigers zur momentanen (zeitlichen) Position der Events
  * @type EventChain
  */
-WoSec.eventChain = (function () {
+WoSec.newEventChain = function EventChain() {
 	const PLAY_TIME_BETWEEN_EVENTS_MS = 750;
 	var   EventCommand = WoSec.EventCommand;
     
@@ -15,6 +15,7 @@ WoSec.eventChain = (function () {
 	var locked = false;
 
     return {
+        constructor: EventChain,
 		/**
 		 * Registriert einen Beobachter
 		 * @param {Object} observer
@@ -157,4 +158,6 @@ WoSec.eventChain = (function () {
 			}
 		}
     };
+};
+
 }());
