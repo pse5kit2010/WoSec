@@ -1,5 +1,10 @@
 
-var WoSec = {}; // Namespace
+/**
+ * Namespace Deklaration und ein paar praktische Funktionen
+ */
+
+var WoSec = {};
+
 
 // ES5 Functions
 if (typeof Object.create !== 'function') { //source: http://javascript.crockford.com/prototypal.html
@@ -67,7 +72,14 @@ if (typeof Function.prototype.bind !== "function") { // http://webreflection.blo
     }(Array.prototype.slice));
 }
 
+
 WoSec.baseObject = {
+	/**
+	 * Führt eine Methode später aus
+	 * Weitere Argumente werden an die Methode weitergegeben
+	 * @param {Number} msec Zeitspanne die gewartet werden soll in Millisekunden
+	 * @param {String} method Name der Methode die ausgeführt werden soll
+	 */
 	later: function (msec, method) {
         var that = this, args = Array.prototype.slice.apply(arguments, [2]);
         if (typeof method === 'string') {
@@ -80,43 +92,27 @@ WoSec.baseObject = {
     }
 }
 
+/**
+ * Erzeugt Vererbung zwischen den gegebenen Klassen
+ * @param {Function} subType erbende Klasse
+ * @param {Function} superType Mutterklasse
+ */
 WoSec.inherit = function(subType, superType) {
     var prototype = Object.create(superType.prototype);
     prototype.constructor = subType;
     subType.prototype = prototype;
 }
 
-
-// crashes with jquery ui, moved to WoSec.baseObject
-//if (typeof Object.prototype.later !== 'function') { // source: source: http://www.slideshare.net/douglascrockford/crockford-on-javascript-act-iii-function-the-ultimate (slides 43/44)
-//	Object.prototype.later = function (msec, method) {
-//		var that = this, args = Array.prototype.slice.apply(arguments, [2]);
-//		if (typeof method === 'string') {
-//			method = that[method];
-//		}
-//		setTimeout(function () {
-//			method.apply(that, args);
-//		}, msec);
-//		return that; // Cascade
-//	};
-//}
-
-
-//function class(extend, initializer, methods) { // aka new_constructor, source: http://www.slideshare.net/douglascrockford/crockford-on-javascript-act-iii-function-the-ultimate 
-//	var func, prototype = Object.create(extend && extend.prototype);
-//	if (methods) {
-//		methods.keys().forEach(function (key) {
-//		prototype[key] = methods[key];
-//	});
-//	}
-//	func = function () {
-//		var that = Object.create(prototype);
-//	if (typeof initializer === 'function') {
-//		initializer.apply(that, arguments);
-//	}
-//	return that;
-//	};
-//	func.prototype = prototype;
-//	prototype.constructor = func;
-//	return func;
-//}
+/**
+ * Erweitert ein Objekt um die Methoden und Eigenschaften eines anderen
+ * @param {Objekt} destination erbendes Objekt
+ * @param {Objekt} source Quelle
+ */
+WoSec.extend = function(destination, source) {
+  for (var p in source) {
+    if (source.hasOwnProperty(p)) {
+      destination[p] = source[p];
+    }
+  }
+  return destination;
+}
