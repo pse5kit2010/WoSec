@@ -1,7 +1,23 @@
 
 (function() {
 
-var workflow = WoSec.workflow;
+var WorkflowClass = WoSec.newWorkflow;
+
+
+var workflow;
+/**
+ * Ein kleiner Workaround um die Workflowobjectabhängigkeit
+ * Die Factories benötigen jeweils einen Workflow dem das zu erstellende Event zugeordnet wird.
+ * Muss immer vor der Benutzung einer Factory aufgerufen werden.
+ * @param {Workflow} w der zu verwendende Workflow
+ */
+function usingWorkflow(w) {
+	if (!w instanceof WorkflowClass) {
+		throw new TypeError("Given argument is not a workflow [" + w + "]");
+	}
+	workflow = w;
+	return this; // allows method chaining
+};
 
 /**
  * Basisklasse für Events unterschiedlichen Typs, bietet Ausführen- und Animiere-Methoden.
@@ -62,16 +78,6 @@ EventCommand.create = function(event) {
 }
 
 
-// weiß nicht so recht hier... gibt verschiedene Möglichkeiten das umzusetzen. Ich denke mal das der klassische Ansatz der einfachste ist...
-// WoSec.inherit ermöglicht jedenfalls die Nutzung des instanceof Operators
-
-/**
- * Abstrakte Klasse. Abstrahiert HighlightingEvent und MarkFinishedEvent,
- * die beide eine Statusänderung eines Tasks darstellen.
- * @augments EventCommand
- */
-function StateChangingEvent() {}
-WoSec.inherit(StateChangingEvent, EventCommand);
 
 /**
  * Beim Starten einer Aktivität delegiert dieses Objekt die Anweisung,
@@ -80,21 +86,21 @@ WoSec.inherit(StateChangingEvent, EventCommand);
  * @param {Task} task Zugehöriger Task
  * @param {Integer} timestamp Zeitstempel
  */
-function HighlightingEvent(task, timestamp) {
+function StartingTaskEvent(task, timestamp) {
 	EventCommand.call(this, timestamp);
     this.task = task;
 }
-WoSec.inherit(HighlightingEvent, StateChangingEvent);
-HighlightingEvent.prototype.classname = "HighlightingEvent";
+WoSec.inherit(StartingTaskEvent, EventCommand);
+StartingTaskEvent.prototype.classname = "StartingTaskEvent";
 /**
  * @see EventCommand.execute
  */
-HighlightingEvent.prototype.execute = function() {
+StartingTaskEvent.prototype.execute = function() {
     this.task.markActive();
 	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().markActive();
 	return this;
 };
-HighlightingEvent.prototype.unwind = function() {
+StartingTaskEvent.prototype.unwind = function() {
 	this.task.reset();
     this.task.getCorrespondingTask() && this.task.getCorrespondingTask().reset();
 	return this;
@@ -102,19 +108,19 @@ HighlightingEvent.prototype.unwind = function() {
 /**
  * @see EventCommand.animate
  */
-HighlightingEvent.prototype.animate = function() {
+StartingTaskEvent.prototype.animate = function() {
     this.task.highlight();
 	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().highlight();
 	return this;
 };
 /**
- * Factory Methode zur Erstellung eines HighlightingEvent
+ * Factory Methode zur Erstellung eines StartingTaskEvent
  * @param {Object} event Eventdaten
  * @param {String} event.activityID Aktivitäts ID
  * @param {Integer} event.timestamp Zeitstempel
  */
-HighlightingEvent.create = function(event) {
-	return new HighlightingEvent(workflow.getTaskByID(event.activityID), event.timestamp);
+StartingTaskEvent.create = function(event) {
+	return new StartingTaskEvent(workflow.getTaskByID(event.activityID), event.timestamp);
 };
 
 /**
@@ -125,39 +131,39 @@ HighlightingEvent.create = function(event) {
  * @param {Object} information Zusätzliche Eventinformationen
  * @param {Integer} timestamp Zeitstempel
  */
-function MarkFinishedEvent(task, information, timestamp) {
+function FinishingTaskEvent(task, information, timestamp) {
 	EventCommand.call(this, timestamp);
     this.task = task;
 	this.information = information || {};
 }
-WoSec.inherit(MarkFinishedEvent, StateChangingEvent);
-MarkFinishedEvent.prototype.classname = "MarkFinishedEvent";
+WoSec.inherit(FinishingTaskEvent, EventCommand);
+FinishingTaskEvent.prototype.classname = "FinishingTaskEvent";
 /**
  * @see EventCommand.execute
  */
-MarkFinishedEvent.prototype.execute = function() {
+FinishingTaskEvent.prototype.execute = function() {
     this.task.markFinished();
     this.task.getCorrespondingTask() && this.task.getCorrespondingTask().markFinished();
 	this.task.setInformation(this.information);
     this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setInformation(this.information);
 	return this;
 };
-MarkFinishedEvent.prototype.unwind = function() {
+FinishingTaskEvent.prototype.unwind = function() {
 	this.task.markActive();
     this.task.getCorrespondingTask() && this.task.getCorrespondingTask().markActive();
 	return this;
 }
-//MarkFinishedEvent.prototype.animate = function() {}; // NOP
+//FinishingTaskEvent.prototype.animate = function() {}; // NOP
 /**
- * Factory Methode zur Erstellung eines MarkFinishedEvent
+ * Factory Methode zur Erstellung eines FinishingTaskEvent
  * @param {Object} event Eventdaten
  * @param {String} event.activityID Aktivitäts ID
  * @param {Integer} event.timestamp Zeitstempel
  * @param {Object} event.information zusätzliche Eventinformationen
  * 
  */
-MarkFinishedEvent.create = function(event) {
-	return new MarkFinishedEvent(workflow.getTaskByID(event.activityID), event.information, event.timestamp);
+FinishingTaskEvent.create = function(event) {
+	return new FinishingTaskEvent(workflow.getTaskByID(event.activityID), event.information, event.timestamp);
 }
 
 
@@ -244,14 +250,15 @@ SpecifyingParticipantEvent.create = function(event) {
 	return new SpecifyingParticipantEvent(workflow.getTaskLaneByID(event.activityGroupID), event.information, event.timestamp);
 }
 
-// exports
-EventCommand.EventCommand = EventCommand;
-EventCommand.StateChanging = StateChangingEvent;
-EventCommand.Highlighting = HighlightingEvent;
-EventCommand.MarkFinished = MarkFinishedEvent;
-EventCommand.TransferingData = TransferingDataEvent;
-EventCommand.SpecifyingParticipant = SpecifyingParticipantEvent;
 
-WoSec.EventCommand = EventCommand;
+// exports
+WoSec.eventCommands = {
+	usingWorkflow: usingWorkflow,
+	EventCommand: EventCommand,
+	StartingTask: StartingTaskEvent,
+	FinishingTask: FinishingTaskEvent,
+	TransferingData: TransferingDataEvent,
+	SpecifyingParticipant: SpecifyingParticipantEvent
+};
 
 }());
