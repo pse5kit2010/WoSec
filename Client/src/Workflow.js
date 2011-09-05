@@ -16,7 +16,7 @@ var svgUtility = WoSec.svgUtility;
  * @param {Object} correspondingActivityIDs korrespondierende Tasks ID => ID
  * @param {Object} activityIDsForALane Tasks in einer TaskLane TaskLaneID => [TaskIDs]
  */
-WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, activityIDsForALane, eventChain) {
+WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, activityIDsForALane) {
 	if (typeof(instanceID) != "string") {
 		throw new TypeError("The given instanceID is not a String");
 	}
@@ -48,9 +48,6 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
 		 */
 		getInstanceID: function() {
 			return instanceID;
-		},
-		getEventChain: function() {
-			return eventChain;
 		},
 		/**
 		 * Liefert den Task mit der angegebenen ID zurück

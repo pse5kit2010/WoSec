@@ -3,9 +3,10 @@
 /**
  * Klasse zur Verwaltung einer Liste von EventCommands
  * und eines Zeigers zur momentanen (zeitlichen) Position der Events
- * @type EventChain
+ * @constructor
+ * @param {Workflow} workflow zugehöriger Workflow
  */
-WoSec.newEventChain = function EventChain() {
+WoSec.newEventChain = function EventChain(workflow) {
 	const PLAY_TIME_BETWEEN_EVENTS_MS = 750;
 	var   EventCommand = WoSec.EventCommand;
     
@@ -16,6 +17,13 @@ WoSec.newEventChain = function EventChain() {
 
     return {
         constructor: EventChain,
+        /**
+         * Gibt den zugehörigen Workflow zurück
+         * @return {Workflow}
+         */
+        getWorkflow: function() {
+        	return workflow;
+        },
 		/**
 		 * Registriert einen Beobachter
 		 * @param {Object} observer
