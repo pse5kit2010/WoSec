@@ -80,16 +80,14 @@ WoSec.ajaxUpdater = (function() {
 			]);
 	    }
 	};//*/
-    var eventChain = WoSec.eventChain;
-	var workflow = WoSec.workflow;
 	
     return {
 		/**
 		 * Startet den Abfrageprozess.
 		 */
-        init: function loop() {
-		$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp(), instance: workflow.getInstanceID()}, function(data) {
-			eventChain.add(data).play();
+        init: function loop(workflow) {
+		$.getJSON(POLL_URL, {since: workflow.getEventChain().last().getTimestamp(), instance: workflow.getInstanceID()}, function(data) {
+			workflow.getEventChain().add(data).play();
 		});
 		//setTimeout(loop, DELAY_BETWEEN_POLLS);
 	}
