@@ -1,28 +1,35 @@
 
-(function() {
+(function() {    
+	
+// import
+var newTask = WoSec.newTask;
+var newTaskLane = WoSec.newTaskLane;
+var htmlRenderer = WoSec.htmlRenderer;
+var svgUtility = WoSec.svgUtility;
 /**
  * Die Klasse Workflow stellt Methoden 
  * zum Finden und Erstellen von Tasks (Tasklanes) bereit.
  * Sie speichert ein Task Repository.
+ * 
+ * Initialisiert den Workflow mit den korrespondierenden Tasks und Tasks in einer TaskLane
+ * @param {String} instanceID InstanzID
+ * @param {Object} correspondingActivityIDs korrespondierende Tasks ID => ID
+ * @param {Object} activityIDsForALane Tasks in einer TaskLane TaskLaneID => [TaskIDs]
  */
-WoSec.newWorkflow = function Workflow() {
-    // import
-	var newTask = WoSec.newTask;
-	var newTaskLane = WoSec.newTaskLane;
-	var htmlRenderer = WoSec.htmlRenderer;
-	var svgUtility = WoSec.svgUtility;
+WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, activityIDsForALane, eventChain) {
+	if (typeof(instanceID) != "string") {
+		throw new TypeError("The given instanceID is not a String");
+	}
+
 	
-	var thisInstanceID;
     var taskRepository = {}; // ID => Task
     var taskLaneRepository = {}; // ID => TaskLane
-	var correspondingActivities = {}; // ID => ID
-	var activitiesInALane = {}; // TaskLaneID => [TaskIDs]
 	
     function createTask(activityID) {
 		if (typeof(activityID) != "string") {
-			throw new TypeError("The given ID is not a String");
+			throw new TypeError("The given activityID is not a String");
 		}
-        return newTask(htmlRenderer.createInfobox(), svgUtility.getTaskRectangle(activityID), correspondingActivities[activityID]);
+        return newTask(htmlRenderer.createInfobox(), svgUtility.getTaskRectangle(activityID), correspondingActivityIDs[activityID]);
     }
     function createTaskLane(activityGroupID) {
 		if (typeof(activityGroupID) != "string") {
@@ -31,27 +38,19 @@ WoSec.newWorkflow = function Workflow() {
 		if (!activitiesInALane[activityGroupID]) {
 			throw new Error("Unknown activityGroupID");
 		}
-        return newTaskLane(svgUtility.getTaskLaneRectangle(activityGroupID), activitiesInALane[activityGroupID]);
+        return newTaskLane(svgUtility.getTaskLaneRectangle(activityGroupID), activityIDsForALane[activityGroupID]);
     }
     return {
         constructor: Workflow,
-		/**
-		 * Initialisiert den Workflow mit den korrespondierenden Tasks und Tasks in einer TaskLane
-		 * @param {String} InstanzID
-		 * @param {Object} correspondingActivitiesIDs korrespondierende Tasks ID => ID
-		 * @param {Object} activityIDsForALane Tasks in einer TaskLane TaskLaneID => [TaskIDs]
-		 */
-		init: function(instanceID, correspondingActivitiesIDs, activityIDsForALane) {
-			thisInstanceID = instanceID;
-			correspondingActivities = correspondingActivitiesIDs;
-			activitiesInALane = activityIDsForALane;
-		},
 		/**
 		 * Gibt die InstanzID des Workflows zurück
 		 * @return InstanzID
 		 */
 		getInstanceID: function() {
-			return thisInstanceID;
+			return instanceID;
+		},
+		getEventChain: function() {
+			return eventChain;
 		},
 		/**
 		 * Liefert den Task mit der angegebenen ID zurück
