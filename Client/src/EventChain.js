@@ -1,5 +1,12 @@
 
 (function() {
+
+var eventCommand = WoSec.eventCommands
+,	MixinObservable = WoSec.MixinObservable;
+
+
+const PLAY_TIME_BETWEEN_EVENTS_MS = 750;
+
 /**
  * Klasse zur Verwaltung einer Liste von EventCommands
  * und eines Zeigers zur momentanen (zeitlichen) Position der Events
@@ -7,15 +14,12 @@
  * @param {Workflow} workflow zugehöriger Workflow
  */
 WoSec.newEventChain = function EventChain(workflow) {
-	const PLAY_TIME_BETWEEN_EVENTS_MS = 750;
-	var   EventCommand = WoSec.EventCommand;
     
 	var events = [];
 	var currentPosition = 0;
-	var observers = [];
 	var locked = false;
 
-    return {
+    var self = {
         constructor: EventChain,
         /**
          * Gibt den zugehörigen Workflow zurück
@@ -24,18 +28,6 @@ WoSec.newEventChain = function EventChain(workflow) {
         getWorkflow: function() {
         	return workflow;
         },
-		/**
-		 * Registriert einen Beobachter
-		 * @param {Object} observer
-		 * @return {EventChain} self
-		 */
-		registerObserver: function(observer) {
-			if (typeof observer.notify !== "function") {
-				throw new Error("Observer has to support notify()-Method");
-			}
-			observers.push(observer);
-			return this;
-		},
 		/**
 		 * Gibt die momentane Position in der EventChain zurück
 		 * @return {Integer} momentane Position
@@ -95,9 +87,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 				}
 				events.push(EventCommand[event.eventCommand].create(event)); // factory method
 			});
-			observers.forEach(function(observer) {
-				observer.notify();
-			});
+			this.notifyObservers();
 			return this;
         },
 		/**
@@ -122,9 +112,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 				}
 				i += direction
 			}
-			observers.forEach(function(observer) {
-				observer.notify();
-			});
+			this.notifyObservers();
 			return this;
         },
 		/**
@@ -166,6 +154,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 			}
 		}
     };
+    return MixinObservable.call(self);
 };
 
 }());

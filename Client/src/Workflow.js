@@ -2,10 +2,11 @@
 (function() {    
 	
 // import
-var newTask = WoSec.newTask;
-var newTaskLane = WoSec.newTaskLane;
-var htmlRenderer = WoSec.htmlRenderer;
-var svgUtility = WoSec.svgUtility;
+var newTask = WoSec.newTask
+,	newTaskLane = WoSec.newTaskLane
+,	htmlRenderer = WoSec.htmlRenderer
+,	svgUtility = WoSec.svgUtility
+,	MixinObservable = WoSec.MixinObservable;
 /**
  * Die Klasse Workflow stellt Methoden 
  * zum Finden und Erstellen von Tasks (Tasklanes) bereit.
@@ -40,7 +41,7 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
 		}
         return newTaskLane(svgUtility.getTaskLaneRectangle(activityGroupID), activityIDsForALane[activityGroupID]);
     }
-    return {
+    var self = {
         constructor: Workflow,
 		/**
 		 * Gibt die InstanzID des Workflows zurück
@@ -72,6 +73,7 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
             return taskLaneRepository[activityGroupID];
         }
     };
+    return MixinObservable.call(self);
 };
 
 }());
