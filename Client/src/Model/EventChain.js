@@ -1,7 +1,7 @@
 
 (function() {
 
-var eventCommand = WoSec.eventCommands
+var eventCommands = WoSec.eventCommands
 ,	MixinObservable = WoSec.MixinObservable;
 
 
@@ -19,7 +19,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 	var currentPosition = 0;
 	var locked = false;
 
-    var self = {
+    return WoSec.extend(MixinObservable.call(Object.create(WoSec.baseObject)), {
         constructor: EventChain,
         /**
          * Gibt den zugehörigen Workflow zurück
@@ -85,9 +85,9 @@ WoSec.newEventChain = function EventChain(workflow) {
 				if (!EventCommand[event.eventCommand]) {
 					throw new Error("Unknown EventCommand: " + event.eventCommand);
 				}
-				events.push(EventCommand[event.eventCommand].create(event)); // factory method
+				events.push(eventCommands.usingWorkflow(workflow)[event.eventCommand].create(event)); // factory method
 			});
-			this.notifyObservers();
+			this.notifyObservers(this);
 			return this;
         },
 		/**
@@ -112,7 +112,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 				}
 				i += direction
 			}
-			this.notifyObservers();
+			this.notifyObservers(this);
 			return this;
         },
 		/**
@@ -153,8 +153,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 				return new EventCommand(0); // else mock an event with timestamp zero for the ajaxUpdater
 			}
 		}
-    };
-    return MixinObservable.call(self);
+    });
 };
 
 }());

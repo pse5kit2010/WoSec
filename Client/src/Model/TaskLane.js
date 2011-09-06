@@ -12,6 +12,7 @@ var MixinObservable = WoSec.MixinObservable;
  */
 WoSec.newTaskLane = function TaskLane(activityIDs, workflow) {
 	var that = Object.create(WoSec.baseObject);
+	MixinObservable.call(that);
 	var getTasks = function() {
 		var tasks = [];
 		activityIDs.forEach(function(activityID, index) { 
@@ -33,7 +34,7 @@ WoSec.newTaskLane = function TaskLane(activityIDs, workflow) {
 		this.notifyObservers();
 		return this;
 	};
-	return MixinObservable.call(that);
+	return that;
 }
 
 }());

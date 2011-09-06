@@ -24,10 +24,11 @@ WoSec.newObservable = function Observable() {
 		},
 		/**
 		 * Informiert alle Beobachter
+		 * Argumente werden übergeben
 		 */
 		notifyObservers: function() {
 			observers.forEach(function(observer) {
-				observer.notify();
+				observer.notify.apply(observer, arguments);
 			});
 			return this;
 		}

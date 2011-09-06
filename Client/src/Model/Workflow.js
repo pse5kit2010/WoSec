@@ -41,7 +41,7 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
 		}
         return newTaskLane(svgUtility.getTaskLaneRectangle(activityGroupID), activityIDsForALane[activityGroupID]);
     }
-    var self = {
+    return WoSec.extend(MixinObservable.call(Object.create(WoSec.baseObject)), {
         constructor: Workflow,
 		/**
 		 * Gibt die InstanzID des Workflows zurück
@@ -58,6 +58,7 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
         getTaskByID: function(activityID) {
 			if (!taskRepository[activityID]) {
 				taskRepository[activityID] = createTask(activityID);
+				this.notifyObservers(this);
 			}
             return taskRepository[activityID];
         },
@@ -69,11 +70,25 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
         getTaskLaneByID: function(activityGroupID) {
 			if (!taskLaneRepository[activityGroupID]) {
 				taskLaneRepository[activityGroupID] = createTaskLane(activityGroupID);
+				this.notifyObservers(this);
 			}
             return taskLaneRepository[activityGroupID];
+        },
+        getTaskRepositoryEntries: function() {
+            var entries = [];
+            for (var p in taskRepository) {
+                entries.push(p);
+            }
+            return entries;
+        },
+        getTaskLaneRepositoryEntries: function() {
+            var entries = [];
+            for (var p in taskLaneRepository) {
+                entries.push(p);
+            }
+            return entries;
         }
-    };
-    return MixinObservable.call(self);
+    });
 };
 
 }());

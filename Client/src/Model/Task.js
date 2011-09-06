@@ -15,6 +15,7 @@ var states = ["Reset", "Starting", "Started", "Finished", "Recieving", "Sending"
  */
 WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
     var that = Object.create(WoSec.baseObject);
+    MixinObservable.call(that);
 	var state = "Reset";
 	var information = [];
 	
@@ -44,12 +45,21 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
     	return state;
     };
     
+    /**
+     * Gibt die gespeicherten Informationen zurück
+     * @return {Object} Informationen
+     */
+    that.getInformation = function() {
+        return information;
+    }
+    
 	/**
 	 * Fügt dem Task Informationen hinzu
 	 * @param {Object} i Informationen
 	 */
     that.addInformation = function(i) {
     	information.push(i);
+        this.notifyObservers(this);
     	return this;
     };
 	
@@ -62,12 +72,12 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
 			throw new Error("Unknown state [" + newState + "] given");
 		}
 		state = newState;
-		this.notifyObservers();
+		this.notifyObservers(this);
 		return this;
 	}
 	
 	
-	return MixinObservable.call(that);
+	return that;
 }
 
 }());
