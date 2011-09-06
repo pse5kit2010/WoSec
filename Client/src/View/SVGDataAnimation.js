@@ -64,7 +64,7 @@ WoSec.SVG.prototype.newDataAnimation = function SVGDataAnimation(id, startPositi
      */
     that.notify = function(task) {
         switch(task.getState()) {
-            case "Sending":
+            case "TransferingData":
                 this.show();
                 break;
         }

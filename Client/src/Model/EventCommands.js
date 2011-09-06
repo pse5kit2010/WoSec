@@ -50,10 +50,10 @@ EventCommand.prototype.execute = function() {
 	return this;
 };
 /**
- * Führt die Animation des Befehls aus.
+ * Führt den Befehls aus, überspringt Animationen
  * @return {EventCommand}
  */
-EventCommand.prototype.animate = function() {
+EventCommand.prototype.fastExecute = function() {
 	return this;
 };
 /**
@@ -96,23 +96,27 @@ StartingTaskEvent.prototype.classname = "StartingTaskEvent";
  * @see EventCommand.execute
  */
 StartingTaskEvent.prototype.execute = function() {
-    this.task.markActive();
-	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().markActive();
+    this.task.setState("Starting");
+	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Starting");
+	this.fastExecute();
 	return this;
 };
+/**
+ * @see EventCommand.fastExecute
+ */
+StartingTaskEvent.prototype.fastExecute = function() {
+    this.task.setState("Started");
+	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
+	return this;
+};
+/**
+ * @see EventCommand.unwind
+ */
 StartingTaskEvent.prototype.unwind = function() {
-	this.task.reset();
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().reset();
+	this.task.setState("Reset");
+    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Reset");
 	return this;
 }
-/**
- * @see EventCommand.animate
- */
-StartingTaskEvent.prototype.animate = function() {
-    this.task.highlight();
-	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().highlight();
-	return this;
-};
 /**
  * Factory Methode zur Erstellung eines StartingTaskEvent
  * @param {Object} event Eventdaten
@@ -142,18 +146,21 @@ FinishingTaskEvent.prototype.classname = "FinishingTaskEvent";
  * @see EventCommand.execute
  */
 FinishingTaskEvent.prototype.execute = function() {
-    this.task.markFinished();
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().markFinished();
-	this.task.setInformation(this.information);
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setInformation(this.information);
+    this.task.setState("Finished");
+    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Finished");
+	this.task.addInformation(this.information);
+    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
 	return this;
 };
+/**
+ * @see EventCommand.unwind
+ */
 FinishingTaskEvent.prototype.unwind = function() {
 	this.task.markActive();
     this.task.getCorrespondingTask() && this.task.getCorrespondingTask().markActive();
 	return this;
 }
-//FinishingTaskEvent.prototype.animate = function() {}; // NOP
+//FinishingTaskEvent.prototype.fastExecute = function() {}; // NOP
 /**
  * Factory Methode zur Erstellung eines FinishingTaskEvent
  * @param {Object} event Eventdaten
@@ -185,17 +192,18 @@ TransferingDataEvent.prototype.classname = "TransferingDataEvent";
  * @see EventCommand.execute
  */
 TransferingDataEvent.prototype.execute = function() {
-    this.task.setInformation(this.information);
+    this.task.setState("TansferingData");
+    this.fastExecute();
+	return this;
+};
+/**
+ * @see EventCommand.fastExecute
+ */
+TransferingDataEvent.prototype.fastExecute = function() {
+    this.task.addInformation(this.information);
 	return this;
 };
 // TransferingDataEvent.prototype.unwind = function() {} // NOP
-/**
- * @see EventCommand.animate
- */
-TransferingDataEvent.prototype.animate = function() {
-    this.task.animateData();
-	return this;
-};
 /**
  * Factory Methode zur Erstellung eines TransferingDataEvent
  * @param {Object} event Eventdaten
@@ -227,14 +235,14 @@ SpecifyingParticipantEvent.prototype.classname = "SpecifyingParticipantEvent";
  * @see EventCommand.execute
  */
 SpecifyingParticipantEvent.prototype.execute = function() {
-    this.taskLane.setInformation(this.information);
+    this.taskLane.addInformation(this.information);
 	return this;
 };
 // SpecifyingParticipantEvent.prototype.unwind = function() {} // NOP
 /**
- * @see EventCommand.animate
+ * @see EventCommand.fastExecute
  */
-SpecifyingParticipantEvent.prototype.animate = function() {
+SpecifyingParticipantEvent.prototype.fastExecute = function() {
     this.taskLane.highlight();
 	return this;
 };
