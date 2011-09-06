@@ -3,7 +3,7 @@
 
 var MixinObservable = WoSec.MixinObservable;
 
-var states = ["Reset", "Starting", "Started", "Finished", "TransferingData"]
+var states = ["Reset", "Starting", "Started", "Finished", "TransferingData"];
 /**
  * Ein Task-Objekt ist assoziiert mit einer Aktivität des BPMN SVG Diagramms.
  * Es verwaltet die zugehörige Infobox und das SVGRectangle,

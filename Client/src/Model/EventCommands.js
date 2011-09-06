@@ -50,13 +50,6 @@ EventCommand.prototype.execute = function() {
 	return this;
 };
 /**
- * Führt den Befehls aus, überspringt Animationen
- * @return {EventCommand}
- */
-EventCommand.prototype.fastExecute = function() {
-	return this;
-};
-/**
  * Macht den Befehl rückgängig
  */
 EventCommand.prototype.unwind = function() {
@@ -96,15 +89,6 @@ StartingTaskEvent.prototype.classname = "StartingTaskEvent";
  * @see EventCommand.execute
  */
 StartingTaskEvent.prototype.execute = function() {
-    this.task.setState("Starting");
-	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Starting");
-	this.fastExecute();
-	return this;
-};
-/**
- * @see EventCommand.fastExecute
- */
-StartingTaskEvent.prototype.fastExecute = function() {
     this.task.setState("Started");
 	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
 	return this;
@@ -156,8 +140,8 @@ FinishingTaskEvent.prototype.execute = function() {
  * @see EventCommand.unwind
  */
 FinishingTaskEvent.prototype.unwind = function() {
-	this.task.markActive();
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().markActive();
+	this.task.setState("Started");
+    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
 	return this;
 }
 //FinishingTaskEvent.prototype.fastExecute = function() {}; // NOP
@@ -193,14 +177,6 @@ TransferingDataEvent.prototype.classname = "TransferingDataEvent";
  */
 TransferingDataEvent.prototype.execute = function() {
     this.task.setState("TansferingData");
-    this.fastExecute();
-	return this;
-};
-/**
- * @see EventCommand.fastExecute
- */
-TransferingDataEvent.prototype.fastExecute = function() {
-    this.task.addInformation(this.information);
 	return this;
 };
 // TransferingDataEvent.prototype.unwind = function() {} // NOP
@@ -235,17 +211,12 @@ SpecifyingParticipantEvent.prototype.classname = "SpecifyingParticipantEvent";
  * @see EventCommand.execute
  */
 SpecifyingParticipantEvent.prototype.execute = function() {
+    this.taskLane.highlight();
     this.taskLane.addInformation(this.information);
 	return this;
 };
 // SpecifyingParticipantEvent.prototype.unwind = function() {} // NOP
-/**
- * @see EventCommand.fastExecute
- */
-SpecifyingParticipantEvent.prototype.fastExecute = function() {
-    this.taskLane.highlight();
-	return this;
-};
+
 /**
  * Factory Methode zur Erstellung eines SpecifyingParticipantEvent
  * @param {Object} event Eventdaten

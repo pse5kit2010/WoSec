@@ -52,11 +52,9 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
             case "Reset":
                 this.reset();
                 break;
-            case "Starting":
-                this.highlight();
-                break;
             case "Started":
                 this.markObtrusive();
+                this.highlight();
                 break;
             case "Finished":
                 this.markUnObtrusive();
@@ -83,7 +81,8 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
     };
     var texts = $svg.find("svg text").filter(function() {
         var pos = that.getPosition();
-        return Math.abs(parseInt($(this).attr('x')) - pos.x) < pos.width && Math.abs(parseInt($(this).attr('y')) - pos.y) < pos.height;
+        return Math.abs(parseInt($(this).attr('x')) - pos.x) < pos.width
+            && Math.abs(parseInt($(this).attr('y')) - pos.y) < pos.height;
     });
     /**
      * Hebt das Rechteck hervor
