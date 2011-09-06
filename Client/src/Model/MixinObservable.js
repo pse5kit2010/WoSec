@@ -1,4 +1,3 @@
-
 (function() {
 
 /**
@@ -6,33 +5,30 @@
  * für das Beobachter-Muster.
  * Beobachter können registriert und benachrichtigt werden.
  */
-WoSec.newObservable = function Observable() {
-	var observers = [];
-	
-	return {
-		constructor: Observable,
-		/**
-		 * Registriert einen Beobachter
-		 * @param {Object} observer zu registrierender Beobachter
-		 */
-		registerObserver: function(observer) {
-			if (typeof observer.notify !== "function") {
-				throw new Error("Observer has to support notify()-Method");
-			}
-			observers.push(observer);
-			return this;
-		},
-		/**
-		 * Informiert alle Beobachter
-		 * Argumente werden übergeben
-		 */
-		notifyObservers: function() {
-			observers.forEach(function(observer) {
-				observer.notify.apply(observer, arguments);
-			});
-			return this;
-		}
-	};
-}
+WoSec.MixinObservable = function Observable() {
+    var observers = [];
 
-})();
+    /**
+     * Registriert einen Beobachter
+     * @param {Object} observer zu registrierender Beobachter
+     */
+    this.registerObserver = function(observer) {
+        if( typeof observer.refresh !== "function") {
+            throw new Error("Observer has to support refresh()-Method");
+        }
+        observers.push(observer);
+        return this;
+    };
+    /**
+     * Informiert alle Beobachter
+     * Argumente werden übergeben
+     */
+    this.notifyObservers = function() {
+        observers.forEach(function(observer) {
+            observer.refresh.apply(observer, arguments);
+        });
+        return this;
+    };
+};
+
+})()

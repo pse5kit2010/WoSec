@@ -49,7 +49,11 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
     var shown = false;
     
     return {
-        notify: function(task) {
+        /**
+         * Aktualisiere-Methode des Beobachter Musters
+         * @param {Task} task beobachteter Task
+         */
+        refresh: function(task) {
             this.setContent(task.getInformation());
         },
         /**

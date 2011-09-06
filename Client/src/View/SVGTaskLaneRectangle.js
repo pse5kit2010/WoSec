@@ -29,9 +29,9 @@ WoSec.SVG.prototype.newTaskLaneRectangle = function SVGTaskLaneRectangle(activit
         });
     };
     /**
-     * Benachrichtige-Methode des Beobachter Musters
+     * Aktualisiere-Methode des Beobachter Musters
      */
-    that.notify = that.highlight;
+    that.refresh = that.highlight;
 
     return that;
 };

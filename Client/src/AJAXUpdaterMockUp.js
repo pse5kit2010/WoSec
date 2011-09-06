@@ -86,8 +86,8 @@ WoSec.ajaxUpdater = (function() {
 		 * Startet den Abfrageprozess.
 		 */
         init: function loop(workflow) {
-		$.getJSON(POLL_URL, {since: workflow.getEventChain().last().getTimestamp(), instance: workflow.getInstanceID()}, function(data) {
-			workflow.getEventChain().add(data).play();
+		$.getJSON(POLL_URL, {since: eventChain().last().getTimestamp(), instance: eventChain.getWorkflow.getInstanceID()}, function(data) {
+			eventChain().add(data).play();
 		});
 		//setTimeout(loop, DELAY_BETWEEN_POLLS);
 	}

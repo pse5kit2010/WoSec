@@ -94,7 +94,7 @@ WoSec.newHTMLGUI.prototype.newTimeSlider = function TimeSlider(eventChain) {
          * Teil des Beobachtermusters, setzt den TimeSlider in Kenntnis, dass sich die EventChain geändert hat.
          * @param {EventChain} eventChain
          */
-        notify : function(eventChain) {
+        refresh : function(eventChain) {
             if(eventChain.getLength() != timeSliderEvents.length) {
                 this.adjustSize();
                 if(eventChain.isLocked()) {// animation on the play button if new events arrieved and the chain is locked

@@ -44,10 +44,10 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
     var that = Object.create(WoSec.baseObject);
 
     /**
-     * Benachrichtige-Methode des Beobachter Musters
+     * Aktualisiere-Methode des Beobachter Musters
      * @param {Task} task beobachteter Task
      */
-    that.notify = function(task) {
+    that.refresh = function(task) {
         switch (task.getState()) {
             case "Reset":
                 this.reset();

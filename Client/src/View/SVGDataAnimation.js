@@ -59,10 +59,10 @@ WoSec.SVG.prototype.newDataAnimation = function SVGDataAnimation(id, startPositi
         return this;
     };
     /**
-     * Benachrichtige-Methode des Beobachter Musters
+     * Aktualisiere-Methode des Beobachter Musters
      * @param {Task} task beobachteter Task
      */
-    that.notify = function(task) {
+    that.refresh = function(task) {
         switch(task.getState()) {
             case "TransferingData":
                 this.show();
