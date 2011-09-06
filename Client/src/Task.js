@@ -1,123 +1,73 @@
 
 (function() {
-    
-// var workflow = WoSec.workflow; need late initializiation because of cross dependency
 
+var MixinObservable = WoSec.MixinObservable;
+
+var states = ["Reset", "Starting", "Started", "Finished", "Recieving", "Sending"]
 /**
  * Ein Task-Objekt ist assoziiert mit einer Aktivität des BPMN SVG Diagramms.
  * Es verwaltet die zugehörige Infobox und das SVGRectangle,
  * an die Anweisungen zur Darstellung delegiert werden.
- * @param {Infobox} infobox
- * @param {SVGRectangle} rectangle
- * @param {String} correspondingActivityID
+ * @param {String} id ID des Tasks
+ * @param {String} correspondingActivityID ID des korrespondierenden Tasks
+ * @param {Workflow} workflow zugehöriger Workflow
  * @return {Task} neues Task-Objekt
  */
-function newTask(infobox, rectangle, correspondingActivityID) {
+WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
     var that = Object.create(WoSec.baseObject);
-	infobox.bindToSVGRectangle(rectangle);
+	var state = "Reset";
+	var information = [];
+	
+	that.constructor = Task;
 	
 	/**
-	 * @see Infobox.show
-	 * @return {Task} self
+	 * Gibt die ID des Tasks zurück
 	 */
-    that.showInfobox = infobox.show;
-	/**
-	 * @see Infobox.hide
-	 * @return {Task} self
-	 */
-    that.hideInfobox = infobox.hide;
+	that.getID = function() {
+		return id;
+	};
 	/**
 	 * Gibt den korrespondierenden Task zurück
 	 * @return {Task} korrespondierender Task
 	 */
 	that.getCorrespondingTask = function() {
-        return typeof(correspondingActivityID) == "string" && correspondingActivityID != "" && WoSec.workflow.getTaskByID(correspondingActivityID); // lazy load
+        return (typeof(correspondingActivityID) == "string" && correspondingActivityID != "")
+        	? workflow.getTaskByID(correspondingActivityID)
+        	: null;
     };
+    
+    /**
+     * Gibt den Zustand des Tasks zurück
+     * @return {String} Zustand
+     */
+    that.getState = function() {
+    	return state;
+    };
+    
 	/**
-	 * @see SVGRectangle.highlight
-	 * @return {Task} self
+	 * Fügt dem Task Informationen hinzu
+	 * @param {Object} i Informationen
 	 */
-    that.highlight = rectangle.highlight;
-	/**
-	 * @see Infobox.setContent
-	 * @return {Task} self
-	 */
-    that.setInformation = infobox.setContent;
+    that.addInformation = function(i) {
+    	information.push(i);
+    	return this;
+    };
 	
 	/**
-	 * @see SVGRectangle.getPosition
+	 * Setzt den Zustand des Tasks
+	 * @param {String} newState neuer Zustand
 	 */
-	that.getPosition = rectangle.getPosition;
-	
-	/**
-	 * @see SVGRectangle.showAnimation
-	 * @return {Task} self
-	 */
-	that.animateData = function(){
-		this.getCorrespondingTask() && rectangle.showAnimation(this.getCorrespondingTask());
+	that.setState = function(newState) {
+		if (states.indexOf(newState) == -1) {
+			throw new Error("Unknown state [" + newState + "] given");
+		}
+		state = newState;
+		this.notifyObservers();
 		return this;
 	}
-	/**
-	 * @see SVGRectangle.markObtrusive
-	 * @return {Task} self
-	 */
-    that.markActive = rectangle.markObtrusive;
-	/**
-	 * @see SVGRectangle.markUnobtrusive
-	 * @return {Task} self
-	 */
-    that.markFinished = rectangle.markUnobtrusive;
 	
-	/**
-	 * @see SVGRectangle.reset
-	 * @return {Task} self
-	 */
-	that.reset = rectangle.reset;
 	
-	return that;
+	return MixinObservable.call(that);
 }
-
-WoSec.newTask = newTask;
 
 }());
-
-
-/*
- * Another version of Task without powerConstructor
- */
-/*(function() {
-
-// import
-var workflow = WoSec.workflow;
-
-function Task(htmlInfobox, svgRectangle, correspondingActivityID) {
-    this.infobox = htmlInfobox;
-    this.rectangle = svgRectangle;
-    this.correspondingActivityID = correspondingActivityID;
-}
-Task.prototype.highlight = function() {
-    this.rectangle.highlight();
-};
-Task.prototype.getInfobox = function() {
-    return this.infobox;
-};
-Task.prototype.setParticipant = function(participant) {
-    this.infobox.setParticipant(participant);
-};
-Task.prototype.getCorrespondingTask = function() {
-    return workflow.getTaskByID(this.correspondingActivityID); // lazy load
-};
-Task.prototype.markActive = function() {
-    this.rectangle.markObtrusive();
-};
-
-Task.prototype.markFinished = function() {
-    this.rectangle.markUnobtrusive();
-};
-
-
-
-// export
-WoSec.Task = Task;
-
-}());*/

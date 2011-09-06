@@ -1,7 +1,7 @@
 
 (function() {
 
-// var workflow = WoSec.workflow; need late initializiation because of cross dependency
+var MixinObservable = WoSec.MixinObservable;
 
 /**
  * Ein Tasklane-Objekt ist assoziiert mit einer ActivityGroup des BPMN SVG Diagramms.
@@ -10,7 +10,7 @@
  * @param {Array} activityIDs
  * @return {TaskLane}
  */
-function newTaskLane(rectangle, activityIDs) {
+WoSec.newTaskLane = function TaskLane(activityIDs, workflow) {
 	var that = Object.create(WoSec.baseObject);
 	var getTasks = function() {
 		var tasks = [];
@@ -20,25 +20,20 @@ function newTaskLane(rectangle, activityIDs) {
 		return tasks;
 	};
 	
+	that.constructor = TaskLane;
 	/**
-	 * @see SVGRectangle.highlight
-	 * @return {TaskLane} self
-	 */
-	that.highlight = rectangle.highlight;
-	/**
-	 * Setzt Informationen für alle Task in der Lane
+	 * Fügt allen Tasks in der Lane Informationen hinzu
 	 * @param {Object} information
 	 * @return {TaskLane} self
 	 */
-	that.setInformation = function(information) {
+	that.addInformation = function(information) {
 		getTasks().forEach(function(task) {
-			task.setInformation(information);
+			task.addInformation(information);
 		});
+		this.notifyObservers();
 		return this;
 	};
-	return that;
+	return MixinObservable.call(that);
 }
-
-WoSec.newTaskLane = newTaskLane;
 
 }());
