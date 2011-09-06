@@ -47,6 +47,7 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
     }
 
     var shown = false;
+    
     return {
         notify: function(task) {
             this.setContent(task.getInformation());
@@ -63,7 +64,8 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
         },
         /**
          * Verbirgt die Informationsfläche.
-         */ hide: function() {
+         */
+        hide: function() {
             if(shown) {
                 infobox.slideToggle("slow");
                 shown = false;
@@ -74,7 +76,8 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * Setzt den Inhalt (User/Provider sowie Daten) der Infobox
          * @param {Object} information
          * @return {Infobox} self
-         */ setContent: function(information) {
+         */
+        setContent: function(information) {
             if(information.participant && information.participant != "") {
                 setParticipant(information.participant);
                 empty = false;
@@ -123,4 +126,5 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          },*/
     };
 }
+
 })();
