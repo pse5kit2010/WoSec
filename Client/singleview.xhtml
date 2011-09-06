@@ -51,9 +51,9 @@
                 "_BCoSEIBxEd-3VeNHLWdQXA": ["_apOasOdcEd-f6JWMxJDGcQ", "_zh-fUMpEEd-l67V0iNGzSg", "_aazjsIIQEd-Ik-oRjTK6iQ", "_mK9YgOdcEd-f6JWMxJDGcQ"],
                 "_Bdcl0IBxEd-3VeNHLWdQXA": ["_3OFh0IIQEd-Ik-oRjTK6iQ", "_6P8wUIIQEd-Ik-oRjTK6iQ"]
             };
-			WoSec.workflow.init("someidblablubb", correspondingTasks, tasksInALane);
-			WoSec.htmlRenderer.timeSlider.init();
-			WoSec.ajaxUpdater.init();
+			var workflow = WoSec.newWorkflow("someidblablubb", correspondingTasks, tasksInALane, WoSec.newEventChain());
+			//WoSec.htmlRenderer.timeSlider.init();
+			WoSec.ajaxUpdater.init(workflow);
 		
         
             // Set drag scroll on first descendant of class dragger on both selected elements

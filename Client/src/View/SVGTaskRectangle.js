@@ -20,15 +20,22 @@ function getJQuerySVGCircles($svg, activityID) {
     });
 }
 
+
+var taskRectangleRepository = {};
+WoSec.SVG.prototype.getTaskRectangle = function(activityID) {
+    if(!taskRectangleRepository[activityID]) {
+        taskRectangleRepository[activityID] = this.newTaskRectangle(activityID);
+    }
+    return taskRectangleRepository[activityID];
+}
+
 /**
  * Bietet Zugriff und Manipulationsmöglichkeiten auf ein Task-Rechteck im SVG.
  * @param {String} activityID
  * @return {SVGTaskRectangle} neues SVGTaskRechteck
  */
-WoSec.SVG.prototype.getTaskRectangle = function SVGTaskRectangle(activityID) {
-    if(taskRectangleRepository[activityID]) {
-        return taskRectangleRepository[activityID];
-    }
+WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
+    
 
     var rectangles = getJQuerySVGRectanglesByActivityID($svg, activityID) || getJQuerySVGCircles($svg, activityID);
     if(!rectangles.length) {
@@ -144,7 +151,6 @@ WoSec.SVG.prototype.getTaskRectangle = function SVGTaskRectangle(activityID) {
         })
         return this;
     };
-    taskRectangleRepository[activityID] = that;
 
     return that;
 };

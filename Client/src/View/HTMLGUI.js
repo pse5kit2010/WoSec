@@ -8,7 +8,7 @@ var $ = jQuery;
  * Singleton (UtilityKlasse),
  * das Funktionalität zur Verwaltung von HTML-Elementen bereitstellt; erstellt Infoboxen.
  */
-WoSec.newHTMLGUI = function HTMLGUI() {
+WoSec.HTMLGUI = function HTMLGUI() {
     
     
 

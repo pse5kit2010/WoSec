@@ -51,7 +51,7 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
     return {
         notify: function(task) {
             this.setContent(task.getInformation());
-        }
+        },
         /**
          * Zeigt die Informationsfläche.
          */
