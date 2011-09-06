@@ -6,8 +6,7 @@ var $ = jQuery;
 var SVG = WoSec.SVG;
 
 /**
- * Singleton (UtilityKlasse),
- * das Funktionalität zur Verwaltung von HTML-Elementen bereitstellt; erstellt Infoboxen.
+ * Kontrolliert das Interface
  */
 WoSec.HTMLGUI = function HTMLGUI() {
     
