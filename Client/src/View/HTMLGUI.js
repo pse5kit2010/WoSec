@@ -33,7 +33,12 @@ WoSec.HTMLGUI = function HTMLGUI() {
             if(task.getCorrespondingTask()) {
                 task.registerObserver(svg.newDataAnimation(taskID, svgRectangle.getPosition().getCenter(), svg.getTaskRectangle(task.getCorrespondingTask().getID()).getPosition().getCenter()));
             }
-            task.registerObserver(this.newInfobox(svgRectangle.getPosition()));
+            var infobox = this.newInfobox(svgRectangle.getPosition())
+            task.registerObserver(infobox);
+            svgRectangle.registerOnHover(infobox.show);
+            infobox.registerOnClick(infobox.pin);
+            
+            
         }
         knownTaskIDs = taskIDs;
 

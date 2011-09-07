@@ -47,8 +47,11 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
     }
 
     var shown = false;
+    var pinned = false;
     
-    return {
+    var that = Object.create(WoSec.baseObject);
+    
+    return WoSec.extend(that, {
         /**
          * Aktualisiere-Methode des Beobachter Musters
          * @param {Task} task beobachteter Task
@@ -58,11 +61,13 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
         },
         /**
          * Zeigt die Informationsfläche.
+         * Versteckt sich wieder automatisch nach ein paar Sekunden
          */
         show: function() {
-            if(!shown) {
+            if(!shown && !empty) {
                 infobox.slideToggle("slow");
                 shown = true;
+                that.later(INFOBOX_HIDE_DELAY_MS, "hide");
             }
             return this;
         },
@@ -70,9 +75,23 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * Verbirgt die Informationsfläche.
          */
         hide: function() {
-            if(shown) {
+            if(shown && !pinned) {
                 infobox.slideToggle("slow");
                 shown = false;
+            }
+            return this;
+        },
+        /**
+         * Anheften - hindert die Infobox sich selbst zu lösen
+         * Zweiter Aufruf versteckt die Infobox wieder.
+         */
+        pin: function() {
+            if (pinned) {
+                pinned = false;
+                that.hide();
+            } else {
+                pinned = true;
+                that.show();
             }
             return this;
         },
@@ -82,53 +101,27 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * @return {Infobox} self
          */
         setContent: function(information) {
+            information = information[0] || {};
             if(information.participant && information.participant != "") {
                 setParticipant(information.participant);
                 empty = false;
             }
             if(information.data && information.data != "") {
                 setData(information.data);
-                databox.add(information.data);
                 empty = false;
             }
             return this;
+        },
+        /**
+         * Registriert einen Eventhandler für das OnClick-Event der Infobox
+         * @param {Function} handler zu registrierender Eventhandler
+         */
+        registerOnClick: function(handler) {
+            infobox.click(handler);
+            return this;
         }
-        /* *
-         * Bindet die Infobox an ein Rechteck im SVG.
-         * @param {SVGRectangle} rectangle Rechteck im SVG
-         * @return {Infobox} self
-         * /
-         bindToSVGRectangle: function(rectangle) {
-    
-         var showInfobox = false;
-         var inside = false;
-         var onClickHandler = function() {
-         if (!showInfobox) {
-         showInfobox = true;
-         } else {
-         infobox.slideToggle("slow");
-         showInfobox = false;
-         }
-         return false;
-         };
-         var onHoverHandler = function() {
-         if (!showInfobox && !inside && !empty) {
-         inside = true;
-         infobox.slideToggle("slow");
-         setTimeout(function() {
-         if (!showInfobox) {
-         infobox.slideToggle("slow");
-         }
-         inside = false;
-         }, INFOBOX_HIDE_DELAY_MS);
-         }
-         return false;
-         };
-    
-         infobox.click(onClickHandler);
-         return this;
-         },*/
-    };
+
+    });
 }
 
 })();

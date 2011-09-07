@@ -8,7 +8,7 @@
       <void property="methods">
        <void property="text">
         <string>+getPosition() : Position
-+notify()
++refresh()
 +highlight()
 +markObtrusive()
 +markUnobtrusive()
@@ -26,6 +26,15 @@ implements Observer</string>
     </void>
     <void method="addChild">
      <object class="com.horstmann.violet.ClassNode" id="ClassNode1">
+      <void property="methods">
+       <void property="text">
+        <string>+refresh()
++newTaskRectangle(String activityID)
++newTaskLaneRectangle(String activityGroupID)
++newDataAnimation(String id, 
+      Position startPosition, Position endPosition)</string>
+       </void>
+      </void>
       <void property="name">
        <void property="text">
         <string>SVG</string>
@@ -40,10 +49,11 @@ implements Observer</string>
         <string>+show()
 +hide()
 +pin()
-+unPin()
++unpin()
 +setContent(Object information)
 +registerOnClick(Function handler)
-+registerOnHover(Function handler)</string>
++registerOnHover(Function handler)
++refresh()</string>
        </void>
       </void>
       <void property="name">
@@ -61,7 +71,7 @@ implements Observer</string>
       SVGRectangle target)
 +show()
 +hide()
-+notify()</string>
++refresh()</string>
        </void>
       </void>
       <void property="name">
@@ -77,7 +87,7 @@ implements Observer</string>
       <void property="methods">
        <void property="text">
         <string>+TimeSlider(EventChain eventChain)
-+notify()</string>
++refresh()</string>
        </void>
       </void>
       <void property="name">
@@ -92,7 +102,7 @@ implements Observer</string>
       <void property="methods">
        <void property="text">
         <string>+SVGTaskLaneRectangle(String activityGroupID)
-+notify()
++refresh()
 +highlight()</string>
        </void>
       </void>
@@ -106,6 +116,13 @@ implements Observer</string>
     </void>
     <void method="addChild">
      <object class="com.horstmann.violet.ClassNode" id="ClassNode6">
+      <void property="methods">
+       <void property="text">
+        <string>+refresh()
++newInfobox(position)
++newTimeSlider()</string>
+       </void>
+      </void>
       <void property="name">
        <void property="text">
         <string>HTMLGUI</string>
@@ -128,10 +145,10 @@ implements Observer</string>
          <object idref="Point2D$Double0">
           <void method="setLocation">
            <double>190.0</double>
-           <double>490.0</double>
+           <double>480.0</double>
           </void>
          </object>
-         <double>490.0</double>
+         <double>480.0</double>
         </void>
        </void>
       </object>
@@ -556,15 +573,15 @@ implements Observer</string>
         <void method="set">
          <object idref="Point2D$Double11">
           <void method="setLocation">
-           <double>864.1385642862627</double>
-           <double>535.888780924207</double>
+           <double>835.1385642862627</double>
+           <double>509.888780924207</double>
           </void>
          </object>
-         <double>535.888780924207</double>
+         <double>509.888780924207</double>
         </void>
        </void>
       </object>
-      <double>864.1385642862627</double>
+      <double>835.1385642862627</double>
      </void>
     </void>
    </object>
@@ -581,15 +598,15 @@ implements Observer</string>
         <void method="set">
          <object idref="Point2D$Double12">
           <void method="setLocation">
-           <double>524.1542062728166</double>
-           <double>682.7224758096858</double>
+           <double>556.1542062728166</double>
+           <double>676.7224758096858</double>
           </void>
          </object>
-         <double>682.7224758096858</double>
+         <double>676.7224758096858</double>
         </void>
        </void>
       </object>
-      <double>524.1542062728166</double>
+      <double>556.1542062728166</double>
      </void>
     </void>
    </object>
@@ -606,15 +623,15 @@ implements Observer</string>
         <void method="set">
          <object idref="Point2D$Double13">
           <void method="setLocation">
-           <double>800.7243507238895</double>
-           <double>702.2411613907042</double>
+           <double>868.7243507238895</double>
+           <double>701.2411613907042</double>
           </void>
          </object>
-         <double>702.2411613907042</double>
+         <double>701.2411613907042</double>
         </void>
        </void>
       </object>
-      <double>800.7243507238895</double>
+      <double>868.7243507238895</double>
      </void>
     </void>
    </object>
@@ -631,15 +648,15 @@ implements Observer</string>
         <void method="set">
          <object idref="Point2D$Double14">
           <void method="setLocation">
-           <double>200.73429457461424</double>
-           <double>524.1580518122861</double>
+           <double>202.73429457461424</double>
+           <double>539.1580518122861</double>
           </void>
          </object>
-         <double>524.1580518122861</double>
+         <double>539.1580518122861</double>
         </void>
        </void>
       </object>
-      <double>200.73429457461424</double>
+      <double>202.73429457461424</double>
      </void>
     </void>
    </object>
@@ -957,18 +974,6 @@ implements Observer</string>
     </void>
    </object>
    <object idref="ClassNode6"/>
-   <object idref="ClassNode12"/>
-  </void>
-  <void method="connect">
-   <object class="com.horstmann.violet.ClassRelationshipEdge">
-    <void property="endArrowHead">
-     <object class="com.horstmann.violet.ArrowHead" field="V"/>
-    </void>
-    <void property="lineStyle">
-     <object class="com.horstmann.violet.LineStyle" field="DOTTED"/>
-    </void>
-   </object>
-   <object idref="ClassNode1"/>
    <object idref="ClassNode12"/>
   </void>
   <void method="connect">

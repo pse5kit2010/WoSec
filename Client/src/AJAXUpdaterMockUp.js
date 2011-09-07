@@ -16,10 +16,7 @@ WoSec.ajaxUpdater = (function() {
 			       "activityID": "__fX4gedbEd-f6JWMxJDGcQ",
 			       "timestamp": 1290076190,
 				   "information": {
-				   	"participant": {
-				   		"ID": "_sDfw47sd33saeF",
-				   		"name": "Alice"
-				   	}
+				   	"participant": "Alice"
 				   }
 			    },
 			    { // 3.
@@ -27,10 +24,7 @@ WoSec.ajaxUpdater = (function() {
 			       "activityID": "_ggEwYYBxEd-3VeNHLWdQXA",
 			       "timestamp": 1290076195,
 				   "information": {
-				   	"participant": {
-				   		"ID": "_sDfw47sd33saeF",
-				   		"name": "Alice"
-				   	}
+				   	"participant": "Alice"
 				   }
 			    },
 			    { // 4.
@@ -38,10 +32,7 @@ WoSec.ajaxUpdater = (function() {
 			       "activityGroupID": "_7kTKEOdbEd-f6JWMxJDGcQ",
 			       "timestamp": 1290076210,
 				   "information": {
-				   	"participant": {
-				   		"ID": "_sDfw47sd33saeF",
-				   		"name": "Alice"
-				   	}
+				   	"participant": "Alice"
 				   }
 			    },
 			    { // 5.
@@ -49,10 +40,7 @@ WoSec.ajaxUpdater = (function() {
 			       "activityGroupID": "_1UFV4ItpEd-U-Z7QjvIBEA",
 			       "timestamp": 1290076220,
 				   "information": {
-				   	"participant": {
-			           "ID": "http://provider1/",
-			           "name": "DB01"
-				   	}
+				   	"participant": "DB01"
 				   }
 			    },
 			    { // 6.
