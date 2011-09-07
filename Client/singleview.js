@@ -28,6 +28,8 @@ $(function() {
     var workflow = WoSec.newWorkflow("someidblablubb", correspondingTasks, tasksInALane);
     var eventChain = WoSec.newEventChain(workflow);
     var gui = new WoSec.HTMLGUI();
+    var timeSlider = gui.newTimeSlider(eventChain);
+    eventChain.registerObserver(timeSlider);
     
     workflow.registerObserver(gui);
     

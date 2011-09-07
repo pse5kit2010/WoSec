@@ -133,7 +133,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 				return this;
 			}
 			var after = 0;
-			this.seek(function(eventCommand){
+			this.seek(function(eventCommand) {
 				eventCommand.later(after, "execute");
 				after += PLAY_TIME_BETWEEN_EVENTS_MS;
 			});

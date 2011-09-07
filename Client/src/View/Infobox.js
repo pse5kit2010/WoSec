@@ -101,7 +101,7 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * @return {Infobox} self
          */
         setContent: function(information) {
-            information = information[0] || {};
+            information = information[0] || {}; // this is just a quick fix until the infobox content is reworked
             if(information.participant && information.participant != "") {
                 setParticipant(information.participant);
                 empty = false;

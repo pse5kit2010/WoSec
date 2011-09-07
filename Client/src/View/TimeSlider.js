@@ -34,7 +34,7 @@ WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(eventChain) {
             });
             eventChain.lock().seek(function(eventCommand) {
                 if(!backwards) {
-                    eventCommand.fastExecute();
+                    eventCommand.execute();
                 } else {
                     eventCommand.unwind();
                 }
@@ -46,7 +46,7 @@ WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(eventChain) {
     });
 
     return {
-        adjustSize : function() {
+        adjustSize : function(eventChain) {
             var startTime;
             var endTime;
             var min = timeSlider.slider("option", "min");
@@ -96,7 +96,7 @@ WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(eventChain) {
          */
         refresh : function(eventChain) {
             if(eventChain.getLength() != timeSliderEvents.length) {
-                this.adjustSize();
+                this.adjustSize(eventChain);
                 if(eventChain.isLocked()) {// animation on the play button if new events arrieved and the chain is locked
                     $('#' + CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY).show();
                     $('#' + CSS_ID_TIMESLIDER_PLAY_BUTTON).effect('pulsate', {
