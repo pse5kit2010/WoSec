@@ -26,7 +26,7 @@ $(function() {
     };
     
     var workflow = WoSec.newWorkflow("someidblablubb", correspondingTasks, tasksInALane);
-    var eventChain = new WoSec.EventChain(workflow);
+    var eventChain = WoSec.newEventChain(workflow);
     var gui = new WoSec.HTMLGUI();
     
     workflow.registerObserver(gui);

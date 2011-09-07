@@ -4,8 +4,6 @@
 // import
 var newTask = WoSec.newTask
 ,	newTaskLane = WoSec.newTaskLane
-,	htmlRenderer = WoSec.htmlRenderer
-,	svgUtility = WoSec.svgUtility
 ,	MixinObservable = WoSec.MixinObservable;
 /**
  * Die Klasse Workflow stellt Methoden 
@@ -15,13 +13,14 @@ var newTask = WoSec.newTask
  * Initialisiert den Workflow mit den korrespondierenden Tasks und Tasks in einer TaskLane
  * @param {String} instanceID InstanzID
  * @param {Object} correspondingActivityIDs korrespondierende Tasks ID => ID
- * @param {Object} activityIDsForALane Tasks in einer TaskLane TaskLaneID => [TaskIDs]
+ * @param {Object} activityIDsInALane Tasks in einer TaskLane TaskLaneID => [TaskIDs]
  */
-WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, activityIDsForALane) {
+WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, activityIDsInALane) {
 	if (typeof(instanceID) != "string") {
 		throw new TypeError("The given instanceID is not a String");
 	}
 
+    var that = Object.create(WoSec.baseObject)
 	
     var taskRepository = {}; // ID => Task
     var taskLaneRepository = {}; // ID => TaskLane
@@ -30,19 +29,23 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
 		if (typeof(activityID) != "string") {
 			throw new TypeError("The given activityID is not a String");
 		}
-        return newTask(htmlRenderer.createInfobox(), svgUtility.getTaskRectangle(activityID), correspondingActivityIDs[activityID]);
+        return newTask(activityID, correspondingActivityIDs[activityID], that);
     }
     function createTaskLane(activityGroupID) {
 		if (typeof(activityGroupID) != "string") {
 			throw new TypeError("The given groupID is not a String");
 		}
-		if (!activitiesInALane[activityGroupID]) {
+		if (!activityIDsInALane[activityGroupID]) {
 			throw new Error("Unknown activityGroupID");
 		}
-        return newTaskLane(svgUtility.getTaskLaneRectangle(activityGroupID), activityIDsForALane[activityGroupID]);
+        return newTaskLane(activityIDsInALane[activityGroupID], that);
     }
-    return WoSec.extend(MixinObservable.call(Object.create(WoSec.baseObject)), {
+    MixinObservable.call(that);
+    return WoSec.extend(that, {
         constructor: Workflow,
+        toString: function() {
+            return "Workflow:"+this.getInstanceID();
+        },
 		/**
 		 * Gibt die InstanzID des Workflows zurück
 		 * @return InstanzID

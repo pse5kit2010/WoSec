@@ -36,9 +36,13 @@ WoSec.SVG.prototype.getTaskRectangle = function(activityID) {
  */
 WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
     
+    var $svg = this.$svg;
 
-    var rectangles = getJQuerySVGRectanglesByActivityID($svg, activityID) || getJQuerySVGCircles($svg, activityID);
+    var rectangles = getJQuerySVGRectanglesByActivityID($svg, activityID);
     if(!rectangles.length) {
+        rectangles = getJQuerySVGCircles($svg, activityID);
+    }
+    if(rectangles.length == 0) {
         throw new Error("No rectangles/circles with activityID:[" + activityID + "] found");
     }
     var that = Object.create(WoSec.baseObject);

@@ -37,13 +37,14 @@ WoSec.SVG.prototype.newDataAnimation = function SVGDataAnimation(id, startPositi
     endPosition = adjustPosition(endPosition);
 
     var that = Object.create(WoSec.baseObject);
+    var $svg = this.$svg;
     var icon = getAnimationPrototype().cloneNode(true);
     icon.setAttribute("id", id);
     $svg.find('svg')[0].appendChild(icon);
     var jQueryIcon = $("#" + id);
     jQueryIcon.hide();
-    jQueryIcon.attr("x", position.x);
-    jQueryIcon.attr("y", position.y);
+    jQueryIcon.attr("x", startPosition.x);
+    jQueryIcon.attr("y", startPosition.y);
     /**
      * Zeigt eine Datenanimation
      * @return {SVGTaskRectangle} self

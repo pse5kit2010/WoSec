@@ -2,13 +2,14 @@
 
 <head>
     <meta charset="UTF-8"/>
-    <script type="text/javascript" src="lib/jquery-1.4.4.min.js"></script>
+    <script type="text/javascript" src="lib/jquery-1.5.min.js"></script>
     <script type="text/javascript" src="lib/jquery-ui-1.8.7.custom.min.js"></script>
     <script type="text/javascript" src="lib/jquery.svg.js"></script>
     <script type="text/javascript" src="lib/jquery.svganim.js"></script>
     <script type="text/javascript" src="src/WoSec.js"></script>
-    <script type="text/javascript" src="src/SVGUtility.js"></script>
-    <script type="text/javascript" src="src/EventCommands.js"></script>
+    <script type="text/javascript" src="src/View/SVG.js"></script>
+    <script type="text/javascript" src="src/View/SVGTaskRectangle.js"></script>
+    
     <style type="text/css">
 		.test {
 			color: cornflowerblue;
@@ -21,14 +22,18 @@
 <script type="text/javascript">
 	//<![CDATA[	
 	
-	function A(){};
-	var a = new A;
-	console.log(a);
-	/*
+	
     $(function() {
-		var EventCommand = WoSec.EventCommand;
-        console.log((new EventCommand.StateChanging(123456)).constructor.name);
-		console.log(new EventCommand(123456))
+		function getJQuerySVGCircles(activityID) {
+            return $('svg circle').filter(function() {
+                return $(this).attr('bpmn:activity-id') == activityID;// && $(this).attr('fill') == 'white';
+            });
+        }
+        
+        getJQuerySVGCircles("_ggEwYYBxEd-3VeNHLWdQXA").each(function() {
+            $(this).attr("fill", "black");
+        });
+
 	});
 	/*
 function makeSVG(tag, attrs) {

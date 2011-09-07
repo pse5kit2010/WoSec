@@ -24,8 +24,9 @@ WoSec.MixinObservable = function Observable() {
      * Argumente werden übergeben
      */
     this.notifyObservers = function() {
+        var args = Array.prototype.slice.call(arguments);
         observers.forEach(function(observer) {
-            observer.refresh.apply(observer, arguments);
+            observer.refresh.apply(observer, args);
         });
         return this;
     };

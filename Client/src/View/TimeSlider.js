@@ -17,7 +17,7 @@ function getTimeSliderEventPrototype() {
     return timeSliderEventPrototype;
 }
     
-WoSec.newHTMLGUI.prototype.newTimeSlider = function TimeSlider(eventChain) {
+WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(eventChain) {
     $("#" + CSS_ID_TIMESLIDER_PLAY_BUTTON).click(function() {
         eventChain.unlock().play();
     });

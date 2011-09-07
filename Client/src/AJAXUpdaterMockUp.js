@@ -12,7 +12,7 @@ WoSec.ajaxUpdater = (function() {
 	    getJSON: function(mock, it, callback) {
 		callback([
 			    { // 2.
-			       "eventCommand": "MarkFinished",
+			       "eventCommand": "FinishingTask",
 			       "activityID": "__fX4gedbEd-f6JWMxJDGcQ",
 			       "timestamp": 1290076190,
 				   "information": {
@@ -23,7 +23,7 @@ WoSec.ajaxUpdater = (function() {
 				   }
 			    },
 			    { // 3.
-			       "eventCommand": "MarkFinished",
+			       "eventCommand": "FinishingTask",
 			       "activityID": "_ggEwYYBxEd-3VeNHLWdQXA",
 			       "timestamp": 1290076195,
 				   "information": {
@@ -56,7 +56,7 @@ WoSec.ajaxUpdater = (function() {
 				   }
 			    },
 			    { // 6.
-			       "eventCommand": "Highlighting",
+			       "eventCommand": "StartingTask",
 			       "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA",
 			       "timestamp": 1290076230
 			    },
@@ -85,9 +85,9 @@ WoSec.ajaxUpdater = (function() {
 		/**
 		 * Startet den Abfrageprozess.
 		 */
-        init: function loop(workflow) {
-		$.getJSON(POLL_URL, {since: eventChain().last().getTimestamp(), instance: eventChain.getWorkflow.getInstanceID()}, function(data) {
-			eventChain().add(data).play();
+        init: function loop(eventChain) {
+		$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp(), instance: eventChain.getWorkflow().getInstanceID()}, function(data) {
+			eventChain.add(data).play();
 		});
 		//setTimeout(loop, DELAY_BETWEEN_POLLS);
 	}

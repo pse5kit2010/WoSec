@@ -2,6 +2,7 @@
 (function() {
 
 var eventCommands = WoSec.eventCommands
+,   EventCommand = eventCommands.EventCommand
 ,	MixinObservable = WoSec.MixinObservable;
 
 
@@ -19,7 +20,9 @@ WoSec.newEventChain = function EventChain(workflow) {
 	var currentPosition = 0;
 	var locked = false;
 
-    return WoSec.extend(MixinObservable.call(Object.create(WoSec.baseObject)), {
+    var that = Object.create(WoSec.baseObject)
+    MixinObservable.call(that);
+    return WoSec.extend(that, {
         constructor: EventChain,
         /**
          * Gibt den zugehörigen Workflow zurück
@@ -82,7 +85,7 @@ WoSec.newEventChain = function EventChain(workflow) {
         add: function(data) {
 			data = data || [];
             data.forEach(function(event) {
-				if (!EventCommand[event.eventCommand]) {
+				if (!eventCommands[event.eventCommand]) {
 					throw new Error("Unknown EventCommand: " + event.eventCommand);
 				}
 				events.push(eventCommands.usingWorkflow(workflow)[event.eventCommand].create(event)); // factory method
