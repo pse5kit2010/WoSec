@@ -6,7 +6,7 @@ var eventCommands = WoSec.eventCommands
 ,	MixinObservable = WoSec.MixinObservable;
 
 
-const PLAY_TIME_BETWEEN_EVENTS_MS = 750;
+const PLAY_TIME_BETWEEN_EVENTS_MS = 1000;
 
 /**
  * Klasse zur Verwaltung einer Liste von EventCommands
@@ -134,8 +134,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 			}
 			var after = 0;
 			this.seek(function(eventCommand){
-				eventCommand.later(after, "execute")
-							.later(after, "animate");
+				eventCommand.later(after, "execute");
 				after += PLAY_TIME_BETWEEN_EVENTS_MS;
 			});
 			setTimeout(function(){

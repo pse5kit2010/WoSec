@@ -16,7 +16,7 @@ WoSec.newTaskLane = function TaskLane(activityIDs, workflow) {
 	var getTasks = function() {
 		var tasks = [];
 		activityIDs.forEach(function(activityID, index) { 
-            tasks[index] = WoSec.workflow.getTaskByID(activityID);
+            tasks[index] = workflow.getTaskByID(activityID);
         });
 		return tasks;
 	};

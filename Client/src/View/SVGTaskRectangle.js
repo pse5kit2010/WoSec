@@ -61,7 +61,7 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
                 this.highlight();
                 break;
             case "Finished":
-                this.markUnObtrusive();
+                this.markUnobtrusive();
                 break;
         }
     };

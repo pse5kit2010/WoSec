@@ -16,6 +16,9 @@ function getJQuerySVGRectanglesByActivityGroupID($svg, activityGroupID) {
  * @return {SVGTaskLaneRectangle} SVGRechteck, das nur das Hervorheben unterstützt
  */
 WoSec.SVG.prototype.newTaskLaneRectangle = function SVGTaskLaneRectangle(activityGroupID) {
+    
+    var $svg = this.$svg;
+    
     var jQueryRectangles = getJQuerySVGRectanglesByActivityGroupID($svg, activityGroupID);
     var that = Object.create(WoSec.baseObject);
     /**

@@ -53,9 +53,9 @@ WoSec.SVG.prototype.newDataAnimation = function SVGDataAnimation(id, startPositi
         jQueryIcon.show();
         jQueryIcon.animate({
             svgY : endPosition.y
-        }, 2000, function() {
+        }, 1000, function() {
             jQueryIcon.hide();
-            jQueryIcon.attr("y", startPposition.y);
+            jQueryIcon.attr("y", startPosition.y);
         });
         return this;
     };

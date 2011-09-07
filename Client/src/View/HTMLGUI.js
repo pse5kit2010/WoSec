@@ -12,8 +12,8 @@ WoSec.HTMLGUI = function HTMLGUI() {
     
     var svg = new SVG("instancesvg");
     
-    var lastKnownTaskID;
-    var lastKnownTaskLaneID;
+    var knownTaskIDs = [];
+    var knownTaskLaneIDs = [];
  
     /**
      * Aktualisiere-Methode des Beobachter Musters
@@ -23,9 +23,9 @@ WoSec.HTMLGUI = function HTMLGUI() {
         var taskIDs = workflow.getTaskRepositoryEntries();
         var taskID;
         for(var i = taskIDs.length - 1; i >= 0; i--) {
-            taskID = taskIDs[i]
-            if(lastKnownTaskID == taskID) {
-                break;
+            var taskID = taskIDs[i];
+            if(knownTaskIDs.indexOf(taskID) > -1) {
+                continue;
             }
             var task = workflow.getTaskByID(taskID);
             var svgRectangle = svg.newTaskRectangle(taskID);
@@ -35,18 +35,18 @@ WoSec.HTMLGUI = function HTMLGUI() {
             }
             task.registerObserver(this.newInfobox(svgRectangle.getPosition()));
         }
-        lastKnownTaskID = taskID;
+        knownTaskIDs = taskIDs;
 
         var taskLaneIDs = workflow.getTaskLaneRepositoryEntries();
         var taskLaneID;
         for(var i = taskLaneIDs.length - 1; i >= 0; i--) {
-            taskID = taskLaneIDs[i]
-            if(lastKnownTaskLaneID == taskLaneID) {
-                break;
+            taskLaneID = taskLaneIDs[i]
+            if(knownTaskLaneIDs.indexOf(taskLaneID) > -1) {
+                continue;
             }
             workflow.getTaskLaneByID(taskLaneID).registerObserver(svg.newTaskLaneRectangle(taskLaneID));
         }
-        lastKnownTaskLaneID = taskLaneID;
+        knownTaskLaneIDs = taskLaneIDs;
         return this;
     }
 };

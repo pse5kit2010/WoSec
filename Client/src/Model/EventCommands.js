@@ -176,7 +176,7 @@ TransferingDataEvent.prototype.classname = "TransferingDataEvent";
  * @see EventCommand.execute
  */
 TransferingDataEvent.prototype.execute = function() {
-    this.task.setState("TansferingData");
+    this.task.setState("TransferingData");
 	return this;
 };
 // TransferingDataEvent.prototype.unwind = function() {} // NOP
@@ -211,7 +211,6 @@ SpecifyingParticipantEvent.prototype.classname = "SpecifyingParticipantEvent";
  * @see EventCommand.execute
  */
 SpecifyingParticipantEvent.prototype.execute = function() {
-    this.taskLane.highlight();
     this.taskLane.addInformation(this.information);
 	return this;
 };

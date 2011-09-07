@@ -61,6 +61,7 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
         getTaskByID: function(activityID) {
 			if (!taskRepository[activityID]) {
 				taskRepository[activityID] = createTask(activityID);
+				taskRepository[activityID].getCorrespondingTask(); // create corresponding Task if possible
 				this.notifyObservers(this);
 			}
             return taskRepository[activityID];
