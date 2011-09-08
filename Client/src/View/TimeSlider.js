@@ -17,8 +17,9 @@ function getTimeSliderEventPrototype() {
     return timeSliderEventPrototype;
 }
     
-WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(eventChain) {
+WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(gui, eventChain) {
     $("#" + CSS_ID_TIMESLIDER_PLAY_BUTTON).click(function() {
+        gui.enableAnimations();
         eventChain.unlock().play();
     });
     var timeSliderEvents = [];
@@ -32,6 +33,7 @@ WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(eventChain) {
                     searchedEventCommand = e.eventCommand;
                 }
             });
+            gui.disableAnimations();
             eventChain.lock().seek(function(eventCommand) {
                 if(!backwards) {
                     eventCommand.execute();

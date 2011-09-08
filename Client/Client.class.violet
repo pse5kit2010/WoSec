@@ -10,6 +10,8 @@
         <string>+getPosition() : Position
 +refresh()
 +highlight()
++enableAnimations()
++disableAnimations()
 +markObtrusive()
 +markUnobtrusive()
 +registerOnClick(Function handler)
@@ -49,7 +51,6 @@ implements Observer</string>
         <string>+show()
 +hide()
 +pin()
-+unpin()
 +setContent(Object information)
 +registerOnClick(Function handler)
 +registerOnHover(Function handler)
@@ -70,7 +71,8 @@ implements Observer</string>
         <string>+SVGDataAnimation(SVGRectangle start,
       SVGRectangle target)
 +show()
-+hide()
++enableAnimations()
++disableAnimations()
 +refresh()</string>
        </void>
       </void>
@@ -103,7 +105,9 @@ implements Observer</string>
        <void property="text">
         <string>+SVGTaskLaneRectangle(String activityGroupID)
 +refresh()
-+highlight()</string>
++highlight()
++enableAnimations()
++disableAnimations()</string>
        </void>
       </void>
       <void property="name">
@@ -119,6 +123,8 @@ implements Observer</string>
       <void property="methods">
        <void property="text">
         <string>+refresh()
++enableAnimations()
++disableAnimations()
 +newInfobox(position)
 +newTimeSlider()</string>
        </void>
@@ -698,15 +704,15 @@ implements Observer</string>
         <void method="set">
          <object idref="Point2D$Double16">
           <void method="setLocation">
-           <double>590.8700576850888</double>
-           <double>527.332431738103</double>
+           <double>591.8700576850888</double>
+           <double>517.332431738103</double>
           </void>
          </object>
-         <double>527.332431738103</double>
+         <double>517.332431738103</double>
         </void>
        </void>
       </object>
-      <double>590.8700576850888</double>
+      <double>591.8700576850888</double>
      </void>
     </void>
    </object>
@@ -987,6 +993,18 @@ implements Observer</string>
    </object>
    <object idref="ClassNode1"/>
    <object idref="ClassNode6"/>
+  </void>
+  <void method="connect">
+   <object class="com.horstmann.violet.ClassRelationshipEdge">
+    <void property="bentStyle">
+     <object class="com.horstmann.violet.BentStyle" field="HVH"/>
+    </void>
+    <void property="endArrowHead">
+     <object class="com.horstmann.violet.ArrowHead" field="V"/>
+    </void>
+   </object>
+   <object idref="ClassNode6"/>
+   <object idref="ClassNode4"/>
   </void>
  </object>
 </java>

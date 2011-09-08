@@ -45,6 +45,23 @@ WoSec.SVG.prototype.newDataAnimation = function SVGDataAnimation(id, startPositi
     jQueryIcon.hide();
     jQueryIcon.attr("x", startPosition.x);
     jQueryIcon.attr("y", startPosition.y);
+    
+    var enableAnimations = true;
+    /**
+     * Deaktiviert Animationen
+     */
+    that.disableAnimations = function() {
+        enableAnimations = false;
+        return this;
+    };
+    /**
+     * Aktiviert Animationen
+     */
+    that.enableAnimations = function() {
+        enableAnimations = true;
+        return this;
+    };
+    
     /**
      * Zeigt eine Datenanimation
      * @return {SVGTaskRectangle} self
@@ -66,7 +83,9 @@ WoSec.SVG.prototype.newDataAnimation = function SVGDataAnimation(id, startPositi
     that.refresh = function(task) {
         switch(task.getState()) {
             case "TransferingData":
-                this.show();
+                if (enableAnimations) {
+                    this.show();
+                }
                 break;
         }
     };

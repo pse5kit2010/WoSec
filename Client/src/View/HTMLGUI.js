@@ -8,12 +8,34 @@ var SVG = WoSec.SVG;
 /**
  * Kontrolliert das Interface
  */
-WoSec.HTMLGUI = function HTMLGUI() {
+WoSec.HTMLGUI = function HTMLGUI(eventChain) {
     
     var svg = new SVG("instancesvg");
+    var svgElements = [];
     
     var knownTaskIDs = [];
     var knownTaskLaneIDs = [];
+    
+    
+    
+    /**
+     * Deaktiviert Animationen
+     */
+    this.disableAnimations = function() {
+        svgElements.forEach(function(svgElement) {
+            svgElement.disableAnimations();
+        });
+        return this;
+    };
+    /**
+     * Aktiviert Animationen
+     */
+    this.enableAnimations = function() {
+        svgElements.forEach(function(svgElement) {
+            svgElement.enableAnimations();
+        });
+        return this;
+    };
  
     /**
      * Aktualisiere-Methode des Beobachter Musters
@@ -28,17 +50,22 @@ WoSec.HTMLGUI = function HTMLGUI() {
                 continue;
             }
             var task = workflow.getTaskByID(taskID);
-            var svgRectangle = svg.newTaskRectangle(taskID);
-            task.registerObserver(svgRectangle);
+            var svgTaskRectangle = svg.newTaskRectangle(taskID);
+            task.registerObserver(svgTaskRectangle);
+            var svgDataAnimation;
             if(task.getCorrespondingTask()) {
-                task.registerObserver(svg.newDataAnimation(taskID, svgRectangle.getPosition().getCenter(), svg.getTaskRectangle(task.getCorrespondingTask().getID()).getPosition().getCenter()));
+                svgDataAnimation = svg.newDataAnimation(taskID, svgTaskRectangle.getPosition().getCenter(), svg.getTaskRectangle(task.getCorrespondingTask().getID()).getPosition().getCenter());
+                task.registerObserver(svgDataAnimation);
             }
-            var infobox = this.newInfobox(svgRectangle.getPosition())
+            var infobox = this.newInfobox(svgTaskRectangle.getPosition())
             task.registerObserver(infobox);
-            svgRectangle.registerOnHover(infobox.show);
+            svgTaskRectangle.registerOnHover(infobox.show);
             infobox.registerOnClick(infobox.pin);
             
-            
+            svgElements.push(svgTaskRectangle);
+            if (svgDataAnimation) {
+                svgElements.push(svgDataAnimation);
+            }
         }
         knownTaskIDs = taskIDs;
 
@@ -49,11 +76,19 @@ WoSec.HTMLGUI = function HTMLGUI() {
             if(knownTaskLaneIDs.indexOf(taskLaneID) > -1) {
                 continue;
             }
-            workflow.getTaskLaneByID(taskLaneID).registerObserver(svg.newTaskLaneRectangle(taskLaneID));
+            var svgTaskLaneRectangle = svg.newTaskLaneRectangle(taskLaneID);
+            workflow.getTaskLaneByID(taskLaneID).registerObserver(svgTaskLaneRectangle);
+            svgElements.push(svgTaskLaneRectangle);
         }
         knownTaskLaneIDs = taskLaneIDs;
         return this;
     }
+    
+    
+    var timeSlider = this.newTimeSlider(this, eventChain);
+    eventChain.registerObserver(timeSlider);
+    
+    eventChain.getWorkflow().registerObserver(this);
 };
 
 })();

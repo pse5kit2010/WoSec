@@ -21,6 +21,23 @@ WoSec.SVG.prototype.newTaskLaneRectangle = function SVGTaskLaneRectangle(activit
     
     var jQueryRectangles = getJQuerySVGRectanglesByActivityGroupID($svg, activityGroupID);
     var that = Object.create(WoSec.baseObject);
+    
+    var enableAnimations = true;
+    /**
+     * Deaktiviert Animationen
+     */
+    that.disableAnimations = function() {
+        enableAnimations = false;
+        return this;
+    };
+    /**
+     * Aktiviert Animationen
+     */
+    that.enableAnimations = function() {
+        enableAnimations = true;
+        return this;
+    };
+    
     /**
      * @see SVGTaskRectangle.highlight
      */
@@ -34,7 +51,11 @@ WoSec.SVG.prototype.newTaskLaneRectangle = function SVGTaskLaneRectangle(activit
     /**
      * Aktualisiere-Methode des Beobachter Musters
      */
-    that.refresh = that.highlight;
+    that.refresh = function() {
+        if (enableAnimations) {
+            this.highlight();
+        }
+    };
 
     return that;
 };

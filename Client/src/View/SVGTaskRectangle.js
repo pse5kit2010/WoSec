@@ -46,6 +46,40 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
         throw new Error("No rectangles/circles with activityID:[" + activityID + "] found");
     }
     var that = Object.create(WoSec.baseObject);
+    
+    var enableAnimations = true;
+    /**
+     * Deaktiviert Animationen
+     */
+    that.disableAnimations = function() {
+        enableAnimations = false;
+        return this;
+    };
+    /**
+     * Aktiviert Animationen
+     */
+    that.enableAnimations = function() {
+        enableAnimations = true;
+        return this;
+    };
+    
+    that.scrollTo = function() {
+        var position = this.getPosition();
+        var target = {
+            x: position.x - $svg.parent().width() / 2,
+            y: position.y - $svg.parent().height() / 2
+        };
+        var scrollPosition = {
+            x: $svg.scrollLeft(),
+            y: $svg.scrollTop()
+        };
+        // only scroll if needed
+        if (Math.abs(target.x - scrollPosition.x) > 100 || Math.abs(target.y - scrollPosition.y) > 100) {
+            $svg.animate({scrollLeft: target.x}, 100);
+            $svg.animate({scrollTop: target.y}, 100);
+        }
+        return this;
+    };
 
     /**
      * Aktualisiere-Methode des Beobachter Musters
@@ -58,10 +92,14 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
                 break;
             case "Started":
                 this.markObtrusive();
-                this.highlight();
+                this.scrollTo();
+                if (enableAnimations) {
+                    this.highlight();
+                }
                 break;
             case "Finished":
                 this.markUnobtrusive();
+                this.scrollTo();
                 break;
         }
     };
