@@ -36,7 +36,7 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
 			throw new TypeError("The given groupID is not a String");
 		}
 		if (!activityIDsInALane[activityGroupID]) {
-			throw new Error("Unknown activityGroupID");
+			throw new Error("Unknown activityGroupID[" + activityGroupID + "]");
 		}
         return newTaskLane(activityIDsInALane[activityGroupID], that);
     }

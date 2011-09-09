@@ -10,62 +10,91 @@ WoSec.ajaxUpdater = (function() {
 	//var $ = jQuery;
 	var $ = {
 	    getJSON: function(mock, it, callback) {
-		callback([
-			    { // 2.
-			       "eventCommand": "FinishingTask",
-			       "activityID": "__fX4gedbEd-f6JWMxJDGcQ",
-			       "timestamp": 1290076190,
-				   "information": {
-				   	"participant": "Alice"
-				   }
-			    },
-			    { // 3.
-			       "eventCommand": "FinishingTask",
-			       "activityID": "_ggEwYYBxEd-3VeNHLWdQXA",
-			       "timestamp": 1290076195,
-				   "information": {
-				   	"participant": "Alice"
-				   }
-			    },
-			    { // 4.
-			       "eventCommand": "SpecifyingParticipant",
-			       "activityGroupID": "_7kTKEOdbEd-f6JWMxJDGcQ",
-			       "timestamp": 1290076210,
-				   "information": {
-				   	"participant": "Alice"
-				   }
-			    },
-			    { // 5.
-			       "eventCommand": "SpecifyingParticipant",
-			       "activityGroupID": "_1UFV4ItpEd-U-Z7QjvIBEA",
-			       "timestamp": 1290076220,
-				   "information": {
-				   	"participant": "DB01"
-				   }
-			    },
-			    { // 6.
-			       "eventCommand": "StartingTask",
-			       "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA",
-			       "timestamp": 1290076230
-			    },
-			    { // 7.
-			       "eventCommand": "TransferingData",
-			       "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA",
-			       "timestamp": 1290076260,
-				   "information": {
-				   	"data": "UserID: _sDfw47sd33saeF"
-				   }
-			    },
-			    { // 8.
-			       "eventCommand": "TransferingData",
-			       "activityID": "_mJVSMNq2Ed-AhcDaNoYiNA",
-			       "timestamp": 1290076290,
-				   "information": {
-				   	"data": ""
-				   }
-			    }
-			    // ...
-			]);
+		callback([{
+    "timestamp": 1314317905,
+    "eventCommand": "EventCommand",
+    "information": {},
+    "eventType": "createInstance"
+}, {
+    "timestamp": 1314373858,
+    "eventCommand": "FinishingTask",
+    "information": {},
+    "eventType": "humanActivityExecuted",
+    "activityID": "__fX4gedbEd-f6JWMxJDGcQ"
+}, {
+    "timestamp": 1314373863,
+    "eventCommand": "FinishingTask",
+    "information": {},
+    "eventType": "eventActivityExecuted",
+    "activityID": "_ggEwYYBxEd-3VeNHLWdQXA"
+}, {
+    "timestamp": 1314373864,
+    "eventCommand": "SpecifyingParticipant",
+    "information": {},
+    "eventType": "HumanTaskExecutorSelected",
+    "activityGroupID": "_7kTKEOdbEd-f6JWMxJDGcQ"
+}, {
+    "timestamp": 1314373864,
+    "eventCommand": "SpecifyingParticipant",
+    "information": {
+        "participants": {
+            "provider": "DB01"
+        }
+    },
+    "eventType": "WSProviderSelected",
+    "activityGroupID": "_1UFV4ItpEd-U-Z7QjvIBEA"
+}, {
+    "timestamp": 1314373865,
+    "eventCommand": "TransferingData",
+    "information": {
+        "data": "UserID: _sDfw47sd33saeF",
+        "participants": {
+            "provider": "DB01"
+        },
+        "usageReason": ""
+    },
+    "eventType": "DataTransferredToWS",
+    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
+}, {
+    "timestamp": 1314373865,
+    "eventCommand": "StartingTask",
+    "information": {},
+    "eventType": "startActivityExecution",
+    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
+}, {
+    "timestamp": 1314373866,
+    "eventCommand": "TransferingData",
+    "information": {
+        "data": "",
+        "participants": {
+            "provider": "DB01"
+        },
+        "usageReason": "an die Datenbank geschickt, weil deshalb",
+        "attachments": [
+            {
+                "link": "http://blabla",
+                "name": "Anschreiben",
+                "type": "Word-Dokument"
+            }, {
+                "link": "http://blablub",
+                "name": "Ausschreibung",
+                "type": "PDF-Datei"
+            }
+        ]
+    },
+    "eventType": "DataTransferredFromWS",
+    "activityID": "_mJVSMNq2Ed-AhcDaNoYiNA"
+}, {
+    "timestamp": 1314373867,
+    "eventCommand": "FinishingTask",
+    "information": {
+        "participants": {
+            "provider": "DB01"
+        }
+    },
+    "eventType": "WSActivityExecuted",
+    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
+}]);
 	    }
 	};//*/
 	
