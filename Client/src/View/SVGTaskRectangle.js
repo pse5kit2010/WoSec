@@ -7,6 +7,8 @@ const CSS_ID_COLORSTORE = 'color-store'
 ,	  CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR = 'rect-unobtrusive'
 ,     CSS_ID_COLORSTORE_OBTRUSIVE_COLOR = 'rect-obtrusive'
 ,     CSS_ID_COLORSTORE_RESET_COLOR = 'rect-reset';
+const SCROLL_ANIMATION_MS = 100
+,     SCROLL_SUPPRESS_PIXEL = 100;
 
 function getJQuerySVGRectanglesByActivityID($svg, activityID) {
     return $svg.find('svg rect').filter(function() {
@@ -74,9 +76,10 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
             y: $svg.scrollTop()
         };
         // only scroll if needed
-        if (Math.abs(target.x - scrollPosition.x) > 100 || Math.abs(target.y - scrollPosition.y) > 100) {
-            $svg.animate({scrollLeft: target.x}, 100);
-            $svg.animate({scrollTop: target.y}, 100);
+        if (Math.abs(target.x - scrollPosition.x) > SCROLL_SUPPRESS_PIXEL
+            || Math.abs(target.y - scrollPosition.y) > SCROLL_SUPPRESS_PIXEL) {
+            $svg.animate({scrollLeft: target.x}, SCROLL_ANIMATION_MS);
+            $svg.animate({scrollTop: target.y}, SCROLL_ANIMATION_MS);
         }
         return this;
     };
@@ -144,7 +147,9 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
      */
     that.markObtrusive = function() {
         rectangles.each(function() {
-            $(this).attr('fill', $('#' + CSS_ID_COLORSTORE_OBTRUSIVE_COLOR).css('color'));
+            var color = $('#' + CSS_ID_COLORSTORE_OBTRUSIVE_COLOR).css('color');
+            $(this).attr('fill', color);
+            $(this).css('fill', color);
         });
         return this;
     };
@@ -154,7 +159,9 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
      */
     that.markUnobtrusive = function() {
         rectangles.each(function() {
-            $(this).attr('fill', $('#' + CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR).css('color'));
+            var color = $('#' + CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR).css('color');
+            $(this).attr('fill', color);
+            $(this).css('fill', color);
         });
         return this;
     };
@@ -164,7 +171,9 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
      */
     that.reset = function() {
         rectangles.each(function() {
-            $(this).attr('fill', $('#' + CSS_ID_COLORSTORE_RESET_COLOR).css('color'));
+            var color = $('#' + CSS_ID_COLORSTORE_RESET_COLOR).css('color');
+            $(this).attr('fill', color);
+            $(this).css('fill', color);
         });
         return this;
     };

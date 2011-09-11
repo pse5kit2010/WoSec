@@ -90,6 +90,9 @@ WoSec.newEventChain = function EventChain(workflow) {
 				}
 				events.push(eventCommands.usingWorkflow(workflow)[event.eventCommand].create(event)); // factory method
 			});
+			events.sort(function(e, next) {
+			    e.timestamp - next.timestamp;
+			});
 			this.notifyObservers(this);
 			return this;
         },

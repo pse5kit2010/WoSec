@@ -3,19 +3,20 @@
  * Singleton zum Abfragen neuer Eventdaten alle paar Sekunden (Default 5).
  * Empfangene Eventdaten werden an die EventChain weitergegeben.
  */
-WoSec.ajaxUpdater = (function() {
+WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
 	var DELAY_BETWEEN_POLLS = 5000;
 	var POLL_URL = "UpdateController?type=Event";
 	
 	//var $ = jQuery;
 	var $ = {
 	    getJSON: function(mock, it, callback) {
-		callback([{
+		callback(
+[/*{
     "timestamp": 1314317905,
     "eventCommand": "EventCommand",
     "information": {},
     "eventType": "createInstance"
-}, {
+}, */{
     "timestamp": 1314373858,
     "eventCommand": "FinishingTask",
     "information": {},
@@ -49,9 +50,18 @@ WoSec.ajaxUpdater = (function() {
     "information": {
         "data": "UserID: _sDfw47sd33saeF",
         "participants": {
-            "provider": "DB01"
+            "provider": "DB01",
+            "evokUser": "Alice",
+            "execUser": "Ich"
         },
-        "usageReason": ""
+        "attachments": [
+            {
+                "link": "http://somewhereIbelong",
+                "name": "Das ist ein Anhang!",
+                "type": "Ein Link der nirgends hinführt..."
+            }
+        ],
+        "usageReason": "wie bestellt"
     },
     "eventType": "DataTransferredToWS",
     "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
@@ -98,15 +108,10 @@ WoSec.ajaxUpdater = (function() {
 	    }
 	};//*/
 	
-    return {
-		/**
-		 * Startet den Abfrageprozess.
-		 */
-        init: function loop(eventChain) {
+    
 		$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp(), instance: eventChain.getWorkflow().getInstanceID()}, function(data) {
 			eventChain.add(data).play();
 		});
 		//setTimeout(loop, DELAY_BETWEEN_POLLS);
-	}
-    };
-}());
+	
+};

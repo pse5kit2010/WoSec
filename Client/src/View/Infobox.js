@@ -3,9 +3,19 @@
 
 var $ = jQuery;
 
-const CSS_ID_INFOBOXES = "infoboxes"
-,     CSS_CLASS_INFOBOX = "infobox"
-,     CSS_CLASS_INFOBOX_PARTICIPANT = "infobox-participant"
+const CSS_CLASS_INFOBOX = "infobox"
+,     CSS_CLASS_INFOBOX_ENTRY = "infobox-entry"
+,     CSS_CLASS_INFOBOX_ENTRY_HEADER = "infobox-entry-header"
+,     CSS_CLASS_INFOBOX_ENTRY_TIME = "infobox-entry-time"
+,     CSS_CLASS_INFOBOX_ENTRY_EXECUSER = "infobox-entry-execUser"
+,     CSS_CLASS_INFOBOX_ENTRY_CONTENT = "infobox-entry-content"
+,     CSS_CLASS_INFOBOX_ENTRY_EVOKUSER = "infobox-entry-evokUser"
+,     CSS_CLASS_INFOBOX_ENTRY_PROVIDER = "infobox-entry-provider"
+,     CSS_CLASS_INFOBOX_ENTRY_DATA = "infobox-entry-data"
+,     CSS_CLASS_INFOBOX_ENTRY_ATTACHMENTS = "infobox-entry-attachments"
+,     CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY = "infobox-attachment-entry"
+,     CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME = "infobox-attachment-entry-name"
+,     CSS_CLASS_INFOBOX_ENTRY_USAGEREASON = "infobox-entry-usageReason"
 ,     CSS_CLASS_INFOBOX_DATA = "infobox-data"
 ,     INFOBOX_HIDE_DELAY_MS = 3000;
 
@@ -14,15 +24,40 @@ var infoboxPrototype; // lazy creation when DOM ready
 function getInfoboxPrototype(){
     if (!infoboxPrototype) {
         infoboxPrototype = $('<div class="' + CSS_CLASS_INFOBOX + '">' +
-            '<div class="' +
-                 CSS_CLASS_INFOBOX_PARTICIPANT +
-            '"></div>' +
-            '<div class="' +
-                CSS_CLASS_INFOBOX_DATA +
-            '"></div>' +
+            
         '</div>').hide();
     }
     return infoboxPrototype;
+}
+var infoboxEntryPrototype;
+function getInfoboxEntryPrototype() {
+    if (!infoboxEntryPrototype) {
+        infoboxEntryPrototype = $('<div class="' + CSS_CLASS_INFOBOX_ENTRY + '">' +
+            '<span class="' + CSS_CLASS_INFOBOX_ENTRY_HEADER + '">' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_TIME + '"></span>' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_EXECUSER + '"></span>' +
+            '</span>' +
+            '<div class="' + CSS_CLASS_INFOBOX_ENTRY_CONTENT + '">' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_EVOKUSER + '"></span>' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_PROVIDER + '"></span>' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_DATA + '"></span>' +
+                '<ul class="' +  CSS_CLASS_INFOBOX_ENTRY_ATTACHMENTS + '"></ul>' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_USAGEREASON + '"></span>' +
+            '</div>' +
+        '</div>');
+    }
+    return infoboxEntryPrototype;
+}
+
+var attachmentEntryPrototype;
+function getAttachmentEntryPrototype() {
+    if (!attachmentEntryPrototype) {
+        attachmentEntryPrototype = $('<li class="' + CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY + '">' +
+            '<span class="' + CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME + '"></span>' +
+            '<a></a>' +
+        '</li>');
+    }
+    return attachmentEntryPrototype;
 }
 
 
@@ -32,19 +67,12 @@ function getInfoboxPrototype(){
  * @return {Infobox} neue Infobox
  */
 WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
-    var infobox = getInfoboxPrototype().clone().appendTo("#" + CSS_ID_INFOBOXES);
+    var infobox = getInfoboxPrototype().clone();
     var empty = true;
 
     infobox.css("top", position.y + position.height);
     infobox.css("left", position.x + position.width);
 
-    function setParticipant(participant) {
-        infobox.find("." + CSS_CLASS_INFOBOX_PARTICIPANT).text(participant);
-    }
-
-    function setData(data) {
-        infobox.find("." + CSS_CLASS_INFOBOX_DATA).text(data);
-    }
 
     var shown = false;
     var pinned = false;
@@ -82,17 +110,19 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
             return this;
         },
         /**
-         * Anheften - hindert die Infobox sich selbst zu lösen
-         * Zweiter Aufruf versteckt die Infobox wieder.
+         * Anheften - hindert die Infobox sich selbst zu verstecken
          */
         pin: function() {
-            if (pinned) {
-                pinned = false;
-                that.hide();
-            } else {
-                pinned = true;
-                that.show();
-            }
+            pinned = true;
+            that.show();
+            return this;
+        },
+        /**
+         * Lösen - hebt das Anheften wieder auf
+         */
+        unpin: function() {
+            pinned = false;
+            that.hide();
             return this;
         },
         /**
@@ -100,16 +130,32 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * @param {Object} information
          * @return {Infobox} self
          */
-        setContent: function(information) {
-            information = information[0] || {}; // this is just a quick fix until the infobox content is reworked
-            if(information.participants) {
-                setParticipant(information.participants.provider);
-                empty = false;
-            }
-            if(information.data && information.data != "") {
-                setData(information.data);
-                empty = false;
-            }
+        setContent: function(information, timestamp) {
+            infobox.html("");
+            information.forEach(function(i) {
+                var entry = getInfoboxEntryPrototype().clone();
+                entry.find("." + CSS_CLASS_INFOBOX_ENTRY_TIME).text(i.timestamp);
+                if (i.participants) {
+                    entry.find("." + CSS_CLASS_INFOBOX_ENTRY_EXECUSER).text(i.participants.execUser);
+                    entry.find("." + CSS_CLASS_INFOBOX_ENTRY_EVOKUSER).text(i.participants.evokUser);
+                    entry.find("." + CSS_CLASS_INFOBOX_ENTRY_PROVIDER).text(i.participants.provider);
+                    empty = false;
+                }
+                entry.find("." + CSS_CLASS_INFOBOX_ENTRY_DATA).text(i.data);
+                if (i.attachments) {
+                    var attachments = entry.find("." + CSS_CLASS_INFOBOX_ENTRY_ATTACHMENTS);
+                    i.attachments.forEach(function(a) {
+                        var aEntry = getAttachmentEntryPrototype().clone();
+                        aEntry.find("." + CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME).text(a.name);
+                        aEntry.find("a").attr("href", a.link).text(a.type);
+                        attachments.append(aEntry);
+                    });
+                    empty = false;
+                }
+                entry.find("." + CSS_CLASS_INFOBOX_ENTRY_USAGEREASON).text(i.usageReason);
+                
+                infobox.append(entry);
+            });
             return this;
         },
         /**
@@ -118,6 +164,19 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          */
         registerOnClick: function(handler) {
             infobox.click(handler);
+            return this;
+        },
+        /**
+         * Registriert Eventhandler für das OnHover-Event der Infobox
+         * @param {Function} handlerIn Eventhandler beim eintreten
+         * @param {Function} handlerOut Eventhandler beim austreten
+         */
+        registerOnHover: function(handlerIn, handlerOut) {
+            infobox.hover(handlerIn, handlerOut);
+            return this;
+        },
+        appendTo: function(cssSelector) {
+            infobox.appendTo(cssSelector);
             return this;
         }
 

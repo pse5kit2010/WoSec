@@ -123,6 +123,7 @@ function FinishingTaskEvent(task, information, timestamp) {
 	EventCommand.call(this, timestamp);
     this.task = task;
 	this.information = information || {};
+	this.information.timestamp = timestamp;
 }
 WoSec.inherit(FinishingTaskEvent, EventCommand);
 FinishingTaskEvent.prototype.classname = "FinishingTaskEvent";
@@ -169,6 +170,7 @@ function TransferingDataEvent(task, information, timestamp) {
 	EventCommand.call(this, timestamp);
     this.task = task;
 	this.information = information || {};
+    this.information.timestamp = timestamp;
 }
 WoSec.inherit(TransferingDataEvent, EventCommand);
 TransferingDataEvent.prototype.classname = "TransferingDataEvent";
@@ -204,6 +206,7 @@ function SpecifyingParticipantEvent(taskLane, information, timestamp) {
 	EventCommand.call(this, timestamp);
     this.taskLane = taskLane;
     this.information = information || {};
+    this.information.timestamp = timestamp;
 }
 WoSec.inherit(SpecifyingParticipantEvent, EventCommand);
 SpecifyingParticipantEvent.prototype.classname = "SpecifyingParticipantEvent";

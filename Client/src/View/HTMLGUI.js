@@ -5,6 +5,9 @@ var $ = jQuery;
 
 var SVG = WoSec.SVG;
 
+const CSS_ID_INFOBOXES = "infoboxes";
+
+
 /**
  * Kontrolliert das Interface
  */
@@ -60,8 +63,9 @@ WoSec.HTMLGUI = function HTMLGUI(eventChain) {
             var infobox = this.newInfobox(svgTaskRectangle.getPosition())
             task.registerObserver(infobox);
             svgTaskRectangle.registerOnHover(infobox.show);
-            infobox.registerOnClick(infobox.pin);
-            
+            infobox.registerOnHover(infobox.pin, infobox.unpin);
+            infobox.appendTo("#" + CSS_ID_INFOBOXES);
+                        
             svgElements.push(svgTaskRectangle);
             if (svgDataAnimation) {
                 svgElements.push(svgDataAnimation);

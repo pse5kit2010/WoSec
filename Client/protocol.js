@@ -22,6 +22,8 @@ json = [
                 },
                 // ...
             ],
+            "fromTask": taskID,
+            "fromWorkflow": workflowID,
             "usageReason": auftrittsGrund
         }
     },
