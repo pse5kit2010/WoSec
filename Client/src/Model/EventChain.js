@@ -6,7 +6,7 @@ var eventCommands = WoSec.eventCommands
 ,	MixinObservable = WoSec.MixinObservable;
 
 
-const PLAY_TIME_BETWEEN_EVENTS_MS = 1000;
+var PLAY_TIME_BETWEEN_EVENTS_MS = 1000;
 
 /**
  * Klasse zur Verwaltung einer Liste von EventCommands

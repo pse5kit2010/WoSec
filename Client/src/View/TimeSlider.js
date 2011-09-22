@@ -4,10 +4,10 @@
 
 var $ = jQuery;
 
-const CSS_ID_TIMESLIDER = "timeslider"
-,     CSS_CLASS_TIMESLIDER_EVENT_LINK = "timeslider-entry"
-,     CSS_ID_TIMESLIDER_PLAY_BUTTON = "timeslider-play-button"
-,     CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY = "timeslider-play-button-overlay";
+var CSS_ID_TIMESLIDER = "timeslider"
+,   CSS_CLASS_TIMESLIDER_EVENT_LINK = "timeslider-entry"
+,   CSS_ID_TIMESLIDER_PLAY_BUTTON = "timeslider-play-button"
+,   CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY = "timeslider-play-button-overlay";
 
 var timeSliderEventPrototype;
 function getTimeSliderEventPrototype() {

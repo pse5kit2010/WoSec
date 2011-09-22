@@ -3,21 +3,21 @@
 
 var $ = jQuery;
 
-const CSS_CLASS_INFOBOX = "infobox"
-,     CSS_CLASS_INFOBOX_ENTRY = "infobox-entry"
-,     CSS_CLASS_INFOBOX_ENTRY_HEADER = "infobox-entry-header"
-,     CSS_CLASS_INFOBOX_ENTRY_TIME = "infobox-entry-time"
-,     CSS_CLASS_INFOBOX_ENTRY_EXECUSER = "infobox-entry-execUser"
-,     CSS_CLASS_INFOBOX_ENTRY_CONTENT = "infobox-entry-content"
-,     CSS_CLASS_INFOBOX_ENTRY_EVOKUSER = "infobox-entry-evokUser"
-,     CSS_CLASS_INFOBOX_ENTRY_PROVIDER = "infobox-entry-provider"
-,     CSS_CLASS_INFOBOX_ENTRY_DATA = "infobox-entry-data"
-,     CSS_CLASS_INFOBOX_ENTRY_ATTACHMENTS = "infobox-entry-attachments"
-,     CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY = "infobox-attachment-entry"
-,     CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME = "infobox-attachment-entry-name"
-,     CSS_CLASS_INFOBOX_ENTRY_USAGEREASON = "infobox-entry-usageReason"
-,     CSS_CLASS_INFOBOX_DATA = "infobox-data"
-,     INFOBOX_HIDE_DELAY_MS = 3000;
+var CSS_CLASS_INFOBOX = "infobox"
+,   CSS_CLASS_INFOBOX_ENTRY = "infobox-entry"
+,   CSS_CLASS_INFOBOX_ENTRY_HEADER = "infobox-entry-header"
+,   CSS_CLASS_INFOBOX_ENTRY_TIME = "infobox-entry-time"
+,   CSS_CLASS_INFOBOX_ENTRY_EXECUSER = "infobox-entry-execUser"
+,   CSS_CLASS_INFOBOX_ENTRY_CONTENT = "infobox-entry-content"
+,   CSS_CLASS_INFOBOX_ENTRY_EVOKUSER = "infobox-entry-evokUser"
+,   CSS_CLASS_INFOBOX_ENTRY_PROVIDER = "infobox-entry-provider"
+,   CSS_CLASS_INFOBOX_ENTRY_DATA = "infobox-entry-data"
+,   CSS_CLASS_INFOBOX_ENTRY_ATTACHMENTS = "infobox-entry-attachments"
+,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY = "infobox-attachment-entry"
+,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME = "infobox-attachment-entry-name"
+,   CSS_CLASS_INFOBOX_ENTRY_USAGEREASON = "infobox-entry-usageReason"
+,   CSS_CLASS_INFOBOX_DATA = "infobox-data"
+,   INFOBOX_HIDE_DELAY_MS = 3000;
 
 
 var infoboxPrototype; // lazy creation when DOM ready

@@ -3,12 +3,12 @@
 
 var $ = jQuery;
 
-const CSS_ID_COLORSTORE = 'color-store'
-,	  CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR = 'rect-unobtrusive'
-,     CSS_ID_COLORSTORE_OBTRUSIVE_COLOR = 'rect-obtrusive'
-,     CSS_ID_COLORSTORE_RESET_COLOR = 'rect-reset';
-const SCROLL_ANIMATION_MS = 100
-,     SCROLL_SUPPRESS_PIXEL = 100;
+var CSS_ID_COLORSTORE = 'color-store'
+,	CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR = 'rect-unobtrusive'
+,   CSS_ID_COLORSTORE_OBTRUSIVE_COLOR = 'rect-obtrusive'
+,   CSS_ID_COLORSTORE_RESET_COLOR = 'rect-reset';
+var SCROLL_ANIMATION_MS = 100
+,   SCROLL_SUPPRESS_PIXEL = 100;
 
 function getJQuerySVGRectanglesByActivityID($svg, activityID) {
     return $svg.find('svg rect').filter(function() {

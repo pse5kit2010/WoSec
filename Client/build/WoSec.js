@@ -1,73 +1,47 @@
 
-var WoSec = {}; // Namespace
+/**
+ * WoSec Client-Side
+ * 
+MIT Licence:
+Copyright (c) 2011 Justus Maier, David Rieger, Oleg Peters, Philip Lingel
 
-// ES5 Functions
-if (typeof Object.create !== 'function') { //source: http://javascript.crockford.com/prototypal.html
-    Object.create = function (o) {
-        function F() {}
-        F.prototype = o;
-        return new F();
-    };
-}
+Permission is hereby granted, free of charge, to any person obtaining a 
+copy of this software and associated documentation files (the 
+"Software"), to deal in the Software without restriction, including 
+without limitation the rights to use, copy, modify, merge, publish, 
+distribute, sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so, subject to 
+the following conditions:
 
-if (typeof Array.prototype.forEach !== 'function') {
-  Array.prototype.forEach = function(callback)//[, thisObject])
-  {
-    var len = this.length;
-    if (typeof callback != "function")
-      throw new TypeError();
+The above copyright notice and this permission notice shall be included 
+in all copies or substantial portions of the Software.
 
-    var thisObject = arguments[1];
-    for (var i = 0; i < len; i++)
-    {
-      if (i in this)
-        callback.call(thisObject, this[i], i, this);
-    }
-  };
-}
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-if (typeof Function.prototype.bind !== "function") { // http://webreflection.blogspot.com/2010/02/functionprototypebind.html
+ */
 
-    Function.prototype.bind = (function (slice){
 
-        // (C) WebReflection - Mit Style License
-        function bind(context) {
+/**
+ * Namespace Deklaration und ein paar praktische Funktionen
+ */
 
-            var self = this; // "trapped" function reference
+var WoSec = {};
 
-            // only if there is more than an argument
-            // we are interested into more complex operations
-            // this will speed up common bind creation
-            // avoiding useless slices over arguments
-            if (1 < arguments.length) {
-                // extra arguments to send by default
-                var $arguments = slice.call(arguments, 1);
-                return function () {
-                    return self.apply(
-                        context,
-                        // thanks @kangax for this suggestion
-                        arguments.length ?
-                            // concat arguments with those received
-                            $arguments.concat(slice.call(arguments)) :
-                            // send just arguments, no concat, no slice
-                            $arguments
-                    );
-                };
-            }
-            // optimized callback
-            return function () {
-                // speed up when function is called without arguments
-                return arguments.length ? self.apply(context, arguments) : self.call(context);
-            };
-        }
 
-        // the named function
-        return bind;
-
-    }(Array.prototype.slice));
-}
 
 WoSec.baseObject = {
+	/**
+	 * Führt eine Methode später aus
+	 * Weitere Argumente werden an die Methode weitergegeben
+	 * @param {Number} msec Zeitspanne die gewartet werden soll in Millisekunden
+	 * @param {String} method Name der Methode die ausgeführt werden soll
+	 */
 	later: function (msec, method) {
         var that = this, args = Array.prototype.slice.apply(arguments, [2]);
         if (typeof method === 'string') {
@@ -78,678 +52,945 @@ WoSec.baseObject = {
         }, msec);
         return that; // Cascade
     }
-}
+};
 
+/**
+ * Erzeugt Vererbung zwischen den gegebenen Klassen
+ * @param {Function} subType erbende Klasse
+ * @param {Function} superType Mutterklasse
+ */
 WoSec.inherit = function(subType, superType) {
     var prototype = Object.create(superType.prototype);
     prototype.constructor = subType;
     subType.prototype = prototype;
+};
+
+/**
+ * Erweitert ein Objekt um die Methoden und Eigenschaften eines anderen
+ * @param {Objekt} destination erbendes Objekt
+ * @param {Objekt} source Quelle
+ */
+WoSec.extend = function(destination, source) {
+  for (var p in source) {
+    if (source.hasOwnProperty(p)) {
+      destination[p] = source[p];
+    }
+  }
+  return destination;
+};
+
+
+(function() {
+	
+var $ = jQuery;
+
+
+/**
+ * SVG beobachtet einen Workflow und erstellt zu jedem Task(Lane)
+ * korrespondierende SVG Elemente.
+ */
+WoSec.SVG = function SVG(id) {
+	
+    this.$svg = $("#" + id);
+
+}
+
+}());
+
+
+(function() {
+
+var $ = jQuery;
+
+var CSS_ID_COLORSTORE = 'color-store'
+,	CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR = 'rect-unobtrusive'
+,   CSS_ID_COLORSTORE_OBTRUSIVE_COLOR = 'rect-obtrusive'
+,   CSS_ID_COLORSTORE_RESET_COLOR = 'rect-reset';
+var SCROLL_ANIMATION_MS = 100
+,   SCROLL_SUPPRESS_PIXEL = 100;
+
+function getJQuerySVGRectanglesByActivityID($svg, activityID) {
+    return $svg.find('svg rect').filter(function() {
+        return $(this).attr('bpmn:activity-id') == activityID;// && $(this).attr('fill') == 'white';
+    });
+}
+    
+function getJQuerySVGCircles($svg, activityID) {
+    return $svg.find('svg circle').filter(function() {
+        return $(this).attr('bpmn:activity-id') == activityID;// && $(this).attr('fill') == 'white';
+    });
 }
 
 
-// crashes with jquery ui, moved to WoSec.baseObject
-//if (typeof Object.prototype.later !== 'function') { // source: source: http://www.slideshare.net/douglascrockford/crockford-on-javascript-act-iii-function-the-ultimate (slides 43/44)
-//	Object.prototype.later = function (msec, method) {
-//		var that = this, args = Array.prototype.slice.apply(arguments, [2]);
-//		if (typeof method === 'string') {
-//			method = that[method];
-//		}
-//		setTimeout(function () {
-//			method.apply(that, args);
-//		}, msec);
-//		return that; // Cascade
-//	};
-//}
+var taskRectangleRepository = {};
+WoSec.SVG.prototype.getTaskRectangle = function(activityID) {
+    if(!taskRectangleRepository[activityID]) {
+        taskRectangleRepository[activityID] = this.newTaskRectangle(activityID);
+    }
+    return taskRectangleRepository[activityID];
+}
 
-
-//function class(extend, initializer, methods) { // aka new_constructor, source: http://www.slideshare.net/douglascrockford/crockford-on-javascript-act-iii-function-the-ultimate 
-//	var func, prototype = Object.create(extend && extend.prototype);
-//	if (methods) {
-//		methods.keys().forEach(function (key) {
-//		prototype[key] = methods[key];
-//	});
-//	}
-//	func = function () {
-//		var that = Object.create(prototype);
-//	if (typeof initializer === 'function') {
-//		initializer.apply(that, arguments);
-//	}
-//	return that;
-//	};
-//	func.prototype = prototype;
-//	prototype.constructor = func;
-//	return func;
-//}
 /**
- * Singleton (UtilityKlasse), das Funktionalität zur Verwaltung von SVG-Elementen bereitstellt;
- * erstellt SVGRectangles.
+ * Bietet Zugriff und Manipulationsmöglichkeiten auf ein Task-Rechteck im SVG.
+ * @param {String} activityID
+ * @return {SVGTaskRectangle} neues SVGTaskRechteck
  */
-WoSec.svgUtility = (function() {
-	var CSS_ID_COLORSTORE = 'color-store'
-	,	CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR = 'rect-unobtrusive'
-	,   CSS_ID_COLORSTORE_OBTRUSIVE_COLOR = 'rect-obtrusive'
-	,   CSS_ID_COLORSTORE_RESET_COLOR = 'rect-reset';
-	var ANIMATION_IMAGE_PATH = "media/images/fileicon.png" // {width: 34, height: 44}
-	,	ANIMATION_IMAGE_SIZE = {width: 25.5, height: 33};
-	
-	var $ = jQuery;
-	
+WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
     
-    var animationPrototype;
-	function getAnimationPrototype() {
-		if (!animationPrototype) {
-			animationPrototype = document.createElementNS('http://www.w3.org/2000/svg', "image");
-			animationPrototype.setAttributeNS("http://www.w3.org/1999/xlink","xlink:href", ANIMATION_IMAGE_PATH);
-			animationPrototype.setAttribute("width", ANIMATION_IMAGE_SIZE.width);
-			animationPrototype.setAttribute("height", ANIMATION_IMAGE_SIZE.height);
-		}
-		return animationPrototype;
-	}
+    var $svg = this.$svg;
 
-    function getJQuerySVGRectanglesByActivityID(activityID) {
-        return $('svg rect').filter(function() {
-            return $(this).attr('bpmn:activity-id') == activityID;// && $(this).attr('fill') == 'white';
-        });
+    var rectangles = getJQuerySVGRectanglesByActivityID($svg, activityID);
+    if(!rectangles.length) {
+        rectangles = getJQuerySVGCircles($svg, activityID);
     }
-	function getCircles(activityID) {
-        return $('svg circle').filter(function() {
-            return $(this).attr('bpmn:activity-id') == activityID;// && $(this).attr('fill') == 'white';
-        });
-	}
-
-    function getJQuerySVGRectanglesByActivityGroupID(activityGroupID) {
-        return $('svg rect').filter(function() {
-            return $(this).attr('bpmn:pool-id') == activityGroupID;
-        });
+    if(rectangles.length == 0) {
+        throw new Error("No rectangles/circles with activityID:[" + activityID + "] found");
     }
+    var that = Object.create(WoSec.baseObject);
     
-    return {
-		/**
-		 * Bietet Zugriff und Manipulationsmöglichkeiten auf ein Task-Rechteck im SVG.
-		 * @param {String} activityID
-		 * @return {SVGRectangle} neues SVGRechteck
-		 */
-        getTaskRectangle: function(activityID) {
-            var rectangles = getJQuerySVGRectanglesByActivityID(activityID);
-			if (rectangles.length == 0) { // couldn't find rectangles, try circles ("start"-task)
-				rectangles = getCircles(activityID);
-			}
-			if (rectangles.length == 0) {
-				throw new Error("No rectangles/circles with activityID:[" + activityID + "] found");
-			}
-            var that = Object.create(WoSec.baseObject);
-			/**
-			 * Gibt die Position des Rechtecks zurück.
-			 * @return {Object} Position mit x,y,width und height- Eigenschaften (Integer), sowie getCenter()-Methode, welche den Mittelpunkt des Rechtecks zurück gibt
-			 */
-			that.getPosition = function() {
-				return {
-					x: parseInt($(rectangles[0]).attr("x")),
-					y: parseInt($(rectangles[0]).attr("y")),
-					width: parseInt($(rectangles[0]).attr("width")),
-					height: parseInt($(rectangles[0]).attr("height")),
-					getCenter: function() {
-						return {
-							x: this.x + this.width/2,
-							y: this.y + this.height/2
-						};
-					}
-				}
-			};
-			
-			var texts = $("svg text").filter(function() {
-				var pos = that.getPosition();
-				return Math.abs(parseInt($(this).attr('x')) - pos.x) < pos.width
-				    && Math.abs(parseInt($(this).attr('y')) - pos.y) < pos.height;
-			});
-			
-			function adjustPositionForAnimation(position) {
-				position.x -= ANIMATION_IMAGE_SIZE.width/2;
-				position.y -= ANIMATION_IMAGE_SIZE.height/2;
-				return position;
-			}
-			
-			var animation = this.createAnimation(activityID, adjustPositionForAnimation(that.getPosition().getCenter()));
-			/**
-			 * Zeigt eine Datenanimation zwischen zwei Tasks
-			 * @param {Task} Ziel-Task
-			 * @return {SVGRectangle} self
-			 */
-			that.showAnimation = function(task) {
-				animation.show(adjustPositionForAnimation(task.getPosition().getCenter()));
-				return this;
-			}
-			/**
-			 * Hebt das Rechteck hervor
-			 * @return {SVGRectangle} self
-			 */
-            that.highlight = function() {
-                rectangles.each(function() {
-					$(this).effect('pulsate', { times:3 }, 1000);
-				})
-	            return this;
-            };
-			/**
-			 * Färbt das Rechteck in einer auffälligen Farbe.
-			 * @return {SVGRectangle} self
-			 */
-            that.markObtrusive = function() {
-                rectangles.each(function() {
-					$(this).attr('fill', $('#'+CSS_ID_COLORSTORE_OBTRUSIVE_COLOR).css('color'));
-				});
-                return this;
-            };
-			/**
-			 * Färbt das Rechteck in einer unauffälligen Farbe.
-			 * @return {SVGRectangle} self
-			 */
-            that.markUnobtrusive = function() {
-                rectangles.each(function() {
-                    $(this).attr('fill', $('#'+CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR).css('color'));
-                });
-                return this;
-            };
-			
-			/**
-			 * Setzt das Rechteck zurück (farblich)
-			 * @return {SVGRectangle} self
-			 */
-			that.reset = function() {
-				rectangles.each(function() {
-                    $(this).attr('fill', $('#'+CSS_ID_COLORSTORE_RESET_COLOR).css('color'));
-                });
-                return this;
-            };
-			/**
-			 * Registriert Eventhandler für das OnClick-Event des Rechtecks.
-			 * @param {Function} handler Der zu bindende Eventhandler
-			 * @return {SVGRectangle} self
-			 */
-			that.registerOnClick = function(handler) {
-				$(rectangles[0]).click(handler);
-                texts.each(function() {
-                    $(this).click(handler);
-                })
-				return this;
-			};
-			/**
-			 * Registriert Eventhandler für as OnHover-Event des Rechtecks.
-			 * @param {Function} handler Der zu bindende Eventhandler
-			 * @return {SVGRectangle} self
-			 */
-			that.registerOnHover = function(handler) {
-				$(rectangles[0]).hover(handler);
-				texts.each(function() {
-					$(this).hover(handler);
-				})
-				return this;
-			};
-			
-            return that;
-        },
-		/**
-		 * Erstellt neue Animation mit show(endPosition)-Methode.
-		 * @param {String} id
-		 * @param {Object} position
-		 */
-		createAnimation: function(id, position) {
-			var that = Object.create(WoSec.baseObject);
-			var icon = getAnimationPrototype().cloneNode(true);
-			icon.setAttribute("id", id);
-			$('svg')[0].appendChild(icon);
-			var jQueryIcon = $("#"+id);
-			jQueryIcon.hide();
-			jQueryIcon.attr("x", position.x);
-			jQueryIcon.attr("y", position.y);
-			
-			that.show = function(endPosition) {
-				jQueryIcon.show();
-				jQueryIcon.animate({svgY: endPosition.y}, 2000, function() {
-					jQueryIcon.hide();
-				    jQueryIcon.attr("y", position.y);
-				});
-				return this;
-			};
-			
-			return that;
-		},
-		/**
-		 * Bietet Hervorheben-Effekt für ein TaskLane-Rechteck im SVG.
-		 * @param {String} activityGroupID
-		 * @return {SVGRectangle} SVGRechteck, das nur das Hervorheben unterstützt
-		 */
-        getTaskLaneRectangle: function(activityGroupID) {
-            var jQueryRectangles = getJQuerySVGRectanglesByActivityGroupID(activityGroupID);
-            var that = Object.create(WoSec.baseObject);
-			/**
-			 * @see SVGRectangle.highlight
-			 */
-            that.highlight = function() {
-                jQueryRectangles.each(function() {
-					$(this).effect('pulsate', { times:1 }, 1000);
-				});
-            };
-			return that;
+    var enableAnimations = true;
+    /**
+     * Deaktiviert Animationen
+     */
+    that.disableAnimations = function() {
+        enableAnimations = false;
+        return this;
+    };
+    /**
+     * Aktiviert Animationen
+     */
+    that.enableAnimations = function() {
+        enableAnimations = true;
+        return this;
+    };
+    
+    that.scrollTo = function() {
+        var position = this.getPosition();
+        var target = {
+            x: position.x - $svg.parent().width() / 2,
+            y: position.y - $svg.parent().height() / 2
+        };
+        var scrollPosition = {
+            x: $svg.scrollLeft(),
+            y: $svg.scrollTop()
+        };
+        // only scroll if needed
+        if (Math.abs(target.x - scrollPosition.x) > SCROLL_SUPPRESS_PIXEL
+            || Math.abs(target.y - scrollPosition.y) > SCROLL_SUPPRESS_PIXEL) {
+            $svg.animate({scrollLeft: target.x}, SCROLL_ANIMATION_MS);
+            $svg.animate({scrollTop: target.y}, SCROLL_ANIMATION_MS);
+        }
+        return this;
+    };
+
+    /**
+     * Aktualisiere-Methode des Beobachter Musters
+     * @param {Task} task beobachteter Task
+     */
+    that.refresh = function(task) {
+        switch (task.getState()) {
+            case "Reset":
+                this.reset();
+                break;
+            case "Started":
+                this.markObtrusive();
+                this.scrollTo();
+                if (enableAnimations) {
+                    this.highlight();
+                }
+                break;
+            case "Finished":
+                this.markUnobtrusive();
+                this.scrollTo();
+                break;
         }
     };
-}());
-
-/**
- * Singleton (UtilityKlasse),
- * das Funktionalität zur Verwaltung von HTML-Elementen bereitstellt; erstellt Infoboxen.
- */
-WoSec.htmlRenderer = (function() {
-    var $ = jQuery;
-	
-	const CSS_ID_INFOBOXES = "infoboxes"
-	,     CSS_CLASS_INFOBOX = "infobox"
-	,     CSS_CLASS_INFOBOX_PARTICIPANT = "infobox-participant"
-	,     CSS_CLASS_INFOBOX_DATA = "infobox-data"
-	,	  INFOBOX_HIDE_DELAY_MS = 3000;
-	const CSS_ID_DATABOX = "databox"
-	,	  CSS_CLASS_DATABOX_ENTRY = "databox-entry"
-	,	  CSS_ID_DATABOX_HOVER = "databox-hover"
-	,	  DATABOX_HIDE_DELAY_MS = 5000;
-	const CSS_ID_TIMESLIDER = "timeslider"
-	,     CSS_CLASS_TIMESLIDER_EVENT_LINK = "timeslider-entry"
-	,     CSS_ID_TIMESLIDER_PLAY_BUTTON = "timeslider-play-button"
-	,	  CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY = "timeslider-play-button-overlay";
-	
-	// for DOM elements there is generally on prototype which gets cloned to create new elements
-	var infoboxPrototype; // lazy creation when DOM ready
-	function getInfoboxPrototype(){
-		if (!infoboxPrototype) {
-			infoboxPrototype = $('<div class="' + CSS_CLASS_INFOBOX + '">' +
-				'<div class="' +
-				     CSS_CLASS_INFOBOX_PARTICIPANT +
-				'"></div>' +
-				'<div class="' +
-				     CSS_CLASS_INFOBOX_DATA +
-				'"></div>' +
-			'</div>').hide();
-		}
-		return infoboxPrototype;
-	}
-	
-	var databoxInitialized = false;
-	function initDatabox() {
-		databoxInitialized = true;
-		var showDatabox = false;
-		var pinDatabox = false;
-		var initialDataboxPosition = parseInt($("#"+CSS_ID_DATABOX).css("left"));
-		var jQueryDatabox = $("#"+CSS_ID_DATABOX);
-		$("#"+CSS_ID_DATABOX_HOVER).hover(function() {
-			if (!showDatabox && !pinDatabox) {
-				showDatabox = true;
-				jQueryDatabox.animate({left: -10}).css("opacity", 0.8);
-				setTimeout(function() {
-					if (!pinDatabox) {
-						jQueryDatabox.animate({left: initialDataboxPosition}, function() {
-							showDatabox = false;
-						});
-					}
-				}, DATABOX_HIDE_DELAY_MS);
-			}
-			return false;
-		});
-		jQueryDatabox.click(function() {
-			if (showDatabox && !pinDatabox) {
-				pinDatabox = true;
-			} else if (pinDatabox) {
-				pinDatabox = false;
-				$(this).animate({left: initialDataboxPosition}, "slow", function() {
-					showDatabox = false;
-				});
-			}
-			return false;
-		});
-	}
-    var dataEntryPrototype;
-	function getDataEntryPrototype() {
-		if (!dataEntryPrototype) {
-			dataEntryPrototype = $('<div class="' + CSS_CLASS_DATABOX_ENTRY + '"></div>');
-		}
-		return dataEntryPrototype;
-	}
-	var databoxData = [];
-	var databox = {
-		add: function(data) {
-			if (!databoxInitialized) {
-				initDatabox();
-			}
-			if (data && databoxData.indexOf(data) == -1) {
-				var dataEntry = getDataEntryPrototype().clone().appendTo("#"+CSS_ID_DATABOX);
-				dataEntry.text(data);
-				databoxData.push(data);
-				$("#"+CSS_ID_DATABOX).effect('pulsate', {times: 3});
-			}
-		}
-	};
-	
-	var timeSliderEventPrototype;
-	function getTimeSliderEventPrototype() {
-		if (!timeSliderEventPrototype) {
-			timeSliderEventPrototype = $('<a class="' + CSS_CLASS_TIMESLIDER_EVENT_LINK + '"></a>');
-		}
-		return timeSliderEventPrototype;
-	}
-	var timeSlider;
-	var timeSliderEvents = [];
-	var eventChain;
-    return {
-		timeSlider: {
-			/**
-			 * Initialisiert den TimeSlider wenn der DOM bereit ist
-			 */
-			init: function() {
-				eventChain = WoSec.eventChain;
-				eventChain.registerObserver(this);
-				$("#"+CSS_ID_TIMESLIDER_PLAY_BUTTON).click(function() {
-					eventChain.unlock().play();
-				});
-				timeSlider = $("#"+CSS_ID_TIMESLIDER).slider({slide: function(event, ui) {
-					var value = timeSlider.slider("option", "value");
-					var backwards = ui.value < value;
-					var searchedEventCommand;
-					timeSliderEvents.forEach(function(e) {
-						if (e.timestamp <= ui.value) {
-							searchedEventCommand = e.eventCommand;
-						}
-					});
-					eventChain.lock().seek(function(eventCommand) {
-                        if (!backwards) {
-                            eventCommand.execute();
-                        } else {
-                            eventCommand.unwind();
-                        }
-						if (eventCommand == searchedEventCommand) {
-							return false;
-						}
-					}, backwards);
-				}});
-				return this;
-			},
-			adjustSize: function() {
-				var startTime;
-                var endTime;
-                var min = timeSlider.slider("option", "min");
-                var max = timeSlider.slider("option", "max");
-                var intervalChanged = false;
-                eventChain.forEach(function(eventCommand, i) {
-                    if (!timeSliderEvents[i]) { // if not yet created
-                        var event = {};
-                        event.eventCommand = eventCommand;
-                        event.timestamp = eventCommand.getTimestamp();
-                        event.entry = getTimeSliderEventPrototype().clone().appendTo('#'+CSS_ID_TIMESLIDER); // create new entry
-                        event.entry.addClass("timeslider-entry-"+eventCommand.getClass());
-                        timeSliderEvents.push(event);
-                    }
-                    var time = eventCommand.getTimestamp();
-                    if (!startTime || time < startTime) {
-                        startTime = time;
-                    }
-                    if (!endTime || time > endTime) {
-                        endTime = time;
-                    }
-                    if (startTime) {
-                        timeSlider.slider("option", "min", startTime);
-                        intervalChanged = true;
-                    }
-                    if (endTime) {
-                        timeSlider.slider("option", "max", endTime);
-                        intervalChanged = true;
-                    }
-                });
-                if (startTime == min && endTime == max) {
-                    intervalChanged = false;
-                }
-                if (intervalChanged) {
-                    var interval = endTime - startTime;
-                    timeSliderEvents.forEach(function(e){
-                        rightPercent = (endTime - e.timestamp) / interval * 100;
-                        e.entry.css("left", (100 - rightPercent) + "%");
-                    });
-                }
-				return this;
-			},
-			/**
-			 * Teil des Beobachtermusters, setzt den TimeSlider in Kenntnis, dass sich die EventChain geändert hat.
-			 * @return {TimeSlider} self
-			 */
-			notify: function() {
-				if (eventChain.getLength() != timeSliderEvents.length) {
-					this.adjustSize();
-					if (eventChain.isLocked()) { // animation on the play button if new events arrieved and the chain is locked
-						$('#'+CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY).show();
-						$('#'+CSS_ID_TIMESLIDER_PLAY_BUTTON).effect('pulsate', { times:10 }, 1000)
-						setTimeout(function() {
-							$('#'+CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY).hide();
-						}, 10000);
-					}
-				}
-				timeSlider.slider("option", "value", eventChain.getEventCommand(eventChain.getCurrentPosition()).getTimestamp());
-				return this;
-			}
-		},
-		/**
-		 * Stellt die Informationsfläche dar, die beim Klicken bzw. Überfahren eines Tasks mit der Maus erscheint.
-		 * @return {Infobox} neue Infobox
-		 */
-        createInfobox: function() {
-            var infobox = getInfoboxPrototype().clone().appendTo("#"+CSS_ID_INFOBOXES);
-			var empty = true;
-			
-            function setParticipant(participant) {
-                infobox.find("."+CSS_CLASS_INFOBOX_PARTICIPANT).text(participant);
+    /**
+     * Gibt die Position des Rechtecks zurück.
+     * @return {Object} Position mit x,y,width und height- Eigenschaften (Integer), sowie getCenter()-Methode, welche den Mittelpunkt des Rechtecks zurück gibt
+     */
+    that.getPosition = function() {
+        return {
+            x : parseInt($(rectangles[0]).attr("x")),
+            y : parseInt($(rectangles[0]).attr("y")),
+            width : parseInt($(rectangles[0]).attr("width")),
+            height : parseInt($(rectangles[0]).attr("height")),
+            getCenter : function() {
+                return {
+                    x : this.x + this.width / 2,
+                    y : this.y + this.height / 2
+                };
             }
-			function setData(data) {
-				infobox.find("."+CSS_CLASS_INFOBOX_DATA).text(data);
-			}
-			
-            return {
-				/**
-				 * Bindet die Infobox an ein Rechteck im SVG.
-				 * @param {SVGRectangle} rectangle Rechteck im SVG
-				 * @return {Infobox} self
-				 */
-				bindToSVGRectangle: function(rectangle) {
-					var position = rectangle.getPosition();
-				    infobox.css("top", position.y + position.height);
-				    infobox.css("left", position.x + position.width);
-				    
-					var showInfobox = false;
-					var inside = false;
-					var onClickHandler = function() {
-						if (!showInfobox) {
-							showInfobox = true;
-						} else {
-							infobox.slideToggle("slow");
-							showInfobox = false;
-						}
-						return false;
-					};
-					var onHoverHandler = function() {
-						if (!showInfobox && !inside && !empty) {
-							inside = true;
-							infobox.slideToggle("slow");
-							setTimeout(function() {
-								if (!showInfobox) {
-									infobox.slideToggle("slow");
-								}
-								inside = false;
-							}, INFOBOX_HIDE_DELAY_MS);
-						}
-						return false;
-					};
-					
-					rectangle.registerOnHover(onHoverHandler);
-					infobox.click(onClickHandler);
-					return this;
-				},
-				/**
-				 * Zeigt die Informationsfläche.
-				 * @return {Infobox} self
-				 */
-                show: function() {
-                    infobox.show();
-					return this;
-                },
-				/**
-				 * Verbirgt die Informationsfläche.
-				 * @return {Infobox} self
-				 */
-                hide: function() {
-                    infobox.hide();
-					return this;
-                },
-				/**
-				 * Setzt den Inhalt (User/Provider sowie Daten) der Infobox
-				 * @param {Object} information
-				 * @return {Infobox} self
-				 */
-				setContent: function(information) {
-					if (information.participant && information.participant != "") {
-						setParticipant(information.participant);
-						empty = false;
-					}
-					if (information.data && information.data != "") {
-						setData(information.data);
-						databox.add(information.data);
-						empty = false;
-					}
-					return this;
-				}
-            };
         }
     };
-}());
+    var texts = $svg.find("svg text").filter(function() {
+        var pos = that.getPosition();
+        return Math.abs(parseInt($(this).attr('x')) - pos.x) < pos.width
+            && Math.abs(parseInt($(this).attr('y')) - pos.y) < pos.height;
+    });
+    /**
+     * Hebt das Rechteck hervor
+     * @return {SVGRectangle} self
+     */
+    that.highlight = function() {
+        rectangles.each(function() {
+            $(this).effect('pulsate', {
+                times : 3
+            }, 1000);
+        })
+        return this;
+    };
+    /**
+     * Färbt das Rechteck in einer auffälligen Farbe.
+     * @return {SVGRectangle} self
+     */
+    that.markObtrusive = function() {
+        rectangles.each(function() {
+            var color = $('#' + CSS_ID_COLORSTORE_OBTRUSIVE_COLOR).css('color');
+            $(this).attr('fill', color);
+            $(this).css('fill', color);
+        });
+        return this;
+    };
+    /**
+     * Färbt das Rechteck in einer unauffälligen Farbe.
+     * @return {SVGRectangle} self
+     */
+    that.markUnobtrusive = function() {
+        rectangles.each(function() {
+            var color = $('#' + CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR).css('color');
+            $(this).attr('fill', color);
+            $(this).css('fill', color);
+        });
+        return this;
+    };
+    /**
+     * Setzt das Rechteck zurück (farblich)
+     * @return {SVGRectangle} self
+     */
+    that.reset = function() {
+        rectangles.each(function() {
+            var color = $('#' + CSS_ID_COLORSTORE_RESET_COLOR).css('color');
+            $(this).attr('fill', color);
+            $(this).css('fill', color);
+        });
+        return this;
+    };
+    /**
+     * Registriert Eventhandler für das OnClick-Event des Rechtecks.
+     * @param {Function} handler Der zu bindende Eventhandler
+     * @return {SVGRectangle} self
+     */
+    that.registerOnClick = function(handler) {
+        $(rectangles[0]).click(handler);
+        texts.each(function() {
+            $(this).click(handler);
+        })
+        return this;
+    };
+    /**
+     * Registriert Eventhandler für as OnHover-Event des Rechtecks.
+     * @param {Function} handler Der zu bindende Eventhandler
+     * @return {SVGRectangle} self
+     */
+    that.registerOnHover = function(handler) {
+        $(rectangles[0]).hover(handler);
+        texts.each(function() {
+            $(this).hover(handler);
+        })
+        return this;
+    };
+
+    return that;
+};
+
+})();
+
+
+(function() {
+
+var $ = jQuery;
+
+function getJQuerySVGRectanglesByActivityGroupID($svg, activityGroupID) {
+    return $svg.find('svg rect').filter(function() {
+       return $(this).attr('bpmn:pool-id') == activityGroupID;
+    });
+}
+
+
+/**
+ * Bietet Hervorheben-Effekt für ein TaskLane-Rechteck im SVG.
+ * @param {String} activityGroupID
+ * @return {SVGTaskLaneRectangle} SVGRechteck, das nur das Hervorheben unterstützt
+ */
+WoSec.SVG.prototype.newTaskLaneRectangle = function SVGTaskLaneRectangle(activityGroupID) {
+    
+    var $svg = this.$svg;
+    
+    var jQueryRectangles = getJQuerySVGRectanglesByActivityGroupID($svg, activityGroupID);
+    var that = Object.create(WoSec.baseObject);
+    
+    var enableAnimations = true;
+    /**
+     * Deaktiviert Animationen
+     */
+    that.disableAnimations = function() {
+        enableAnimations = false;
+        return this;
+    };
+    /**
+     * Aktiviert Animationen
+     */
+    that.enableAnimations = function() {
+        enableAnimations = true;
+        return this;
+    };
+    
+    /**
+     * @see SVGTaskRectangle.highlight
+     */
+    that.highlight = function() {
+        jQueryRectangles.each(function() {
+            $(this).effect('pulsate', {
+                times : 1
+            }, 1000);
+        });
+    };
+    /**
+     * Aktualisiere-Methode des Beobachter Musters
+     */
+    that.refresh = function() {
+        if (enableAnimations) {
+            this.highlight();
+        }
+    };
+
+    return that;
+};
+
+
+})();
 
 (function() {
     
-// var workflow = WoSec.workflow; need late initializiation because of cross dependency
+var $ = jQuery;
 
+var ANIMATION_IMAGE_PATH = "media/images/fileicon.png" // {width: 34, height: 44}
+,   ANIMATION_IMAGE_SIZE = {width: 25.5, height: 33};
+
+
+var animationPrototype;
+function getAnimationPrototype() {
+    if (!animationPrototype) {
+        animationPrototype = document.createElementNS('http://www.w3.org/2000/svg', "image");
+        animationPrototype.setAttributeNS("http://www.w3.org/1999/xlink","xlink:href", ANIMATION_IMAGE_PATH);
+        animationPrototype.setAttribute("width", ANIMATION_IMAGE_SIZE.width);
+        animationPrototype.setAttribute("height", ANIMATION_IMAGE_SIZE.height);
+    }
+    return animationPrototype;
+}
+
+/**
+ * Erstellt neue Animation mit show(endPosition)-Methode.
+ * @param {String} id
+ * @param {Object} startPosition Position von der die Animation beginnt
+ * @param {Object} endPosition Position bei der die Animation endet
+ * @param {Object} position
+ */ 
+WoSec.SVG.prototype.newDataAnimation = function SVGDataAnimation(id, startPosition, endPosition) {
+
+    function adjustPosition(position) {
+        position.x -= ANIMATION_IMAGE_SIZE.width / 2;
+        position.y -= ANIMATION_IMAGE_SIZE.height / 2;
+        return position;
+    }
+
+    startPosition = adjustPosition(startPosition);
+    endPosition = adjustPosition(endPosition);
+
+    var that = Object.create(WoSec.baseObject);
+    var $svg = this.$svg;
+    var icon = getAnimationPrototype().cloneNode(true);
+    icon.setAttribute("id", id);
+    $svg.find('svg')[0].appendChild(icon);
+    var jQueryIcon = $("#" + id);
+    jQueryIcon.hide();
+    jQueryIcon.attr("x", startPosition.x);
+    jQueryIcon.attr("y", startPosition.y);
+    
+    var enableAnimations = true;
+    /**
+     * Deaktiviert Animationen
+     */
+    that.disableAnimations = function() {
+        enableAnimations = false;
+        return this;
+    };
+    /**
+     * Aktiviert Animationen
+     */
+    that.enableAnimations = function() {
+        enableAnimations = true;
+        return this;
+    };
+    
+    /**
+     * Zeigt eine Datenanimation
+     * @return {SVGTaskRectangle} self
+     */
+    that.show = function() {
+        jQueryIcon.show();
+        jQueryIcon.animate({
+            svgY : endPosition.y
+        }, 1000, function() {
+            jQueryIcon.hide();
+            jQueryIcon.attr("y", startPosition.y);
+        });
+        return this;
+    };
+    /**
+     * Aktualisiere-Methode des Beobachter Musters
+     * @param {Task} task beobachteter Task
+     */
+    that.refresh = function(task) {
+        switch(task.getState()) {
+            case "TransferingData":
+                if (enableAnimations) {
+                    this.show();
+                }
+                break;
+        }
+    };
+    return that;
+};
+
+})();
+
+
+(function() {
+
+var $ = jQuery;
+
+var SVG = WoSec.SVG;
+
+var CSS_ID_INFOBOXES = "infoboxes";
+
+
+/**
+ * Kontrolliert das Interface
+ */
+WoSec.HTMLGUI = function HTMLGUI(eventChain) {
+    
+    var svg = new SVG("instancesvg");
+    var svgElements = [];
+    
+    var knownTaskIDs = [];
+    var knownTaskLaneIDs = [];
+    
+    
+    
+    /**
+     * Deaktiviert Animationen
+     */
+    this.disableAnimations = function() {
+        svgElements.forEach(function(svgElement) {
+            svgElement.disableAnimations();
+        });
+        return this;
+    };
+    /**
+     * Aktiviert Animationen
+     */
+    this.enableAnimations = function() {
+        svgElements.forEach(function(svgElement) {
+            svgElement.enableAnimations();
+        });
+        return this;
+    };
+ 
+    /**
+     * Aktualisiere-Methode des Beobachter Musters
+     * @param {Workflow} workflow beobachteter Workflow
+     */
+    this.refresh = function(workflow) {
+        var taskIDs = workflow.getTaskRepositoryEntries();
+        var taskID;
+        for(var i = taskIDs.length - 1; i >= 0; i--) {
+            var taskID = taskIDs[i];
+            if(knownTaskIDs.indexOf(taskID) > -1) {
+                continue;
+            }
+            var task = workflow.getTaskByID(taskID);
+            var svgTaskRectangle = svg.newTaskRectangle(taskID);
+            task.registerObserver(svgTaskRectangle);
+            var svgDataAnimation;
+            if(task.getCorrespondingTask()) {
+                svgDataAnimation = svg.newDataAnimation(taskID, svgTaskRectangle.getPosition().getCenter(), svg.getTaskRectangle(task.getCorrespondingTask().getID()).getPosition().getCenter());
+                task.registerObserver(svgDataAnimation);
+            }
+            var infobox = this.newInfobox(svgTaskRectangle.getPosition())
+            task.registerObserver(infobox);
+            svgTaskRectangle.registerOnHover(infobox.show);
+            infobox.registerOnHover(infobox.pin, infobox.unpin);
+            infobox.appendTo("#" + CSS_ID_INFOBOXES);
+                        
+            svgElements.push(svgTaskRectangle);
+            if (svgDataAnimation) {
+                svgElements.push(svgDataAnimation);
+            }
+        }
+        knownTaskIDs = taskIDs;
+
+        var taskLaneIDs = workflow.getTaskLaneRepositoryEntries();
+        var taskLaneID;
+        for(var i = taskLaneIDs.length - 1; i >= 0; i--) {
+            taskLaneID = taskLaneIDs[i]
+            if(knownTaskLaneIDs.indexOf(taskLaneID) > -1) {
+                continue;
+            }
+            var svgTaskLaneRectangle = svg.newTaskLaneRectangle(taskLaneID);
+            workflow.getTaskLaneByID(taskLaneID).registerObserver(svgTaskLaneRectangle);
+            svgElements.push(svgTaskLaneRectangle);
+        }
+        knownTaskLaneIDs = taskLaneIDs;
+        return this;
+    }
+    
+    
+    var timeSlider = this.newTimeSlider(this, eventChain);
+    eventChain.registerObserver(timeSlider);
+    
+    eventChain.getWorkflow().registerObserver(this);
+};
+
+})();
+
+
+(function() {
+
+var $ = jQuery;
+
+var CSS_CLASS_INFOBOX = "infobox"
+,   CSS_CLASS_INFOBOX_ENTRY = "infobox-entry"
+,   CSS_CLASS_INFOBOX_ENTRY_HEADER = "infobox-entry-header"
+,   CSS_CLASS_INFOBOX_ENTRY_TIME = "infobox-entry-time"
+,   CSS_CLASS_INFOBOX_ENTRY_EXECUSER = "infobox-entry-execUser"
+,   CSS_CLASS_INFOBOX_ENTRY_CONTENT = "infobox-entry-content"
+,   CSS_CLASS_INFOBOX_ENTRY_EVOKUSER = "infobox-entry-evokUser"
+,   CSS_CLASS_INFOBOX_ENTRY_PROVIDER = "infobox-entry-provider"
+,   CSS_CLASS_INFOBOX_ENTRY_DATA = "infobox-entry-data"
+,   CSS_CLASS_INFOBOX_ENTRY_ATTACHMENTS = "infobox-entry-attachments"
+,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY = "infobox-attachment-entry"
+,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME = "infobox-attachment-entry-name"
+,   CSS_CLASS_INFOBOX_ENTRY_USAGEREASON = "infobox-entry-usageReason"
+,   CSS_CLASS_INFOBOX_DATA = "infobox-data"
+,   INFOBOX_HIDE_DELAY_MS = 3000;
+
+
+var infoboxPrototype; // lazy creation when DOM ready
+function getInfoboxPrototype(){
+    if (!infoboxPrototype) {
+        infoboxPrototype = $('<div class="' + CSS_CLASS_INFOBOX + '">' +
+            
+        '</div>').hide();
+    }
+    return infoboxPrototype;
+}
+var infoboxEntryPrototype;
+function getInfoboxEntryPrototype() {
+    if (!infoboxEntryPrototype) {
+        infoboxEntryPrototype = $('<div class="' + CSS_CLASS_INFOBOX_ENTRY + '">' +
+            '<span class="' + CSS_CLASS_INFOBOX_ENTRY_HEADER + '">' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_TIME + '"></span>' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_EXECUSER + '"></span>' +
+            '</span>' +
+            '<div class="' + CSS_CLASS_INFOBOX_ENTRY_CONTENT + '">' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_EVOKUSER + '"></span>' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_PROVIDER + '"></span>' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_DATA + '"></span>' +
+                '<ul class="' +  CSS_CLASS_INFOBOX_ENTRY_ATTACHMENTS + '"></ul>' +
+                '<span class="' + CSS_CLASS_INFOBOX_ENTRY_USAGEREASON + '"></span>' +
+            '</div>' +
+        '</div>');
+    }
+    return infoboxEntryPrototype;
+}
+
+var attachmentEntryPrototype;
+function getAttachmentEntryPrototype() {
+    if (!attachmentEntryPrototype) {
+        attachmentEntryPrototype = $('<li class="' + CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY + '">' +
+            '<span class="' + CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME + '"></span>' +
+            '<a></a>' +
+        '</li>');
+    }
+    return attachmentEntryPrototype;
+}
+
+
+/**
+ * Stellt die Informationsfläche dar, die beim Klicken bzw. Überfahren eines Tasks mit der Maus erscheint.
+ * @param {Position} position Position
+ * @return {Infobox} neue Infobox
+ */
+WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
+    var infobox = getInfoboxPrototype().clone();
+    var empty = true;
+
+    infobox.css("top", position.y + position.height);
+    infobox.css("left", position.x + position.width);
+
+
+    var shown = false;
+    var pinned = false;
+    
+    var that = Object.create(WoSec.baseObject);
+    
+    return WoSec.extend(that, {
+        /**
+         * Aktualisiere-Methode des Beobachter Musters
+         * @param {Task} task beobachteter Task
+         */
+        refresh: function(task) {
+            this.setContent(task.getInformation());
+        },
+        /**
+         * Zeigt die Informationsfläche.
+         * Versteckt sich wieder automatisch nach ein paar Sekunden
+         */
+        show: function() {
+            if(!shown && !empty) {
+                infobox.slideToggle("slow");
+                shown = true;
+                that.later(INFOBOX_HIDE_DELAY_MS, "hide");
+            }
+            return this;
+        },
+        /**
+         * Verbirgt die Informationsfläche.
+         */
+        hide: function() {
+            if(shown && !pinned) {
+                infobox.slideToggle("slow");
+                shown = false;
+            }
+            return this;
+        },
+        /**
+         * Anheften - hindert die Infobox sich selbst zu verstecken
+         */
+        pin: function() {
+            pinned = true;
+            that.show();
+            return this;
+        },
+        /**
+         * Lösen - hebt das Anheften wieder auf
+         */
+        unpin: function() {
+            pinned = false;
+            that.hide();
+            return this;
+        },
+        /**
+         * Setzt den Inhalt (User/Provider sowie Daten) der Infobox
+         * @param {Object} information
+         * @return {Infobox} self
+         */
+        setContent: function(information, timestamp) {
+            infobox.html("");
+            information.forEach(function(i) {
+                var entry = getInfoboxEntryPrototype().clone();
+                entry.find("." + CSS_CLASS_INFOBOX_ENTRY_TIME).text(i.timestamp);
+                if (i.participants) {
+                    entry.find("." + CSS_CLASS_INFOBOX_ENTRY_EXECUSER).text(i.participants.execUser);
+                    entry.find("." + CSS_CLASS_INFOBOX_ENTRY_EVOKUSER).text(i.participants.evokUser);
+                    entry.find("." + CSS_CLASS_INFOBOX_ENTRY_PROVIDER).text(i.participants.provider);
+                    empty = false;
+                }
+                entry.find("." + CSS_CLASS_INFOBOX_ENTRY_DATA).text(i.data);
+                if (i.attachments) {
+                    var attachments = entry.find("." + CSS_CLASS_INFOBOX_ENTRY_ATTACHMENTS);
+                    i.attachments.forEach(function(a) {
+                        var aEntry = getAttachmentEntryPrototype().clone();
+                        aEntry.find("." + CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME).text(a.name);
+                        aEntry.find("a").attr("href", a.link).text(a.type);
+                        attachments.append(aEntry);
+                    });
+                    empty = false;
+                }
+                entry.find("." + CSS_CLASS_INFOBOX_ENTRY_USAGEREASON).text(i.usageReason);
+                
+                infobox.append(entry);
+            });
+            return this;
+        },
+        /**
+         * Registriert einen Eventhandler für das OnClick-Event der Infobox
+         * @param {Function} handler zu registrierender Eventhandler
+         */
+        registerOnClick: function(handler) {
+            infobox.click(handler);
+            return this;
+        },
+        /**
+         * Registriert Eventhandler für das OnHover-Event der Infobox
+         * @param {Function} handlerIn Eventhandler beim eintreten
+         * @param {Function} handlerOut Eventhandler beim austreten
+         */
+        registerOnHover: function(handlerIn, handlerOut) {
+            infobox.hover(handlerIn, handlerOut);
+            return this;
+        },
+        appendTo: function(cssSelector) {
+            infobox.appendTo(cssSelector);
+            return this;
+        }
+
+    });
+}
+
+})();
+
+
+(function() {
+
+var $ = jQuery;
+
+var CSS_ID_TIMESLIDER = "timeslider"
+,   CSS_CLASS_TIMESLIDER_EVENT_LINK = "timeslider-entry"
+,   CSS_ID_TIMESLIDER_PLAY_BUTTON = "timeslider-play-button"
+,   CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY = "timeslider-play-button-overlay";
+
+var timeSliderEventPrototype;
+function getTimeSliderEventPrototype() {
+    if (!timeSliderEventPrototype) {
+        timeSliderEventPrototype = $('<a class="' + CSS_CLASS_TIMESLIDER_EVENT_LINK + '"></a>');
+    }
+    return timeSliderEventPrototype;
+}
+    
+WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(gui, eventChain) {
+    $("#" + CSS_ID_TIMESLIDER_PLAY_BUTTON).click(function() {
+        gui.enableAnimations();
+        eventChain.unlock().play();
+    });
+    var timeSliderEvents = [];
+    var timeSlider = $("#" + CSS_ID_TIMESLIDER).slider({
+        slide : function(event, ui) {
+            var value = timeSlider.slider("option", "value");
+            var backwards = ui.value < value;
+            var searchedEventCommand;
+            timeSliderEvents.forEach(function(e) {
+                if(e.timestamp <= ui.value) {
+                    searchedEventCommand = e.eventCommand;
+                }
+            });
+            gui.disableAnimations();
+            eventChain.lock().seek(function(eventCommand) {
+                if(!backwards) {
+                    eventCommand.execute();
+                } else {
+                    eventCommand.unwind();
+                }
+                if(eventCommand == searchedEventCommand) {
+                    return false;
+                }
+            }, backwards);
+        }
+    });
+
+    return {
+        adjustSize : function(eventChain) {
+            var startTime;
+            var endTime;
+            var min = timeSlider.slider("option", "min");
+            var max = timeSlider.slider("option", "max");
+            var intervalChanged = false;
+            eventChain.forEach(function(eventCommand, i) {
+                if(!timeSliderEvents[i]) {// if not yet created
+                    var event = {};
+                    event.eventCommand = eventCommand;
+                    event.timestamp = eventCommand.getTimestamp();
+                    event.entry = getTimeSliderEventPrototype().clone().appendTo('#' + CSS_ID_TIMESLIDER);
+                    // create new entry
+                    event.entry.addClass("timeslider-entry-" + eventCommand.getClass());
+                    timeSliderEvents.push(event);
+                }
+                var time = eventCommand.getTimestamp();
+                if(!startTime || time < startTime) {
+                    startTime = time;
+                }
+                if(!endTime || time > endTime) {
+                    endTime = time;
+                }
+                if(startTime) {
+                    timeSlider.slider("option", "min", startTime);
+                    intervalChanged = true;
+                }
+                if(endTime) {
+                    timeSlider.slider("option", "max", endTime);
+                    intervalChanged = true;
+                }
+            });
+            if(startTime == min && endTime == max) {
+                intervalChanged = false;
+            }
+            if(intervalChanged) {
+                var interval = endTime - startTime;
+                timeSliderEvents.forEach(function(e) {
+                    rightPercent = (endTime - e.timestamp) / interval * 100;
+                    e.entry.css("left", (100 - rightPercent) + "%");
+                });
+            }
+            return this;
+        },
+        /**
+         * Teil des Beobachtermusters, setzt den TimeSlider in Kenntnis, dass sich die EventChain geändert hat.
+         * @param {EventChain} eventChain
+         */
+        refresh : function(eventChain) {
+            if(eventChain.getLength() != timeSliderEvents.length) {
+                this.adjustSize(eventChain);
+                if(eventChain.isLocked()) {// animation on the play button if new events arrieved and the chain is locked
+                    $('#' + CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY).show();
+                    $('#' + CSS_ID_TIMESLIDER_PLAY_BUTTON).effect('pulsate', {
+                        times : 10
+                    }, 1000)
+                    setTimeout(function() {
+                        $('#' + CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY).hide();
+                    }, 10000);
+                }
+            }
+            timeSlider.slider("option", "value", eventChain.getEventCommand(eventChain.getCurrentPosition()).getTimestamp());
+            return this;
+        }
+    };
+}
+})(); 
+(function() {
+
+/**
+ * Das Mixin Observable kapselt die Grundfunktionalität
+ * für das Beobachter-Muster.
+ * Beobachter können registriert und benachrichtigt werden.
+ */
+WoSec.MixinObservable = function Observable() {
+    var observers = [];
+
+    /**
+     * Registriert einen Beobachter
+     * @param {Object} observer zu registrierender Beobachter
+     */
+    this.registerObserver = function(observer) {
+        if( typeof observer.refresh !== "function") {
+            throw new Error("Observer has to support refresh()-Method");
+        }
+        observers.push(observer);
+        return this;
+    };
+    /**
+     * Informiert alle Beobachter
+     * Argumente werden übergeben
+     */
+    this.notifyObservers = function() {
+        var args = Array.prototype.slice.call(arguments);
+        observers.forEach(function(observer) {
+            observer.refresh.apply(observer, args);
+        });
+        return this;
+    };
+};
+
+})()
+
+
+(function() {
+
+var MixinObservable = WoSec.MixinObservable;
+
+var states = ["Reset", "Starting", "Started", "Finished", "TransferingData"];
 /**
  * Ein Task-Objekt ist assoziiert mit einer Aktivität des BPMN SVG Diagramms.
  * Es verwaltet die zugehörige Infobox und das SVGRectangle,
  * an die Anweisungen zur Darstellung delegiert werden.
- * @param {Infobox} infobox
- * @param {SVGRectangle} rectangle
- * @param {String} correspondingActivityID
+ * @param {String} id ID des Tasks
+ * @param {String} correspondingActivityID ID des korrespondierenden Tasks
+ * @param {Workflow} workflow zugehöriger Workflow
  * @return {Task} neues Task-Objekt
  */
-function newTask(infobox, rectangle, correspondingActivityID) {
+WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
     var that = Object.create(WoSec.baseObject);
-	infobox.bindToSVGRectangle(rectangle);
+    MixinObservable.call(that);
+	var state = "Reset";
+	var information = [];
+	
+	that.constructor = Task;
 	
 	/**
-	 * @see Infobox.show
-	 * @return {Task} self
+	 * Gibt die ID des Tasks zurück
 	 */
-    that.showInfobox = infobox.show;
-	/**
-	 * @see Infobox.hide
-	 * @return {Task} self
-	 */
-    that.hideInfobox = infobox.hide;
+	that.getID = function() {
+		return id;
+	};
 	/**
 	 * Gibt den korrespondierenden Task zurück
 	 * @return {Task} korrespondierender Task
 	 */
 	that.getCorrespondingTask = function() {
-        return typeof(correspondingActivityID) == "string" && correspondingActivityID != "" && WoSec.workflow.getTaskByID(correspondingActivityID); // lazy load
+        return (typeof(correspondingActivityID) == "string" && correspondingActivityID != "")
+        	? workflow.getTaskByID(correspondingActivityID)
+        	: null;
     };
+    
+    /**
+     * Gibt den Zustand des Tasks zurück
+     * @return {String} Zustand
+     */
+    that.getState = function() {
+    	return state;
+    };
+    
+    /**
+     * Gibt die gespeicherten Informationen zurück
+     * @return {Object} Informationen
+     */
+    that.getInformation = function() {
+        return information;
+    }
+    
 	/**
-	 * @see SVGRectangle.highlight
-	 * @return {Task} self
+	 * Fügt dem Task Informationen hinzu
+	 * @param {Object} i Informationen
 	 */
-    that.highlight = rectangle.highlight;
-	/**
-	 * @see Infobox.setContent
-	 * @return {Task} self
-	 */
-    that.setInformation = infobox.setContent;
+    that.addInformation = function(i) {
+    	information.push(i);
+        this.notifyObservers(this);
+    	return this;
+    };
 	
 	/**
-	 * @see SVGRectangle.getPosition
+	 * Setzt den Zustand des Tasks
+	 * @param {String} newState neuer Zustand
 	 */
-	that.getPosition = rectangle.getPosition;
-	
-	/**
-	 * @see SVGRectangle.showAnimation
-	 * @return {Task} self
-	 */
-	that.animateData = function(){
-		this.getCorrespondingTask() && rectangle.showAnimation(this.getCorrespondingTask());
+	that.setState = function(newState) {
+		if (states.indexOf(newState) == -1) {
+			throw new Error("Unknown state [" + newState + "] given");
+		}
+		state = newState;
+		this.notifyObservers(this);
 		return this;
 	}
-	/**
-	 * @see SVGRectangle.markObtrusive
-	 * @return {Task} self
-	 */
-    that.markActive = rectangle.markObtrusive;
-	/**
-	 * @see SVGRectangle.markUnobtrusive
-	 * @return {Task} self
-	 */
-    that.markFinished = rectangle.markUnobtrusive;
 	
-	/**
-	 * @see SVGRectangle.reset
-	 * @return {Task} self
-	 */
-	that.reset = rectangle.reset;
 	
 	return that;
 }
 
-WoSec.newTask = newTask;
-
 }());
-
-
-/*
- * Another version of Task without powerConstructor
- */
-/*(function() {
-
-// import
-var workflow = WoSec.workflow;
-
-function Task(htmlInfobox, svgRectangle, correspondingActivityID) {
-    this.infobox = htmlInfobox;
-    this.rectangle = svgRectangle;
-    this.correspondingActivityID = correspondingActivityID;
-}
-Task.prototype.highlight = function() {
-    this.rectangle.highlight();
-};
-Task.prototype.getInfobox = function() {
-    return this.infobox;
-};
-Task.prototype.setParticipant = function(participant) {
-    this.infobox.setParticipant(participant);
-};
-Task.prototype.getCorrespondingTask = function() {
-    return workflow.getTaskByID(this.correspondingActivityID); // lazy load
-};
-Task.prototype.markActive = function() {
-    this.rectangle.markObtrusive();
-};
-
-Task.prototype.markFinished = function() {
-    this.rectangle.markUnobtrusive();
-};
-
-
-
-// export
-WoSec.Task = Task;
-
-}());*/
 
 (function() {
 
-// var workflow = WoSec.workflow; need late initializiation because of cross dependency
+var MixinObservable = WoSec.MixinObservable;
 
 /**
  * Ein Tasklane-Objekt ist assoziiert mit einer ActivityGroup des BPMN SVG Diagramms.
@@ -758,90 +999,89 @@ WoSec.Task = Task;
  * @param {Array} activityIDs
  * @return {TaskLane}
  */
-function newTaskLane(rectangle, activityIDs) {
+WoSec.newTaskLane = function TaskLane(activityIDs, workflow) {
 	var that = Object.create(WoSec.baseObject);
+	MixinObservable.call(that);
 	var getTasks = function() {
 		var tasks = [];
 		activityIDs.forEach(function(activityID, index) { 
-            tasks[index] = WoSec.workflow.getTaskByID(activityID);
+            tasks[index] = workflow.getTaskByID(activityID);
         });
 		return tasks;
 	};
 	
+	that.constructor = TaskLane;
 	/**
-	 * @see SVGRectangle.highlight
-	 * @return {TaskLane} self
-	 */
-	that.highlight = rectangle.highlight;
-	/**
-	 * Setzt Informationen für alle Task in der Lane
+	 * Fügt allen Tasks in der Lane Informationen hinzu
 	 * @param {Object} information
 	 * @return {TaskLane} self
 	 */
-	that.setInformation = function(information) {
+	that.addInformation = function(information) {
 		getTasks().forEach(function(task) {
-			task.setInformation(information);
+			task.addInformation(information);
 		});
+		this.notifyObservers();
 		return this;
 	};
 	return that;
 }
 
-WoSec.newTaskLane = newTaskLane;
-
 }());
 
-/**
- * Das Objekt Workflow stellt ein Singleton dar,
- * das Methoden zum Finden und Erstellen von Tasks (Tasklanes) bereitstellt.
- * Es speichert das Task Repository.
- */
-WoSec.workflow = (function() { // Singleton pattern begin
-    // import
-	var newTask = WoSec.newTask;
-	var newTaskLane = WoSec.newTaskLane;
-	var htmlRenderer = WoSec.htmlRenderer;
-	var svgUtility = WoSec.svgUtility;
+
+(function() {    
 	
-	var thisInstanceID;
+// import
+var newTask = WoSec.newTask
+,	newTaskLane = WoSec.newTaskLane
+,	MixinObservable = WoSec.MixinObservable;
+/**
+ * Die Klasse Workflow stellt Methoden 
+ * zum Finden und Erstellen von Tasks (Tasklanes) bereit.
+ * Sie speichert ein Task Repository.
+ * 
+ * Initialisiert den Workflow mit den korrespondierenden Tasks und Tasks in einer TaskLane
+ * @param {String} instanceID InstanzID
+ * @param {Object} correspondingActivityIDs korrespondierende Tasks ID => ID
+ * @param {Object} activityIDsInALane Tasks in einer TaskLane TaskLaneID => [TaskIDs]
+ */
+WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, activityIDsInALane) {
+	if (typeof(instanceID) != "string") {
+		throw new TypeError("The given instanceID is not a String");
+	}
+
+    var that = Object.create(WoSec.baseObject)
+	
     var taskRepository = {}; // ID => Task
     var taskLaneRepository = {}; // ID => TaskLane
-	var correspondingActivities = {}; // ID => ID
-	var activitiesInALane = {}; // TaskLaneID => [TaskIDs]
 	
     function createTask(activityID) {
 		if (typeof(activityID) != "string") {
-			throw new TypeError("The given ID is not a String");
+			throw new TypeError("The given activityID is not a String");
 		}
-        return newTask(htmlRenderer.createInfobox(), svgUtility.getTaskRectangle(activityID), correspondingActivities[activityID]);
+        return newTask(activityID, correspondingActivityIDs[activityID], that);
     }
     function createTaskLane(activityGroupID) {
 		if (typeof(activityGroupID) != "string") {
 			throw new TypeError("The given groupID is not a String");
 		}
-		if (!activitiesInALane[activityGroupID]) {
-			throw new Error("Unknown activityGroupID");
+		if (!activityIDsInALane[activityGroupID]) {
+			throw new Error("Unknown activityGroupID[" + activityGroupID + "]");
 		}
-        return newTaskLane(svgUtility.getTaskLaneRectangle(activityGroupID), activitiesInALane[activityGroupID]);
+        return newTaskLane(activityIDsInALane[activityGroupID], that);
     }
-    return {
-		/**
-		 * Initialisiert den Workflow mit den korrespondierenden Tasks und Tasks in einer TaskLane
-		 * @param {String} InstanzID
-		 * @param {Object} correspondingActivitiesIDs korrespondierende Tasks ID => ID
-		 * @param {Object} activityIDsForALane Tasks in einer TaskLane TaskLaneID => [TaskIDs]
-		 */
-		init: function(instanceID, correspondingActivitiesIDs, activityIDsForALane) {
-			thisInstanceID = instanceID;
-			correspondingActivities = correspondingActivitiesIDs;
-			activitiesInALane = activityIDsForALane;
-		},
+    MixinObservable.call(that);
+    return WoSec.extend(that, {
+        constructor: Workflow,
+        toString: function() {
+            return "Workflow:"+this.getInstanceID();
+        },
 		/**
 		 * Gibt die InstanzID des Workflows zurück
 		 * @return InstanzID
 		 */
 		getInstanceID: function() {
-			return thisInstanceID;
+			return instanceID;
 		},
 		/**
 		 * Liefert den Task mit der angegebenen ID zurück
@@ -850,7 +1090,9 @@ WoSec.workflow = (function() { // Singleton pattern begin
 		 */
         getTaskByID: function(activityID) {
 			if (!taskRepository[activityID]) {
-				taskRepository[activityID] = createTask(activityID)
+				taskRepository[activityID] = createTask(activityID);
+				taskRepository[activityID].getCorrespondingTask(); // create corresponding Task if possible
+				this.notifyObservers(this);
 			}
             return taskRepository[activityID];
         },
@@ -862,15 +1104,48 @@ WoSec.workflow = (function() { // Singleton pattern begin
         getTaskLaneByID: function(activityGroupID) {
 			if (!taskLaneRepository[activityGroupID]) {
 				taskLaneRepository[activityGroupID] = createTaskLane(activityGroupID);
+				this.notifyObservers(this);
 			}
             return taskLaneRepository[activityGroupID];
+        },
+        getTaskRepositoryEntries: function() {
+            var entries = [];
+            for (var p in taskRepository) {
+                entries.push(p);
+            }
+            return entries;
+        },
+        getTaskLaneRepositoryEntries: function() {
+            var entries = [];
+            for (var p in taskLaneRepository) {
+                entries.push(p);
+            }
+            return entries;
         }
-    };
-}()); // Singleton pattern end
+    });
+};
+
+}());
 
 (function() {
 
-var workflow = WoSec.workflow;
+var WorkflowClass = WoSec.newWorkflow;
+
+
+var workflow;
+/**
+ * Ein kleiner Workaround um die Workflowobjektabhängigkeit
+ * Die Factories benötigen jeweils einen Workflow dem das zu erstellende Event zugeordnet wird.
+ * Muss immer vor der Benutzung einer Factory aufgerufen werden.
+ * @param {Workflow} w der zu verwendende Workflow
+ */
+function usingWorkflow(w) {
+	if (!w instanceof WorkflowClass) {
+		throw new TypeError("Given argument is not a workflow [" + w + "]");
+	}
+	workflow = w;
+	return this; // allows method chaining
+};
 
 /**
  * Basisklasse für Events unterschiedlichen Typs, bietet Ausführen- und Animiere-Methoden.
@@ -903,13 +1178,6 @@ EventCommand.prototype.execute = function() {
 	return this;
 };
 /**
- * Führt die Animation des Befehls aus.
- * @return {EventCommand}
- */
-EventCommand.prototype.animate = function() {
-	return this;
-};
-/**
  * Macht den Befehl rückgängig
  */
 EventCommand.prototype.unwind = function() {
@@ -931,16 +1199,6 @@ EventCommand.create = function(event) {
 }
 
 
-// weiß nicht so recht hier... gibt verschiedene Möglichkeiten das umzusetzen. Ich denke mal das der klassische Ansatz der einfachste ist...
-// WoSec.inherit ermöglicht jedenfalls die Nutzung des instanceof Operators
-
-/**
- * Abstrakte Klasse. Abstrahiert HighlightingEvent und MarkFinishedEvent,
- * die beide eine Statusänderung eines Tasks darstellen.
- * @augments EventCommand
- */
-function StateChangingEvent() {}
-WoSec.inherit(StateChangingEvent, EventCommand);
 
 /**
  * Beim Starten einer Aktivität delegiert dieses Objekt die Anweisung,
@@ -949,41 +1207,36 @@ WoSec.inherit(StateChangingEvent, EventCommand);
  * @param {Task} task Zugehöriger Task
  * @param {Integer} timestamp Zeitstempel
  */
-function HighlightingEvent(task, timestamp) {
+function StartingTaskEvent(task, timestamp) {
 	EventCommand.call(this, timestamp);
     this.task = task;
 }
-WoSec.inherit(HighlightingEvent, StateChangingEvent);
-HighlightingEvent.prototype.classname = "HighlightingEvent";
+WoSec.inherit(StartingTaskEvent, EventCommand);
+StartingTaskEvent.prototype.classname = "StartingTaskEvent";
 /**
  * @see EventCommand.execute
  */
-HighlightingEvent.prototype.execute = function() {
-    this.task.markActive();
-	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().markActive();
+StartingTaskEvent.prototype.execute = function() {
+    this.task.setState("Started");
+	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
 	return this;
 };
-HighlightingEvent.prototype.unwind = function() {
-	this.task.reset();
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().reset();
+/**
+ * @see EventCommand.unwind
+ */
+StartingTaskEvent.prototype.unwind = function() {
+	this.task.setState("Reset");
+    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Reset");
 	return this;
 }
 /**
- * @see EventCommand.animate
- */
-HighlightingEvent.prototype.animate = function() {
-    this.task.highlight();
-	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().highlight();
-	return this;
-};
-/**
- * Factory Methode zur Erstellung eines HighlightingEvent
+ * Factory Methode zur Erstellung eines StartingTaskEvent
  * @param {Object} event Eventdaten
  * @param {String} event.activityID Aktivitäts ID
  * @param {Integer} event.timestamp Zeitstempel
  */
-HighlightingEvent.create = function(event) {
-	return new HighlightingEvent(workflow.getTaskByID(event.activityID), event.timestamp);
+StartingTaskEvent.create = function(event) {
+	return new StartingTaskEvent(workflow.getTaskByID(event.activityID), event.timestamp);
 };
 
 /**
@@ -994,39 +1247,43 @@ HighlightingEvent.create = function(event) {
  * @param {Object} information Zusätzliche Eventinformationen
  * @param {Integer} timestamp Zeitstempel
  */
-function MarkFinishedEvent(task, information, timestamp) {
+function FinishingTaskEvent(task, information, timestamp) {
 	EventCommand.call(this, timestamp);
     this.task = task;
 	this.information = information || {};
+	this.information.timestamp = timestamp;
 }
-WoSec.inherit(MarkFinishedEvent, StateChangingEvent);
-MarkFinishedEvent.prototype.classname = "MarkFinishedEvent";
+WoSec.inherit(FinishingTaskEvent, EventCommand);
+FinishingTaskEvent.prototype.classname = "FinishingTaskEvent";
 /**
  * @see EventCommand.execute
  */
-MarkFinishedEvent.prototype.execute = function() {
-    this.task.markFinished();
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().markFinished();
-	this.task.setInformation(this.information);
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setInformation(this.information);
+FinishingTaskEvent.prototype.execute = function() {
+    this.task.setState("Finished");
+    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Finished");
+	this.task.addInformation(this.information);
+    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
 	return this;
 };
-MarkFinishedEvent.prototype.unwind = function() {
-	this.task.markActive();
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().markActive();
+/**
+ * @see EventCommand.unwind
+ */
+FinishingTaskEvent.prototype.unwind = function() {
+	this.task.setState("Started");
+    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
 	return this;
 }
-//MarkFinishedEvent.prototype.animate = function() {}; // NOP
+//FinishingTaskEvent.prototype.fastExecute = function() {}; // NOP
 /**
- * Factory Methode zur Erstellung eines MarkFinishedEvent
+ * Factory Methode zur Erstellung eines FinishingTaskEvent
  * @param {Object} event Eventdaten
  * @param {String} event.activityID Aktivitäts ID
  * @param {Integer} event.timestamp Zeitstempel
  * @param {Object} event.information zusätzliche Eventinformationen
  * 
  */
-MarkFinishedEvent.create = function(event) {
-	return new MarkFinishedEvent(workflow.getTaskByID(event.activityID), event.information, event.timestamp);
+FinishingTaskEvent.create = function(event) {
+	return new FinishingTaskEvent(workflow.getTaskByID(event.activityID), event.information, event.timestamp);
 }
 
 
@@ -1041,6 +1298,7 @@ function TransferingDataEvent(task, information, timestamp) {
 	EventCommand.call(this, timestamp);
     this.task = task;
 	this.information = information || {};
+    this.information.timestamp = timestamp;
 }
 WoSec.inherit(TransferingDataEvent, EventCommand);
 TransferingDataEvent.prototype.classname = "TransferingDataEvent";
@@ -1048,17 +1306,10 @@ TransferingDataEvent.prototype.classname = "TransferingDataEvent";
  * @see EventCommand.execute
  */
 TransferingDataEvent.prototype.execute = function() {
-    this.task.setInformation(this.information);
+    this.task.setState("TransferingData");
 	return this;
 };
 // TransferingDataEvent.prototype.unwind = function() {} // NOP
-/**
- * @see EventCommand.animate
- */
-TransferingDataEvent.prototype.animate = function() {
-    this.task.animateData();
-	return this;
-};
 /**
  * Factory Methode zur Erstellung eines TransferingDataEvent
  * @param {Object} event Eventdaten
@@ -1083,6 +1334,7 @@ function SpecifyingParticipantEvent(taskLane, information, timestamp) {
 	EventCommand.call(this, timestamp);
     this.taskLane = taskLane;
     this.information = information || {};
+    this.information.timestamp = timestamp;
 }
 WoSec.inherit(SpecifyingParticipantEvent, EventCommand);
 SpecifyingParticipantEvent.prototype.classname = "SpecifyingParticipantEvent";
@@ -1090,17 +1342,11 @@ SpecifyingParticipantEvent.prototype.classname = "SpecifyingParticipantEvent";
  * @see EventCommand.execute
  */
 SpecifyingParticipantEvent.prototype.execute = function() {
-    this.taskLane.setInformation(this.information);
+    this.taskLane.addInformation(this.information);
 	return this;
 };
 // SpecifyingParticipantEvent.prototype.unwind = function() {} // NOP
-/**
- * @see EventCommand.animate
- */
-SpecifyingParticipantEvent.prototype.animate = function() {
-    this.taskLane.highlight();
-	return this;
-};
+
 /**
  * Factory Methode zur Erstellung eines SpecifyingParticipantEvent
  * @param {Object} event Eventdaten
@@ -1113,46 +1359,52 @@ SpecifyingParticipantEvent.create = function(event) {
 	return new SpecifyingParticipantEvent(workflow.getTaskLaneByID(event.activityGroupID), event.information, event.timestamp);
 }
 
-// exports
-EventCommand.EventCommand = EventCommand;
-EventCommand.StateChanging = StateChangingEvent;
-EventCommand.Highlighting = HighlightingEvent;
-EventCommand.MarkFinished = MarkFinishedEvent;
-EventCommand.TransferingData = TransferingDataEvent;
-EventCommand.SpecifyingParticipant = SpecifyingParticipantEvent;
 
-WoSec.EventCommand = EventCommand;
+// exports
+WoSec.eventCommands = {
+	usingWorkflow: usingWorkflow,
+	EventCommand: EventCommand,
+	StartingTask: StartingTaskEvent,
+	FinishingTask: FinishingTaskEvent,
+	TransferingData: TransferingDataEvent,
+	SpecifyingParticipant: SpecifyingParticipantEvent
+};
 
 }());
 
 
+(function() {
+
+var eventCommands = WoSec.eventCommands
+,   EventCommand = eventCommands.EventCommand
+,	MixinObservable = WoSec.MixinObservable;
+
+
+var PLAY_TIME_BETWEEN_EVENTS_MS = 1000;
+
 /**
- * Singleton zur Verwaltung einer Liste von EventCommands
+ * Klasse zur Verwaltung einer Liste von EventCommands
  * und eines Zeigers zur momentanen (zeitlichen) Position der Events
- * @type EventChain
+ * @constructor
+ * @param {Workflow} workflow zugehöriger Workflow
  */
-WoSec.eventChain = (function () {
-	const PLAY_TIME_BETWEEN_EVENTS_MS = 750;
-	var   EventCommand = WoSec.EventCommand;
+WoSec.newEventChain = function EventChain(workflow) {
     
 	var events = [];
 	var currentPosition = 0;
-	var observers = [];
 	var locked = false;
 
-    return {
-		/**
-		 * Registriert einen Beobachter
-		 * @param {Object} observer
-		 * @return {EventChain} self
-		 */
-		registerObserver: function(observer) {
-			if (typeof observer.notify !== "function") {
-				throw new Error("Observer has to support notify()-Method");
-			}
-			observers.push(observer);
-			return this;
-		},
+    var that = Object.create(WoSec.baseObject)
+    MixinObservable.call(that);
+    return WoSec.extend(that, {
+        constructor: EventChain,
+        /**
+         * Gibt den zugehörigen Workflow zurück
+         * @return {Workflow}
+         */
+        getWorkflow: function() {
+        	return workflow;
+        },
 		/**
 		 * Gibt die momentane Position in der EventChain zurück
 		 * @return {Integer} momentane Position
@@ -1207,14 +1459,15 @@ WoSec.eventChain = (function () {
         add: function(data) {
 			data = data || [];
             data.forEach(function(event) {
-				if (!EventCommand[event.eventCommand]) {
+				if (!eventCommands[event.eventCommand]) {
 					throw new Error("Unknown EventCommand: " + event.eventCommand);
 				}
-				events.push(EventCommand[event.eventCommand].create(event)); // factory method
+				events.push(eventCommands.usingWorkflow(workflow)[event.eventCommand].create(event)); // factory method
 			});
-			observers.forEach(function(observer) {
-				observer.notify();
+			events.sort(function(e, next) {
+			    e.timestamp - next.timestamp;
 			});
+			this.notifyObservers(this);
 			return this;
         },
 		/**
@@ -1239,9 +1492,7 @@ WoSec.eventChain = (function () {
 				}
 				i += direction
 			}
-			observers.forEach(function(observer) {
-				observer.notify();
-			});
+			this.notifyObservers(this);
 			return this;
         },
 		/**
@@ -1259,9 +1510,8 @@ WoSec.eventChain = (function () {
 				return this;
 			}
 			var after = 0;
-			this.seek(function(eventCommand){
-				eventCommand.later(after, "execute")
-							.later(after, "animate");
+			this.seek(function(eventCommand) {
+				eventCommand.later(after, "execute");
 				after += PLAY_TIME_BETWEEN_EVENTS_MS;
 			});
 			setTimeout(function(){
@@ -1282,53 +1532,124 @@ WoSec.eventChain = (function () {
 				return new EventCommand(0); // else mock an event with timestamp zero for the ajaxUpdater
 			}
 		}
-    };
+    });
+};
+
 }());
 
 /**
  * Singleton zum Abfragen neuer Eventdaten alle paar Sekunden (Default 5).
  * Empfangene Eventdaten werden an die EventChain weitergegeben.
  */
-WoSec.ajaxUpdater = (function() {
-	const DELAY_BETWEEN_POLLS = 5000
-	,	  POLL_URL = "UpdateController?type=Event";
+WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
+	var DELAY_BETWEEN_POLLS = 5000;
+	var POLL_URL = "UpdateController?type=Event";
 	
-	var $ = jQuery;
-    var eventChain = WoSec.eventChain;
-	var workflow = WoSec.workflow;
+	//var $ = jQuery;
+	var $ = {
+	    getJSON: function(mock, it, callback) {
+		callback(
+[/*{
+    "timestamp": 1314317905,
+    "eventCommand": "EventCommand",
+    "information": {},
+    "eventType": "createInstance"
+}, */{
+    "timestamp": 1314373858,
+    "eventCommand": "FinishingTask",
+    "information": {},
+    "eventType": "humanActivityExecuted",
+    "activityID": "__fX4gedbEd-f6JWMxJDGcQ"
+}, {
+    "timestamp": 1314373863,
+    "eventCommand": "FinishingTask",
+    "information": {},
+    "eventType": "eventActivityExecuted",
+    "activityID": "_ggEwYYBxEd-3VeNHLWdQXA"
+}, {
+    "timestamp": 1314373864,
+    "eventCommand": "SpecifyingParticipant",
+    "information": {},
+    "eventType": "HumanTaskExecutorSelected",
+    "activityGroupID": "_7kTKEOdbEd-f6JWMxJDGcQ"
+}, {
+    "timestamp": 1314373864,
+    "eventCommand": "SpecifyingParticipant",
+    "information": {
+        "participants": {
+            "provider": "DB01"
+        }
+    },
+    "eventType": "WSProviderSelected",
+    "activityGroupID": "_1UFV4ItpEd-U-Z7QjvIBEA"
+}, {
+    "timestamp": 1314373865,
+    "eventCommand": "TransferingData",
+    "information": {
+        "data": "UserID: _sDfw47sd33saeF",
+        "participants": {
+            "provider": "DB01",
+            "evokUser": "Alice",
+            "execUser": "Ich"
+        },
+        "attachments": [
+            {
+                "link": "http://somewhereIbelong",
+                "name": "Das ist ein Anhang!",
+                "type": "Ein Link der nirgends hinführt..."
+            }
+        ],
+        "usageReason": "wie bestellt"
+    },
+    "eventType": "DataTransferredToWS",
+    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
+}, {
+    "timestamp": 1314373865,
+    "eventCommand": "StartingTask",
+    "information": {},
+    "eventType": "startActivityExecution",
+    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
+}, {
+    "timestamp": 1314373866,
+    "eventCommand": "TransferingData",
+    "information": {
+        "data": "",
+        "participants": {
+            "provider": "DB01"
+        },
+        "usageReason": "an die Datenbank geschickt, weil deshalb",
+        "attachments": [
+            {
+                "link": "http://blabla",
+                "name": "Anschreiben",
+                "type": "Word-Dokument"
+            }, {
+                "link": "http://blablub",
+                "name": "Ausschreibung",
+                "type": "PDF-Datei"
+            }
+        ]
+    },
+    "eventType": "DataTransferredFromWS",
+    "activityID": "_mJVSMNq2Ed-AhcDaNoYiNA"
+}, {
+    "timestamp": 1314373867,
+    "eventCommand": "FinishingTask",
+    "information": {
+        "participants": {
+            "provider": "DB01"
+        }
+    },
+    "eventType": "WSActivityExecuted",
+    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
+}]);
+	    }
+	};//*/
 	
-    return {
-		/**
-		 * Startet den Abfrageprozess.
-		 */
-        init: function (lastVisitedTimestamp) {
-			var times = 0;
-            lastVisitedTimestamp = lastVisitedTimestamp || 0;
-			function ajax(callback) {
-				$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp() + 1, instance: workflow.getInstanceID()}, callback);
-			}
-			ajax(function(data) { 
-				if (data.length != 0) {
-					eventChain.add(data).seek(function(eventCommand) {
-						return eventCommand.getTimestamp() <= lastVisitedTimestamp && eventCommand.execute(); // seek forward until the timestamp is newer than the lastVisited
-					}).play();
-				}
-			});
-			var playAndAddLoop = function(data) {
-				if (data.length != 0) {
-					eventChain.add(data).play();
-				}
-				setTimeout(ajax, DELAY_BETWEEN_POLLS, playAndAddLoop);
-			}
-			setTimeout(ajax, DELAY_BETWEEN_POLLS, playAndAddLoop);
-            $("body").ajaxError(function(){
-                times++;
-                if (times >= 3) {
-                    alert("Verbindung zum Server verloren!");
-                } else {
-                    setTimeout(ajax, DELAY_BETWEEN_POLLS, playAndAddLoop);
-                }
-            });
-		}
-    };
-}());
+    
+		$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp(), instance: eventChain.getWorkflow().getInstanceID()}, function(data) {
+			eventChain.add(data).play();
+		});
+		//setTimeout(loop, DELAY_BETWEEN_POLLS);
+	
+};

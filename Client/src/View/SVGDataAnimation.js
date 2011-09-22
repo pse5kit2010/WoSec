@@ -3,8 +3,8 @@
     
 var $ = jQuery;
 
-const ANIMATION_IMAGE_PATH = "media/images/fileicon.png" // {width: 34, height: 44}
-,	  ANIMATION_IMAGE_SIZE = {width: 25.5, height: 33};
+var ANIMATION_IMAGE_PATH = "media/images/fileicon.png" // {width: 34, height: 44}
+,   ANIMATION_IMAGE_SIZE = {width: 25.5, height: 33};
 
 
 var animationPrototype;

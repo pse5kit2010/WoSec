@@ -3,7 +3,8 @@
  * Empfangene Eventdaten werden an die EventChain weitergegeben.
  */
 WoSec.AJAXUpdater = function AJAXUpdater(eventChain, lastVisitedTimestamp) {
-    const DELAY_BETWEEN_POLLS = 5000, POLL_URL = "UpdateController?type=Event";
+    var DELAY_BETWEEN_POLLS = 5000
+    ,   POLL_URL = "UpdateController?type=Event";
 
     var $ = jQuery;
 

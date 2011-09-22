@@ -1,76 +1,38 @@
 
 /**
+ * WoSec Client-Side
+ * 
+MIT Licence:
+Copyright (c) 2011 Justus Maier, David Rieger, Oleg Peters, Philip Lingel
+
+Permission is hereby granted, free of charge, to any person obtaining a 
+copy of this software and associated documentation files (the 
+"Software"), to deal in the Software without restriction, including 
+without limitation the rights to use, copy, modify, merge, publish, 
+distribute, sublicense, and/or sell copies of the Software, and to 
+permit persons to whom the Software is furnished to do so, subject to 
+the following conditions:
+
+The above copyright notice and this permission notice shall be included 
+in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS 
+OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF 
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. 
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY 
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+ */
+
+
+/**
  * Namespace Deklaration und ein paar praktische Funktionen
  */
 
 var WoSec = {};
 
-
-// ES5 Functions
-if (typeof Object.create !== 'function') { //source: http://javascript.crockford.com/prototypal.html
-    Object.create = function (o) {
-        function F() {}
-        F.prototype = o;
-        return new F();
-    };
-}
-
-if (typeof Array.prototype.forEach !== 'function') {
-  Array.prototype.forEach = function(callback)//[, thisObject])
-  {
-    var len = this.length;
-    if (typeof callback != "function")
-      throw new TypeError();
-
-    var thisObject = arguments[1];
-    for (var i = 0; i < len; i++)
-    {
-      if (i in this)
-        callback.call(thisObject, this[i], i, this);
-    }
-  };
-}
-
-if (typeof Function.prototype.bind !== "function") { // http://webreflection.blogspot.com/2010/02/functionprototypebind.html
-
-    Function.prototype.bind = (function (slice){
-
-        // (C) WebReflection - Mit Style License
-        function bind(context) {
-
-            var self = this; // "trapped" function reference
-
-            // only if there is more than an argument
-            // we are interested into more complex operations
-            // this will speed up common bind creation
-            // avoiding useless slices over arguments
-            if (1 < arguments.length) {
-                // extra arguments to send by default
-                var $arguments = slice.call(arguments, 1);
-                return function () {
-                    return self.apply(
-                        context,
-                        // thanks @kangax for this suggestion
-                        arguments.length ?
-                            // concat arguments with those received
-                            $arguments.concat(slice.call(arguments)) :
-                            // send just arguments, no concat, no slice
-                            $arguments
-                    );
-                };
-            }
-            // optimized callback
-            return function () {
-                // speed up when function is called without arguments
-                return arguments.length ? self.apply(context, arguments) : self.call(context);
-            };
-        }
-
-        // the named function
-        return bind;
-
-    }(Array.prototype.slice));
-}
 
 
 WoSec.baseObject = {
@@ -90,7 +52,7 @@ WoSec.baseObject = {
         }, msec);
         return that; // Cascade
     }
-}
+};
 
 /**
  * Erzeugt Vererbung zwischen den gegebenen Klassen
@@ -101,7 +63,7 @@ WoSec.inherit = function(subType, superType) {
     var prototype = Object.create(superType.prototype);
     prototype.constructor = subType;
     subType.prototype = prototype;
-}
+};
 
 /**
  * Erweitert ein Objekt um die Methoden und Eigenschaften eines anderen
@@ -115,4 +77,4 @@ WoSec.extend = function(destination, source) {
     }
   }
   return destination;
-}
+};

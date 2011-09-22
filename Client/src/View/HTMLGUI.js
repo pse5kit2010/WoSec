@@ -5,7 +5,7 @@ var $ = jQuery;
 
 var SVG = WoSec.SVG;
 
-const CSS_ID_INFOBOXES = "infoboxes";
+var CSS_ID_INFOBOXES = "infoboxes";
 
 
 /**
