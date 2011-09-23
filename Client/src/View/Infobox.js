@@ -17,7 +17,7 @@ var CSS_CLASS_INFOBOX = "infobox"
 ,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME = "infobox-attachment-entry-name"
 ,   CSS_CLASS_INFOBOX_ENTRY_USAGEREASON = "infobox-entry-usageReason"
 ,   CSS_CLASS_INFOBOX_DATA = "infobox-data"
-,   INFOBOX_HIDE_DELAY_MS = 3000;
+,   INFOBOX_HIDE_DELAY_MS = 7000;
 
 
 var infoboxPrototype; // lazy creation when DOM ready
@@ -130,11 +130,13 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * @param {Object} information
          * @return {Infobox} self
          */
-        setContent: function(information, timestamp) {
+        setContent: function(information) {
             infobox.html("");
+            console.log(information)
             information.forEach(function(i) {
                 var entry = getInfoboxEntryPrototype().clone();
-                entry.find("." + CSS_CLASS_INFOBOX_ENTRY_TIME).text(i.timestamp);
+                var date = new Date(i.timestamp * 1000);
+                entry.find("." + CSS_CLASS_INFOBOX_ENTRY_TIME).text(date.getDate() + "." + date.getMonth() + "." + date.getFullYear());
                 if (i.participants) {
                     entry.find("." + CSS_CLASS_INFOBOX_ENTRY_EXECUSER).text(i.participants.execUser);
                     entry.find("." + CSS_CLASS_INFOBOX_ENTRY_EVOKUSER).text(i.participants.evokUser);

@@ -9,7 +9,7 @@ var jslint = require("./lib/jslint");
 
 var dir = "src/"
 ,   files = [
-    "WoSec.js",    
+    "WoSec.js",
     "View/SVG.js",
     "View/SVGTaskRectangle.js",
     "View/SVGTaskLaneRectangle.js",

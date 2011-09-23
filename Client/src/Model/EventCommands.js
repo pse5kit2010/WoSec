@@ -79,9 +79,11 @@ EventCommand.create = function(event) {
  * @param {Task} task Zugehöriger Task
  * @param {Integer} timestamp Zeitstempel
  */
-function StartingTaskEvent(task, timestamp) {
+function StartingTaskEvent(task, information, timestamp) {
 	EventCommand.call(this, timestamp);
     this.task = task;
+    this.information = information;
+    this.information.timestamp = timestamp;
 }
 WoSec.inherit(StartingTaskEvent, EventCommand);
 StartingTaskEvent.prototype.classname = "StartingTaskEvent";
@@ -91,6 +93,8 @@ StartingTaskEvent.prototype.classname = "StartingTaskEvent";
 StartingTaskEvent.prototype.execute = function() {
     this.task.setState("Started");
 	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
+	this.task.addInformation(this.information);
+	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
 	return this;
 };
 /**
@@ -108,7 +112,7 @@ StartingTaskEvent.prototype.unwind = function() {
  * @param {Integer} event.timestamp Zeitstempel
  */
 StartingTaskEvent.create = function(event) {
-	return new StartingTaskEvent(workflow.getTaskByID(event.activityID), event.timestamp);
+	return new StartingTaskEvent(workflow.getTaskByID(event.activityID), event.information, event.timestamp);
 };
 
 /**
@@ -179,6 +183,8 @@ TransferingDataEvent.prototype.classname = "TransferingDataEvent";
  */
 TransferingDataEvent.prototype.execute = function() {
     this.task.setState("TransferingData");
+    this.task.addInformation(this.information);
+    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
 	return this;
 };
 // TransferingDataEvent.prototype.unwind = function() {} // NOP

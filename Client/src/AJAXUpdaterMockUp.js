@@ -48,7 +48,7 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
     "timestamp": 1314373865,
     "eventCommand": "TransferingData",
     "information": {
-        "data": "UserID: _sDfw47sd33saeF",
+        "data": "Name, Adresse",
         "participants": {
             "provider": "DB01",
             "evokUser": "Alice",
