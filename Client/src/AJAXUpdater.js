@@ -13,7 +13,7 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain, lastVisitedTimestamp) {
     function ajax(callback) {
         $.getJSON(POLL_URL, {
             since : eventChain.last().getTimestamp() + 1,
-            instance : eventChain.getWorkflow().getInstanceID()
+            instance : eventChain.getWorkflow().getID()
         }, callback);
     }
 

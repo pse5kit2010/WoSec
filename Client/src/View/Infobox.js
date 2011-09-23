@@ -4,6 +4,7 @@
 var $ = jQuery;
 
 var CSS_CLASS_INFOBOX = "infobox"
+,   CSS_CLASS_INFOBOX_PIN_BUTTON = "infobox-pin-button"
 ,   CSS_CLASS_INFOBOX_ENTRY = "infobox-entry"
 ,   CSS_CLASS_INFOBOX_ENTRY_HEADER = "infobox-entry-header"
 ,   CSS_CLASS_INFOBOX_ENTRY_TIME = "infobox-entry-time"
@@ -24,7 +25,7 @@ var infoboxPrototype; // lazy creation when DOM ready
 function getInfoboxPrototype(){
     if (!infoboxPrototype) {
         infoboxPrototype = $('<div class="' + CSS_CLASS_INFOBOX + '">' +
-            
+            "<span class='" + CSS_CLASS_INFOBOX_PIN_BUTTON + "'>#</span>" +
         '</div>').hide();
     }
     return infoboxPrototype;
@@ -72,10 +73,20 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
 
     infobox.css("top", position.y + position.height);
     infobox.css("left", position.x + position.width);
+    
+    
 
 
     var shown = false;
     var pinned = false;
+    
+    infobox.find("." + CSS_CLASS_INFOBOX_PIN_BUTTON).click(function() {
+        if (pinned) {
+            that.unpin();
+        } else {
+            that.pin();
+        }
+    });
     
     var that = Object.create(WoSec.baseObject);
     
@@ -131,7 +142,7 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * @return {Infobox} self
          */
         setContent: function(information) {
-            infobox.html("");
+            infobox.find("." + CSS_CLASS_INFOBOX_ENTRY).remove();
             console.log(information)
             information.forEach(function(i) {
                 var entry = getInfoboxEntryPrototype().clone();

@@ -11,13 +11,13 @@ var newTask = WoSec.newTask
  * Sie speichert ein Task Repository.
  * 
  * Initialisiert den Workflow mit den korrespondierenden Tasks und Tasks in einer TaskLane
- * @param {String} instanceID InstanzID
+ * @param {String} id InstanzID
  * @param {Object} correspondingActivityIDs korrespondierende Tasks ID => ID
  * @param {Object} activityIDsInALane Tasks in einer TaskLane TaskLaneID => [TaskIDs]
  */
-WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, activityIDsInALane) {
-	if (typeof(instanceID) != "string") {
-		throw new TypeError("The given instanceID is not a String");
+WoSec.newWorkflow = function Workflow(id, correspondingActivityIDs, activityIDsInALane) {
+	if (typeof(id) != "string") {
+		throw new TypeError("The given id is not a String");
 	}
 
     var that = Object.create(WoSec.baseObject)
@@ -44,14 +44,14 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
     return WoSec.extend(that, {
         constructor: Workflow,
         toString: function() {
-            return "Workflow:"+this.getInstanceID();
+            return "Workflow:"+this.getID();
         },
 		/**
 		 * Gibt die InstanzID des Workflows zurück
 		 * @return InstanzID
 		 */
-		getInstanceID: function() {
-			return instanceID;
+		getID: function() {
+			return id;
 		},
 		/**
 		 * Liefert den Task mit der angegebenen ID zurück

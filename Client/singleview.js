@@ -25,9 +25,10 @@ $(function() {
         "_Bdcl0IBxEd-3VeNHLWdQXA" : ["_3OFh0IIQEd-Ik-oRjTK6iQ", "_6P8wUIIQEd-Ik-oRjTK6iQ"]
     };
     
-    var workflow = WoSec.newWorkflow("someidblablubb", correspondingTasks, tasksInALane);
+    var workflow = WoSec.newWorkflow("_BCoSEIBxEd-3VeNHLWdQXA", correspondingTasks, tasksInALane);
     var eventChain = WoSec.newEventChain(workflow);
-    var gui = new WoSec.HTMLGUI(eventChain);
+    var gui = new WoSec.HTMLGUI([eventChain]);
+    
     
     new WoSec.AJAXUpdater(eventChain, 0);
 

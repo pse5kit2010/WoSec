@@ -109,7 +109,7 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
 	};//*/
 	
     
-		$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp(), instance: eventChain.getWorkflow().getInstanceID()}, function(data) {
+		$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp(), instance: eventChain.getWorkflow().getID()}, function(data) {
 			eventChain.add(data).play();
 		});
 		//setTimeout(loop, DELAY_BETWEEN_POLLS);

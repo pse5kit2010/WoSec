@@ -60,7 +60,7 @@ body {
     clear: both;
 }
 
-#instancesvg {
+.svg {
     overflow: scroll;
     position: absolute;
     height: auto;

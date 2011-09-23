@@ -473,21 +473,102 @@ var $ = jQuery;
 
 var SVG = WoSec.SVG;
 
-var CSS_ID_INFOBOXES = "infoboxes";
+var CSS_CLASS_INFOBOXES = "infoboxes"
+,   CSS_CLASS_SVG = "svg";
 
 
 /**
  * Kontrolliert das Interface
  */
-WoSec.HTMLGUI = function HTMLGUI(eventChain) {
+WoSec.HTMLGUI = function HTMLGUI(eventChains) {
     
-    var svg = new SVG("instancesvg");
-    var svgElements = [];
+    var that = this;
     
-    var knownTaskIDs = [];
-    var knownTaskLaneIDs = [];
+    var svgs = {};
+    var svgElements = {};
     
+    var knownTaskIDs = {};
+    var knownTaskLaneIDs = {};
     
+    var timeSlider = {};
+    
+    var workflowIDs = [];
+    
+    /**
+     * Aktualisiere-Methode des Beobachter Musters
+     * @param {Workflow} workflow beobachteter Workflow
+     */
+    this.refresh = function(workflow) {
+        refreshTasks(workflow);
+        refreshTaskLanes(workflow);
+        return this;
+    }
+    
+    eventChains.forEach(function(e) {
+        var w = e.getWorkflow()
+        var wID = w.getID();
+        workflowIDs.push(wID);
+        timeSlider[wID] = that.newTimeSlider(that, e);
+        e.registerObserver(timeSlider[wID]);
+        w.registerObserver(that);
+    });
+    
+    $("." + CSS_CLASS_SVG).each(function() {
+        var id = $(this).attr("id");
+        if (workflowIDs.indexOf(id) === -1) {
+            throw new Error("Unknown workflowID[" + id +"]");
+        }
+        svgs[id] = new SVG(id);
+        svgElements[id] = [];
+        knownTaskIDs[id] = [];
+        knownTaskLaneIDs[id] = [];
+    });
+    
+    function refreshTasks(workflow) {
+        var workflowID = workflow.getID();
+        var taskIDs = workflow.getTaskRepositoryEntries();
+        var taskID;
+        for(var i = taskIDs.length - 1; i >= 0; i--) {
+            taskID = taskIDs[i];
+            if(knownTaskIDs[workflowID].indexOf(taskID) > -1) {
+                continue;
+            }
+            var task = workflow.getTaskByID(taskID);
+            var svgTaskRectangle = svgs[workflowID].newTaskRectangle(taskID);
+            task.registerObserver(svgTaskRectangle);
+            var svgDataAnimation;
+            if(task.getCorrespondingTask()) {
+                svgDataAnimation = svgs[workflowID].newDataAnimation(taskID, svgTaskRectangle.getPosition().getCenter(), svgs[workflowID].getTaskRectangle(task.getCorrespondingTask().getID()).getPosition().getCenter());
+                task.registerObserver(svgDataAnimation);
+            }
+            var infobox = that.newInfobox(svgTaskRectangle.getPosition())
+            task.registerObserver(infobox);
+            svgTaskRectangle.registerOnHover(infobox.show);
+            infobox.appendTo($("#" + workflowID).find("." + CSS_CLASS_INFOBOXES));
+                        
+            svgElements[workflowID].push(svgTaskRectangle);
+            if (svgDataAnimation) {
+                svgElements[workflowID].push(svgDataAnimation);
+            }
+        }
+        knownTaskIDs[workflowID] = taskIDs;
+    }
+    
+    function refreshTaskLanes(workflow) {
+        var workflowID = workflow.getID();
+        var taskLaneIDs = workflow.getTaskLaneRepositoryEntries();
+        var taskLaneID;
+        for(var i = taskLaneIDs.length - 1; i >= 0; i--) {
+            taskLaneID = taskLaneIDs[i]
+            if(knownTaskLaneIDs[workflowID].indexOf(taskLaneID) > -1) {
+                continue;
+            }
+            var svgTaskLaneRectangle = svgs[workflowID].newTaskLaneRectangle(taskLaneID);
+            workflow.getTaskLaneByID(taskLaneID).registerObserver(svgTaskLaneRectangle);
+            svgElements[workflowID].push(svgTaskLaneRectangle);
+        }
+        knownTaskLaneIDs[workflowID] = taskLaneIDs;
+    }
     
     /**
      * Deaktiviert Animationen
@@ -508,59 +589,10 @@ WoSec.HTMLGUI = function HTMLGUI(eventChain) {
         return this;
     };
  
-    /**
-     * Aktualisiere-Methode des Beobachter Musters
-     * @param {Workflow} workflow beobachteter Workflow
-     */
-    this.refresh = function(workflow) {
-        var taskIDs = workflow.getTaskRepositoryEntries();
-        var taskID;
-        for(var i = taskIDs.length - 1; i >= 0; i--) {
-            var taskID = taskIDs[i];
-            if(knownTaskIDs.indexOf(taskID) > -1) {
-                continue;
-            }
-            var task = workflow.getTaskByID(taskID);
-            var svgTaskRectangle = svg.newTaskRectangle(taskID);
-            task.registerObserver(svgTaskRectangle);
-            var svgDataAnimation;
-            if(task.getCorrespondingTask()) {
-                svgDataAnimation = svg.newDataAnimation(taskID, svgTaskRectangle.getPosition().getCenter(), svg.getTaskRectangle(task.getCorrespondingTask().getID()).getPosition().getCenter());
-                task.registerObserver(svgDataAnimation);
-            }
-            var infobox = this.newInfobox(svgTaskRectangle.getPosition())
-            task.registerObserver(infobox);
-            svgTaskRectangle.registerOnHover(infobox.show);
-            infobox.registerOnHover(infobox.pin, infobox.unpin);
-            infobox.appendTo("#" + CSS_ID_INFOBOXES);
-                        
-            svgElements.push(svgTaskRectangle);
-            if (svgDataAnimation) {
-                svgElements.push(svgDataAnimation);
-            }
-        }
-        knownTaskIDs = taskIDs;
-
-        var taskLaneIDs = workflow.getTaskLaneRepositoryEntries();
-        var taskLaneID;
-        for(var i = taskLaneIDs.length - 1; i >= 0; i--) {
-            taskLaneID = taskLaneIDs[i]
-            if(knownTaskLaneIDs.indexOf(taskLaneID) > -1) {
-                continue;
-            }
-            var svgTaskLaneRectangle = svg.newTaskLaneRectangle(taskLaneID);
-            workflow.getTaskLaneByID(taskLaneID).registerObserver(svgTaskLaneRectangle);
-            svgElements.push(svgTaskLaneRectangle);
-        }
-        knownTaskLaneIDs = taskLaneIDs;
-        return this;
-    }
     
     
-    var timeSlider = this.newTimeSlider(this, eventChain);
-    eventChain.registerObserver(timeSlider);
     
-    eventChain.getWorkflow().registerObserver(this);
+    
 };
 
 })();
@@ -571,6 +603,7 @@ WoSec.HTMLGUI = function HTMLGUI(eventChain) {
 var $ = jQuery;
 
 var CSS_CLASS_INFOBOX = "infobox"
+,   CSS_CLASS_INFOBOX_PIN_BUTTON = "infobox-pin-button"
 ,   CSS_CLASS_INFOBOX_ENTRY = "infobox-entry"
 ,   CSS_CLASS_INFOBOX_ENTRY_HEADER = "infobox-entry-header"
 ,   CSS_CLASS_INFOBOX_ENTRY_TIME = "infobox-entry-time"
@@ -584,14 +617,14 @@ var CSS_CLASS_INFOBOX = "infobox"
 ,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME = "infobox-attachment-entry-name"
 ,   CSS_CLASS_INFOBOX_ENTRY_USAGEREASON = "infobox-entry-usageReason"
 ,   CSS_CLASS_INFOBOX_DATA = "infobox-data"
-,   INFOBOX_HIDE_DELAY_MS = 3000;
+,   INFOBOX_HIDE_DELAY_MS = 7000;
 
 
 var infoboxPrototype; // lazy creation when DOM ready
 function getInfoboxPrototype(){
     if (!infoboxPrototype) {
         infoboxPrototype = $('<div class="' + CSS_CLASS_INFOBOX + '">' +
-            
+            "<span class='" + CSS_CLASS_INFOBOX_PIN_BUTTON + "'>#</span>" +
         '</div>').hide();
     }
     return infoboxPrototype;
@@ -639,10 +672,20 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
 
     infobox.css("top", position.y + position.height);
     infobox.css("left", position.x + position.width);
+    
+    
 
 
     var shown = false;
     var pinned = false;
+    
+    infobox.find("." + CSS_CLASS_INFOBOX_PIN_BUTTON).click(function() {
+        if (pinned) {
+            that.unpin();
+        } else {
+            that.pin();
+        }
+    });
     
     var that = Object.create(WoSec.baseObject);
     
@@ -697,11 +740,13 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * @param {Object} information
          * @return {Infobox} self
          */
-        setContent: function(information, timestamp) {
-            infobox.html("");
+        setContent: function(information) {
+            infobox.find("." + CSS_CLASS_INFOBOX_ENTRY).remove();
+            console.log(information)
             information.forEach(function(i) {
                 var entry = getInfoboxEntryPrototype().clone();
-                entry.find("." + CSS_CLASS_INFOBOX_ENTRY_TIME).text(i.timestamp);
+                var date = new Date(i.timestamp * 1000);
+                entry.find("." + CSS_CLASS_INFOBOX_ENTRY_TIME).text(date.getDate() + "." + date.getMonth() + "." + date.getFullYear());
                 if (i.participants) {
                     entry.find("." + CSS_CLASS_INFOBOX_ENTRY_EXECUSER).text(i.participants.execUser);
                     entry.find("." + CSS_CLASS_INFOBOX_ENTRY_EVOKUSER).text(i.participants.evokUser);
@@ -1041,13 +1086,13 @@ var newTask = WoSec.newTask
  * Sie speichert ein Task Repository.
  * 
  * Initialisiert den Workflow mit den korrespondierenden Tasks und Tasks in einer TaskLane
- * @param {String} instanceID InstanzID
+ * @param {String} id InstanzID
  * @param {Object} correspondingActivityIDs korrespondierende Tasks ID => ID
  * @param {Object} activityIDsInALane Tasks in einer TaskLane TaskLaneID => [TaskIDs]
  */
-WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, activityIDsInALane) {
-	if (typeof(instanceID) != "string") {
-		throw new TypeError("The given instanceID is not a String");
+WoSec.newWorkflow = function Workflow(id, correspondingActivityIDs, activityIDsInALane) {
+	if (typeof(id) != "string") {
+		throw new TypeError("The given id is not a String");
 	}
 
     var that = Object.create(WoSec.baseObject)
@@ -1074,14 +1119,14 @@ WoSec.newWorkflow = function Workflow(instanceID, correspondingActivityIDs, acti
     return WoSec.extend(that, {
         constructor: Workflow,
         toString: function() {
-            return "Workflow:"+this.getInstanceID();
+            return "Workflow:"+this.getID();
         },
 		/**
 		 * Gibt die InstanzID des Workflows zurück
 		 * @return InstanzID
 		 */
-		getInstanceID: function() {
-			return instanceID;
+		getID: function() {
+			return id;
 		},
 		/**
 		 * Liefert den Task mit der angegebenen ID zurück
@@ -1207,9 +1252,11 @@ EventCommand.create = function(event) {
  * @param {Task} task Zugehöriger Task
  * @param {Integer} timestamp Zeitstempel
  */
-function StartingTaskEvent(task, timestamp) {
+function StartingTaskEvent(task, information, timestamp) {
 	EventCommand.call(this, timestamp);
     this.task = task;
+    this.information = information;
+    this.information.timestamp = timestamp;
 }
 WoSec.inherit(StartingTaskEvent, EventCommand);
 StartingTaskEvent.prototype.classname = "StartingTaskEvent";
@@ -1219,6 +1266,8 @@ StartingTaskEvent.prototype.classname = "StartingTaskEvent";
 StartingTaskEvent.prototype.execute = function() {
     this.task.setState("Started");
 	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
+	this.task.addInformation(this.information);
+	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
 	return this;
 };
 /**
@@ -1236,7 +1285,7 @@ StartingTaskEvent.prototype.unwind = function() {
  * @param {Integer} event.timestamp Zeitstempel
  */
 StartingTaskEvent.create = function(event) {
-	return new StartingTaskEvent(workflow.getTaskByID(event.activityID), event.timestamp);
+	return new StartingTaskEvent(workflow.getTaskByID(event.activityID), event.information, event.timestamp);
 };
 
 /**
@@ -1307,6 +1356,8 @@ TransferingDataEvent.prototype.classname = "TransferingDataEvent";
  */
 TransferingDataEvent.prototype.execute = function() {
     this.task.setState("TransferingData");
+    this.task.addInformation(this.information);
+    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
 	return this;
 };
 // TransferingDataEvent.prototype.unwind = function() {} // NOP
@@ -1380,7 +1431,7 @@ var eventCommands = WoSec.eventCommands
 ,	MixinObservable = WoSec.MixinObservable;
 
 
-var PLAY_TIME_BETWEEN_EVENTS_MS = 1000;
+var PLAY_TIME_BETWEEN_EVENTS_MS = 600;
 
 /**
  * Klasse zur Verwaltung einer Liste von EventCommands
@@ -1586,7 +1637,7 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
     "timestamp": 1314373865,
     "eventCommand": "TransferingData",
     "information": {
-        "data": "UserID: _sDfw47sd33saeF",
+        "data": "Name, Adresse",
         "participants": {
             "provider": "DB01",
             "evokUser": "Alice",
@@ -1647,7 +1698,7 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
 	};//*/
 	
     
-		$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp(), instance: eventChain.getWorkflow().getInstanceID()}, function(data) {
+		$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp(), instance: eventChain.getWorkflow().getID()}, function(data) {
 			eventChain.add(data).play();
 		});
 		//setTimeout(loop, DELAY_BETWEEN_POLLS);
