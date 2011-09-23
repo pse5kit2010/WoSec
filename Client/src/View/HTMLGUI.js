@@ -6,7 +6,8 @@ var $ = jQuery;
 var SVG = WoSec.SVG;
 
 var CSS_CLASS_INFOBOXES = "infoboxes"
-,   CSS_CLASS_SVG = "svg";
+,   CSS_CLASS_SVG = "svg"
+,   CSS_CLASS_TAB = "tab";
 
 
 /**
@@ -54,6 +55,19 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
         svgElements[id] = [];
         knownTaskIDs[id] = [];
         knownTaskLaneIDs[id] = [];
+    });
+    
+    $("." + CSS_CLASS_TAB).each(function() {
+        var workflowID = $(this).attr("href").substr(1);
+        if (workflowIDs.indexOf(workflowID) === -1) {
+             throw new Error("Unknown workflowID[" + workflowID +"]");
+        }
+        $(this).click(function() {
+             $("." + CSS_CLASS_TAB).each(function() {
+                  $(this).hide();
+             });
+             $($(this).attr("href")).show();
+        });
     });
     
     function refreshTasks(workflow) {
@@ -122,7 +136,10 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
     };
  
     
-    
+    $('.' + CSS_CLASS_SVG).dragscrollable({
+         dragSelector: '.dragger:first',
+         acceptPropagatedEvent: true
+    });
     
     
 };

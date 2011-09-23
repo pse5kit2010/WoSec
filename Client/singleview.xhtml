@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8"/>
 	<link type="text/css" href="media/styles/singleview.css" rel="stylesheet" />
-	<link type="text/css" href="media/jquery-ui/jquery-ui-1.8.7.custom.css" rel="stylesheet" />
+	<link type="text/css" href="media/jquery-ui/jquery-ui-1.8.16.custom.css" rel="stylesheet" />
     <script type="text/javascript" src="lib/jquery-1.6.4.js"></script>
-    <script type="text/javascript" src="lib/jquery-ui-1.8.9.custom.js"></script>
+    <script type="text/javascript" src="lib/jquery-ui-1.8.16.custom.js"></script>
 	<script type="text/javascript" src="lib/dragscrollable.js"></script>
     <script type="text/javascript" src="lib/jquery.svg.js"></script>
     <script type="text/javascript" src="lib/jquery.svganim.js"></script>
@@ -36,13 +36,8 @@
 		//<![CDATA[	
 		$(function() {
 		  
-		  
-        
             // Set drag scroll on first descendant of class dragger on both selected elements
-            $('#instancesvg, #inner').dragscrollable({
-                dragSelector: '.dragger:first',
-                acceptPropagatedEvent: true
-            });
+            
         });
 		
 		//]]>
@@ -51,22 +46,29 @@
 <body>
     <div id="color-store"><!--just for css storage outsource--><span id="rect-obtrusive"></span><span id="rect-unobtrusive"></span><span id="rect-reset"></span></div>
 
-    <div id="header">
-         <h1>Praktikumsvermittlung</h1>
-	 <div id="headerright">
- 	        <div id="userinfo">
- 	            <span>Angemeldet als Alice</span>
- 	            <a href="UserController?action=logout">Logout</a>
- 	        </div>
-		<div id="timeslider-play-button"><div id="timeslider-play-button-overlay"></div></div>
-		<div id="slider">
-   		    <div id="timeslider"></div>
-		</div>
-
- 	</div>
-    </div>
-
-	<div id="container">
+        <div id="header">
+            <h1>Praktikumsvermittlung</h1>
+            <div id="tabs">
+                <ul>
+                    <li><a class="tab" href="#_BCoSEIBxEd-3VeNHLWdQXA">Instanz1 _BCoSEIBxEd-3VeNHLWdQXA</a></li>
+                </ul>
+            </div>
+            <div id="headerright">
+                <div id="userinfo">
+                    <span>Angemeldet als Alice</span>
+                    <a href="UserController?action=logout">Logout</a>
+                </div>
+                <div id="timeslider-play-button">
+                    <div id="timeslider-play-button-overlay"></div>
+                </div>
+                <div id="slider">
+                    <div id="timeslider"></div>
+                </div>
+            </div>
+        </div>
+    
+        
+	<div class="container">
 	<!--
 	<div id="databox">
 		<div id="databox-hover"></div>
