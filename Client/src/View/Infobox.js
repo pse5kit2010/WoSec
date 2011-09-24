@@ -18,7 +18,7 @@ var CSS_CLASS_INFOBOX = "infobox"
 ,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME = "infobox-attachment-entry-name"
 ,   CSS_CLASS_INFOBOX_ENTRY_USAGEREASON = "infobox-entry-usageReason"
 ,   CSS_CLASS_INFOBOX_DATA = "infobox-data"
-,   INFOBOX_HIDE_DELAY_MS = 7000;
+,   INFOBOX_HIDE_DELAY_MS = 3000;
 
 
 var infoboxPrototype; // lazy creation when DOM ready
@@ -143,7 +143,6 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          */
         setContent: function(information) {
             infobox.find("." + CSS_CLASS_INFOBOX_ENTRY).remove();
-            console.log(information)
             information.forEach(function(i) {
                 var entry = getInfoboxEntryPrototype().clone();
                 var date = new Date(i.timestamp * 1000);

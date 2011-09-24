@@ -7,7 +7,9 @@ var SVG = WoSec.SVG;
 
 var CSS_CLASS_INFOBOXES = "infoboxes"
 ,   CSS_CLASS_SVG = "svg"
-,   CSS_CLASS_TAB = "tab";
+,   CSS_CLASS_WORKFLOW_LINK = "workflow-link"
+,   CSS_CLASS_CURRENT_WORKFLOW = "current-workflow";
+var DELAY_WORKFLOW_SWITCH = 2000;
 
 
 /**
@@ -41,8 +43,8 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
         var w = e.getWorkflow()
         var wID = w.getID();
         workflowIDs.push(wID);
-        timeSlider[wID] = that.newTimeSlider(that, e);
-        e.registerObserver(timeSlider[wID]);
+        //timeSlider[wID] = that.newTimeSlider(that, e);
+        //e.registerObserver(timeSlider[wID]);
         w.registerObserver(that);
     });
     
@@ -57,18 +59,36 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
         knownTaskLaneIDs[id] = [];
     });
     
-    $("." + CSS_CLASS_TAB).each(function() {
+    var mapWorkflowsTabs = {};
+    $("." + CSS_CLASS_WORKFLOW_LINK).each(function() {
         var workflowID = $(this).attr("href").substr(1);
+        mapWorkflowsTabs[workflowID] = $(this);
         if (workflowIDs.indexOf(workflowID) === -1) {
              throw new Error("Unknown workflowID[" + workflowID +"]");
         }
         $(this).click(function() {
-             $("." + CSS_CLASS_TAB).each(function() {
-                  $(this).hide();
-             });
-             $($(this).attr("href")).show();
+             switchWorkflow($(this).attr("href"));
         });
     });
+    function switchWorkflow(id) {
+        $("." + CSS_CLASS_SVG).each(function() {
+             $(this).hide();
+        });
+        $("." + CSS_CLASS_WORKFLOW_LINK).each(function() {
+            $(this).removeClass(CSS_CLASS_CURRENT_WORKFLOW);
+            if ($(this).attr("href").substr(1) === id) {
+                $(this).addClass(CSS_CLASS_CURRENT_WORKFLOW);
+            }
+        });
+        $("#" + id).show();
+        mapWorkflowsTabs[id].addClass(CSS_CLASS_CURRENT_WORKFLOW);
+        eventChains.forEach(function(e) {
+            if (e.getWorkflow().getID() !== id) {
+                e.lock();
+            }
+        });
+    }
+    switchWorkflow(eventChains[0].getWorkflow().getID()); // select first as active
     
     function refreshTasks(workflow) {
         var workflowID = workflow.getID();
@@ -82,6 +102,24 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
             var task = workflow.getTaskByID(taskID);
             var svgTaskRectangle = svgs[workflowID].newTaskRectangle(taskID);
             task.registerObserver(svgTaskRectangle);
+            
+            var otherWorkflowID = svgTaskRectangle.getOtherWorkflowID();
+            if (otherWorkflowID) {
+                task.registerObserver((function(wID){
+                    return {
+                        refresh: function(task) {
+                            if (task.getState() === "TransferingData") {
+                                setTimeout(function() {
+                                    switchWorkflow(wID);
+                                }, DELAY_WORKFLOW_SWITCH);
+                            }
+                        }
+                    };
+                    })(otherWorkflowID) // bind this workflowID
+                )
+            }
+            
+            
             var svgDataAnimation;
             if(task.getCorrespondingTask()) {
                 svgDataAnimation = svgs[workflowID].newDataAnimation(taskID, svgTaskRectangle.getPosition().getCenter(), svgs[workflowID].getTaskRectangle(task.getCorrespondingTask().getID()).getPosition().getCenter());
@@ -119,8 +157,8 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
     /**
      * Deaktiviert Animationen
      */
-    this.disableAnimations = function() {
-        svgElements.forEach(function(svgElement) {
+    this.disableAnimations = function(eventChain) {
+        svgElements[eventChain.getWorkflow().getID()].forEach(function(svgElement) {
             svgElement.disableAnimations();
         });
         return this;
@@ -128,8 +166,8 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
     /**
      * Aktiviert Animationen
      */
-    this.enableAnimations = function() {
-        svgElements.forEach(function(svgElement) {
+    this.enableAnimations = function(eventChain) {
+        svgElements[eventChain.getWorkflow().getID()].forEach(function(svgElement) {
             svgElement.enableAnimations();
         });
         return this;

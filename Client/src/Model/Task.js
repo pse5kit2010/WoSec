@@ -62,7 +62,7 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
         this.notifyObservers(this);
     	return this;
     };
-	
+    
 	/**
 	 * Setzt den Zustand des Tasks
 	 * @param {String} newState neuer Zustand
@@ -74,6 +74,20 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
 		state = newState;
 		this.notifyObservers(this);
 		return this;
+	};
+	
+	that.getMemento = function() {
+	    return {
+	        state: state,
+	        information: information
+	    };
+	}
+	
+	that.setMemento = function(m) {
+	    this.setState(m.state);
+	    information = m.information;
+	    this.notifyObservers(this);
+	    return this;
 	}
 	
 	
