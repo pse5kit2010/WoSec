@@ -92,18 +92,26 @@ StartingTaskEvent.prototype.classname = "StartingTaskEvent";
  */
 StartingTaskEvent.prototype.execute = function() {
     this.task.setState("Started");
-	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
+    this.taskMemento = this.task.getMemento();
 	this.task.addInformation(this.information);
-	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
+    var cTask = this.task.getCorrespondingTask();
+    if (cTask) {
+        this.correspondingTaskMemento = cTask.getMemento();
+	    cTask.setState("Started");
+	    this.task.getCorrespondingTask().addInformation(this.information);
+	}
 	return this;
 };
 /**
  * @see EventCommand.unwind
  */
 StartingTaskEvent.prototype.unwind = function() {
-	this.task.setState("Reset");
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Reset");
-	return this;
+    this.task.setMemento(this.taskMemento);
+    var cTask = this.task.getCorrespondingTask();
+    if (cTask) {
+        cTask.setMemento(this.correspondingTaskMemento);
+    }
+    return this;
 }
 /**
  * Factory Methode zur Erstellung eines StartingTaskEvent
@@ -136,18 +144,26 @@ FinishingTaskEvent.prototype.classname = "FinishingTaskEvent";
  */
 FinishingTaskEvent.prototype.execute = function() {
     this.task.setState("Finished");
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Finished");
-	this.task.addInformation(this.information);
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
-	return this;
+    this.taskMemento = this.task.getMemento();
+    this.task.addInformation(this.information);
+    var cTask = this.task.getCorrespondingTask();
+    if (cTask) {
+        this.correspondingTaskMemento = cTask.getMemento();
+        cTask.setState("Finished");
+        this.task.getCorrespondingTask().addInformation(this.information);
+    }
+    return this;
 };
 /**
  * @see EventCommand.unwind
  */
 FinishingTaskEvent.prototype.unwind = function() {
-	this.task.setState("Started");
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
-	return this;
+	this.task.setMemento(this.taskMemento);
+	var cTask = this.task.getCorrespondingTask();
+	if (cTask) {
+	    cTask.setMemento(this.correspondingTaskMemento);
+	}
+    return this;
 }
 //FinishingTaskEvent.prototype.fastExecute = function() {}; // NOP
 /**
@@ -183,11 +199,23 @@ TransferingDataEvent.prototype.classname = "TransferingDataEvent";
  */
 TransferingDataEvent.prototype.execute = function() {
     this.task.setState("TransferingData");
+    this.taskMemento = this.task.getMemento();
     this.task.addInformation(this.information);
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
-	return this;
+    var cTask = this.task.getCorrespondingTask();
+    if (cTask) {
+        this.correspondingTaskMemento = cTask.getMemento();
+        this.task.getCorrespondingTask().addInformation(this.information);
+    }
+    return this;
 };
-// TransferingDataEvent.prototype.unwind = function() {} // NOP
+TransferingDataEvent.prototype.unwind = function() {
+    this.task.setMemento(this.taskMemento);
+    var cTask = this.task.getCorrespondingTask();
+    if (cTask) {
+        cTask.setMemento(this.correspondingTaskMemento);
+    }
+    return this;
+};
 /**
  * Factory Methode zur Erstellung eines TransferingDataEvent
  * @param {Object} event Eventdaten
@@ -220,10 +248,18 @@ SpecifyingParticipantEvent.prototype.classname = "SpecifyingParticipantEvent";
  * @see EventCommand.execute
  */
 SpecifyingParticipantEvent.prototype.execute = function() {
+    this.taskMementos = this.taskLane.getTasks().map(function(task) {
+        return task.getMemento();
+    });
     this.taskLane.addInformation(this.information);
 	return this;
 };
-// SpecifyingParticipantEvent.prototype.unwind = function() {} // NOP
+SpecifyingParticipantEvent.prototype.unwind = function() {
+    this.taskLane.getTasks().forEach(function(task, i) {
+        task.setMemento(this.taskMementos[i]);
+    });
+    return this;
+};
 
 /**
  * Factory Methode zur Erstellung eines SpecifyingParticipantEvent

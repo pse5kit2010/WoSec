@@ -27,6 +27,15 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
 	that.getID = function() {
 		return id;
 	};
+	
+	/**
+	 * Gibt den zugehörigen Workflow zurück
+	 * @return {Workflow}
+	 */
+	that.getWorkflow = function() {
+	    return workflow;
+	};
+	
 	/**
 	 * Gibt den korrespondierenden Task zurück
 	 * @return {Task} korrespondierender Task
@@ -62,7 +71,7 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
         this.notifyObservers(this);
     	return this;
     };
-	
+    
 	/**
 	 * Setzt den Zustand des Tasks
 	 * @param {String} newState neuer Zustand
@@ -74,6 +83,20 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
 		state = newState;
 		this.notifyObservers(this);
 		return this;
+	};
+	
+	that.getMemento = function() {
+	    return {
+	        state: state,
+	        information: information
+	    };
+	}
+	
+	that.setMemento = function(m) {
+	    this.setState(m.state);
+	    information = m.information;
+	    this.notifyObservers(this);
+	    return this;
 	}
 	
 	

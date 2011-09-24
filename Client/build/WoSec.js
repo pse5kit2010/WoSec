@@ -106,18 +106,20 @@ var CSS_ID_COLORSTORE = 'color-store'
 ,	CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR = 'rect-unobtrusive'
 ,   CSS_ID_COLORSTORE_OBTRUSIVE_COLOR = 'rect-obtrusive'
 ,   CSS_ID_COLORSTORE_RESET_COLOR = 'rect-reset';
+var BPMN_ACTIVITY_ID = 'bpmn:activity-id'
+,   BPMN_OTHER_WORKFLOW = "bpmn:other-workflow";
 var SCROLL_ANIMATION_MS = 100
 ,   SCROLL_SUPPRESS_PIXEL = 100;
 
 function getJQuerySVGRectanglesByActivityID($svg, activityID) {
     return $svg.find('svg rect').filter(function() {
-        return $(this).attr('bpmn:activity-id') == activityID;// && $(this).attr('fill') == 'white';
+        return $(this).attr(BPMN_ACTIVITY_ID) == activityID;// && $(this).attr('fill') == 'white';
     });
 }
     
 function getJQuerySVGCircles($svg, activityID) {
     return $svg.find('svg circle').filter(function() {
-        return $(this).attr('bpmn:activity-id') == activityID;// && $(this).attr('fill') == 'white';
+        return $(this).attr(BPMN_ACTIVITY_ID) == activityID;// && $(this).attr('fill') == 'white';
     });
 }
 
@@ -202,6 +204,9 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
             case "Finished":
                 this.markUnobtrusive();
                 this.scrollTo();
+                break;
+            case "TransferingData":
+                
                 break;
         }
     };
@@ -299,6 +304,17 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
             $(this).hover(handler);
         })
         return this;
+    };
+    
+    that.getOtherWorkflowID = function() {
+        var id;
+        rectangles.each(function() {
+            var link = $(this).attr(BPMN_OTHER_WORKFLOW);
+            if (link) {
+                id = link;
+            }
+        });
+        return id;
     };
 
     return that;
@@ -475,7 +491,9 @@ var SVG = WoSec.SVG;
 
 var CSS_CLASS_INFOBOXES = "infoboxes"
 ,   CSS_CLASS_SVG = "svg"
-,   CSS_CLASS_TAB = "tab";
+,   CSS_CLASS_WORKFLOW_LINK = "workflow-link"
+,   CSS_CLASS_CURRENT_WORKFLOW = "current-workflow";
+var DELAY_WORKFLOW_SWITCH = 2000;
 
 
 /**
@@ -509,8 +527,8 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
         var w = e.getWorkflow()
         var wID = w.getID();
         workflowIDs.push(wID);
-        timeSlider[wID] = that.newTimeSlider(that, e);
-        e.registerObserver(timeSlider[wID]);
+        //timeSlider[wID] = that.newTimeSlider(that, e);
+        //e.registerObserver(timeSlider[wID]);
         w.registerObserver(that);
     });
     
@@ -525,18 +543,36 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
         knownTaskLaneIDs[id] = [];
     });
     
-    $("." + CSS_CLASS_TAB).each(function() {
+    var mapWorkflowsTabs = {};
+    $("." + CSS_CLASS_WORKFLOW_LINK).each(function() {
         var workflowID = $(this).attr("href").substr(1);
+        mapWorkflowsTabs[workflowID] = $(this);
         if (workflowIDs.indexOf(workflowID) === -1) {
              throw new Error("Unknown workflowID[" + workflowID +"]");
         }
         $(this).click(function() {
-             $("." + CSS_CLASS_TAB).each(function() {
-                  $(this).hide();
-             });
-             $($(this).attr("href")).show();
+             switchWorkflow($(this).attr("href").substr(1));
         });
     });
+    function switchWorkflow(id) {
+        $("." + CSS_CLASS_SVG).each(function() {
+             $(this).hide();
+        });
+        $("." + CSS_CLASS_WORKFLOW_LINK).each(function() {
+            $(this).removeClass(CSS_CLASS_CURRENT_WORKFLOW);
+            if ($(this).attr("href").substr(1) === id) {
+                $(this).addClass(CSS_CLASS_CURRENT_WORKFLOW);
+            }
+        });
+        $("#" + id).show();
+        mapWorkflowsTabs[id].addClass(CSS_CLASS_CURRENT_WORKFLOW);
+        eventChains.forEach(function(e) {
+            if (e.getWorkflow().getID() !== id) {
+                e.lock();
+            }
+        });
+    }
+    switchWorkflow(eventChains[0].getWorkflow().getID()); // select first as active
     
     function refreshTasks(workflow) {
         var workflowID = workflow.getID();
@@ -550,6 +586,24 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
             var task = workflow.getTaskByID(taskID);
             var svgTaskRectangle = svgs[workflowID].newTaskRectangle(taskID);
             task.registerObserver(svgTaskRectangle);
+            
+            var otherWorkflowID = svgTaskRectangle.getOtherWorkflowID();
+            if (otherWorkflowID) {
+                task.registerObserver((function(wID){
+                    return {
+                        refresh: function(task) {
+                            if (task.getState() === "TransferingData") {
+                                setTimeout(function() {
+                                    switchWorkflow(wID);
+                                }, DELAY_WORKFLOW_SWITCH);
+                            }
+                        }
+                    };
+                    })(otherWorkflowID) // bind this workflowID
+                )
+            }
+            
+            
             var svgDataAnimation;
             if(task.getCorrespondingTask()) {
                 svgDataAnimation = svgs[workflowID].newDataAnimation(taskID, svgTaskRectangle.getPosition().getCenter(), svgs[workflowID].getTaskRectangle(task.getCorrespondingTask().getID()).getPosition().getCenter());
@@ -587,8 +641,8 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
     /**
      * Deaktiviert Animationen
      */
-    this.disableAnimations = function() {
-        svgElements.forEach(function(svgElement) {
+    this.disableAnimations = function(eventChain) {
+        svgElements[eventChain.getWorkflow().getID()].forEach(function(svgElement) {
             svgElement.disableAnimations();
         });
         return this;
@@ -596,8 +650,8 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
     /**
      * Aktiviert Animationen
      */
-    this.enableAnimations = function() {
-        svgElements.forEach(function(svgElement) {
+    this.enableAnimations = function(eventChain) {
+        svgElements[eventChain.getWorkflow().getID()].forEach(function(svgElement) {
             svgElement.enableAnimations();
         });
         return this;
@@ -633,8 +687,11 @@ var CSS_CLASS_INFOBOX = "infobox"
 ,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY = "infobox-attachment-entry"
 ,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME = "infobox-attachment-entry-name"
 ,   CSS_CLASS_INFOBOX_ENTRY_USAGEREASON = "infobox-entry-usageReason"
-,   CSS_CLASS_INFOBOX_DATA = "infobox-data"
-,   INFOBOX_HIDE_DELAY_MS = 7000;
+,   CSS_CLASS_INFOBOX_ENTRY_OUTGOING = "infobox-entry-outgoing"
+,   CSS_CLASS_INFOBOX_ENTRY_INCOMING = "infobox-entry-incoming"
+,   CSS_CLASS_INFOBOX_DATA = "infobox-data";
+
+var INFOBOX_HIDE_DELAY_MS = 3000;
 
 
 var infoboxPrototype; // lazy creation when DOM ready
@@ -712,7 +769,7 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * @param {Task} task beobachteter Task
          */
         refresh: function(task) {
-            this.setContent(task.getInformation());
+            this.setContent(task.getInformation(), task);
         },
         /**
          * Zeigt die Informationsfläche.
@@ -757,9 +814,8 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * @param {Object} information
          * @return {Infobox} self
          */
-        setContent: function(information) {
+        setContent: function(information, task) {
             infobox.find("." + CSS_CLASS_INFOBOX_ENTRY).remove();
-            console.log(information)
             information.forEach(function(i) {
                 var entry = getInfoboxEntryPrototype().clone();
                 var date = new Date(i.timestamp * 1000);
@@ -782,6 +838,12 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
                     empty = false;
                 }
                 entry.find("." + CSS_CLASS_INFOBOX_ENTRY_USAGEREASON).text(i.usageReason);
+                
+                if (i.fromTask === task.getID() && i.fromWorkflow === task.getWorkflow().getID()) {
+                    entry.addClass(CSS_CLASS_INFOBOX_ENTRY_OUTGOING);
+                } else {
+                    entry.addClass(CSS_CLASS_INFOBOX_ENTRY_INCOMING);
+                }
                 
                 infobox.append(entry);
             });
@@ -848,7 +910,7 @@ WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(gui, eventChain) {
                     searchedEventCommand = e.eventCommand;
                 }
             });
-            gui.disableAnimations();
+            gui.disableAnimations(eventChain);
             eventChain.lock().seek(function(eventCommand) {
                 if(!backwards) {
                     eventCommand.execute();
@@ -964,7 +1026,7 @@ WoSec.MixinObservable = function Observable() {
     };
 };
 
-})()
+})();
 
 
 (function() {
@@ -995,6 +1057,15 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
 	that.getID = function() {
 		return id;
 	};
+	
+	/**
+	 * Gibt den zugehörigen Workflow zurück
+	 * @return {Workflow}
+	 */
+	that.getWorkflow = function() {
+	    return workflow;
+	};
+	
 	/**
 	 * Gibt den korrespondierenden Task zurück
 	 * @return {Task} korrespondierender Task
@@ -1030,7 +1101,7 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
         this.notifyObservers(this);
     	return this;
     };
-	
+    
 	/**
 	 * Setzt den Zustand des Tasks
 	 * @param {String} newState neuer Zustand
@@ -1042,6 +1113,20 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
 		state = newState;
 		this.notifyObservers(this);
 		return this;
+	};
+	
+	that.getMemento = function() {
+	    return {
+	        state: state,
+	        information: information
+	    };
+	}
+	
+	that.setMemento = function(m) {
+	    this.setState(m.state);
+	    information = m.information;
+	    this.notifyObservers(this);
+	    return this;
 	}
 	
 	
@@ -1064,7 +1149,7 @@ var MixinObservable = WoSec.MixinObservable;
 WoSec.newTaskLane = function TaskLane(activityIDs, workflow) {
 	var that = Object.create(WoSec.baseObject);
 	MixinObservable.call(that);
-	var getTasks = function() {
+	that.getTasks = function() {
 		var tasks = [];
 		activityIDs.forEach(function(activityID, index) { 
             tasks[index] = workflow.getTaskByID(activityID);
@@ -1079,7 +1164,7 @@ WoSec.newTaskLane = function TaskLane(activityIDs, workflow) {
 	 * @return {TaskLane} self
 	 */
 	that.addInformation = function(information) {
-		getTasks().forEach(function(task) {
+		this.getTasks().forEach(function(task) {
 			task.addInformation(information);
 		});
 		this.notifyObservers();
@@ -1282,18 +1367,26 @@ StartingTaskEvent.prototype.classname = "StartingTaskEvent";
  */
 StartingTaskEvent.prototype.execute = function() {
     this.task.setState("Started");
-	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
+    this.taskMemento = this.task.getMemento();
 	this.task.addInformation(this.information);
-	this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
+    var cTask = this.task.getCorrespondingTask();
+    if (cTask) {
+        this.correspondingTaskMemento = cTask.getMemento();
+	    cTask.setState("Started");
+	    this.task.getCorrespondingTask().addInformation(this.information);
+	}
 	return this;
 };
 /**
  * @see EventCommand.unwind
  */
 StartingTaskEvent.prototype.unwind = function() {
-	this.task.setState("Reset");
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Reset");
-	return this;
+    this.task.setMemento(this.taskMemento);
+    var cTask = this.task.getCorrespondingTask();
+    if (cTask) {
+        cTask.setMemento(this.correspondingTaskMemento);
+    }
+    return this;
 }
 /**
  * Factory Methode zur Erstellung eines StartingTaskEvent
@@ -1326,18 +1419,26 @@ FinishingTaskEvent.prototype.classname = "FinishingTaskEvent";
  */
 FinishingTaskEvent.prototype.execute = function() {
     this.task.setState("Finished");
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Finished");
-	this.task.addInformation(this.information);
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
-	return this;
+    this.taskMemento = this.task.getMemento();
+    this.task.addInformation(this.information);
+    var cTask = this.task.getCorrespondingTask();
+    if (cTask) {
+        this.correspondingTaskMemento = cTask.getMemento();
+        cTask.setState("Finished");
+        this.task.getCorrespondingTask().addInformation(this.information);
+    }
+    return this;
 };
 /**
  * @see EventCommand.unwind
  */
 FinishingTaskEvent.prototype.unwind = function() {
-	this.task.setState("Started");
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().setState("Started");
-	return this;
+	this.task.setMemento(this.taskMemento);
+	var cTask = this.task.getCorrespondingTask();
+	if (cTask) {
+	    cTask.setMemento(this.correspondingTaskMemento);
+	}
+    return this;
 }
 //FinishingTaskEvent.prototype.fastExecute = function() {}; // NOP
 /**
@@ -1373,11 +1474,23 @@ TransferingDataEvent.prototype.classname = "TransferingDataEvent";
  */
 TransferingDataEvent.prototype.execute = function() {
     this.task.setState("TransferingData");
+    this.taskMemento = this.task.getMemento();
     this.task.addInformation(this.information);
-    this.task.getCorrespondingTask() && this.task.getCorrespondingTask().addInformation(this.information);
-	return this;
+    var cTask = this.task.getCorrespondingTask();
+    if (cTask) {
+        this.correspondingTaskMemento = cTask.getMemento();
+        this.task.getCorrespondingTask().addInformation(this.information);
+    }
+    return this;
 };
-// TransferingDataEvent.prototype.unwind = function() {} // NOP
+TransferingDataEvent.prototype.unwind = function() {
+    this.task.setMemento(this.taskMemento);
+    var cTask = this.task.getCorrespondingTask();
+    if (cTask) {
+        cTask.setMemento(this.correspondingTaskMemento);
+    }
+    return this;
+};
 /**
  * Factory Methode zur Erstellung eines TransferingDataEvent
  * @param {Object} event Eventdaten
@@ -1410,10 +1523,18 @@ SpecifyingParticipantEvent.prototype.classname = "SpecifyingParticipantEvent";
  * @see EventCommand.execute
  */
 SpecifyingParticipantEvent.prototype.execute = function() {
+    this.taskMementos = this.taskLane.getTasks().map(function(task) {
+        return task.getMemento();
+    });
     this.taskLane.addInformation(this.information);
 	return this;
 };
-// SpecifyingParticipantEvent.prototype.unwind = function() {} // NOP
+SpecifyingParticipantEvent.prototype.unwind = function() {
+    this.taskLane.getTasks().forEach(function(task, i) {
+        task.setMemento(this.taskMementos[i]);
+    });
+    return this;
+};
 
 /**
  * Factory Methode zur Erstellung eines SpecifyingParticipantEvent
@@ -1448,7 +1569,7 @@ var eventCommands = WoSec.eventCommands
 ,	MixinObservable = WoSec.MixinObservable;
 
 
-var PLAY_TIME_BETWEEN_EVENTS_MS = 600;
+var PLAY_TIME_BETWEEN_EVENTS_MS = 1000;
 
 /**
  * Klasse zur Verwaltung einer Liste von EventCommands
@@ -1604,120 +1725,46 @@ WoSec.newEventChain = function EventChain(workflow) {
 };
 
 }());
-
 /**
  * Singleton zum Abfragen neuer Eventdaten alle paar Sekunden (Default 5).
  * Empfangene Eventdaten werden an die EventChain weitergegeben.
  */
-WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
-	var DELAY_BETWEEN_POLLS = 5000;
-	var POLL_URL = "UpdateController?type=Event";
-	
-	//var $ = jQuery;
-	var $ = {
-	    getJSON: function(mock, it, callback) {
-		callback(
-[/*{
-    "timestamp": 1314317905,
-    "eventCommand": "EventCommand",
-    "information": {},
-    "eventType": "createInstance"
-}, */{
-    "timestamp": 1314373858,
-    "eventCommand": "FinishingTask",
-    "information": {},
-    "eventType": "humanActivityExecuted",
-    "activityID": "__fX4gedbEd-f6JWMxJDGcQ"
-}, {
-    "timestamp": 1314373863,
-    "eventCommand": "FinishingTask",
-    "information": {},
-    "eventType": "eventActivityExecuted",
-    "activityID": "_ggEwYYBxEd-3VeNHLWdQXA"
-}, {
-    "timestamp": 1314373864,
-    "eventCommand": "SpecifyingParticipant",
-    "information": {},
-    "eventType": "HumanTaskExecutorSelected",
-    "activityGroupID": "_7kTKEOdbEd-f6JWMxJDGcQ"
-}, {
-    "timestamp": 1314373864,
-    "eventCommand": "SpecifyingParticipant",
-    "information": {
-        "participants": {
-            "provider": "DB01"
+WoSec.AJAXUpdater = function AJAXUpdater(eventChain, lastVisitedTimestamp) {
+    var DELAY_BETWEEN_POLLS = 5000
+    ,   POLL_URL = "UpdateController?type=Event";
+
+    var $ = jQuery;
+
+    var times = 0;
+    lastVisitedTimestamp = lastVisitedTimestamp || 0;
+    function ajax(callback) {
+        $.getJSON(POLL_URL, {
+            since : eventChain.last().getTimestamp() + 1,
+            instance : eventChain.getWorkflow().getID()
+        }, callback);
+    }
+
+    ajax(function(data) {
+        if(data.length != 0) {
+            eventChain.add(data).seek(function(eventCommand) {
+                return eventCommand.getTimestamp() <= lastVisitedTimestamp && eventCommand.execute();
+                // seek forward until the timestamp is newer than the lastVisited
+            }).play();
         }
-    },
-    "eventType": "WSProviderSelected",
-    "activityGroupID": "_1UFV4ItpEd-U-Z7QjvIBEA"
-}, {
-    "timestamp": 1314373865,
-    "eventCommand": "TransferingData",
-    "information": {
-        "data": "Name, Adresse",
-        "participants": {
-            "provider": "DB01",
-            "evokUser": "Alice",
-            "execUser": "Ich"
-        },
-        "attachments": [
-            {
-                "link": "http://somewhereIbelong",
-                "name": "Das ist ein Anhang!",
-                "type": "Ein Link der nirgends hinführt..."
-            }
-        ],
-        "usageReason": "wie bestellt"
-    },
-    "eventType": "DataTransferredToWS",
-    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
-}, {
-    "timestamp": 1314373865,
-    "eventCommand": "StartingTask",
-    "information": {},
-    "eventType": "startActivityExecution",
-    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
-}, {
-    "timestamp": 1314373866,
-    "eventCommand": "TransferingData",
-    "information": {
-        "data": "",
-        "participants": {
-            "provider": "DB01"
-        },
-        "usageReason": "an die Datenbank geschickt, weil deshalb",
-        "attachments": [
-            {
-                "link": "http://blabla",
-                "name": "Anschreiben",
-                "type": "Word-Dokument"
-            }, {
-                "link": "http://blablub",
-                "name": "Ausschreibung",
-                "type": "PDF-Datei"
-            }
-        ]
-    },
-    "eventType": "DataTransferredFromWS",
-    "activityID": "_mJVSMNq2Ed-AhcDaNoYiNA"
-}, {
-    "timestamp": 1314373867,
-    "eventCommand": "FinishingTask",
-    "information": {
-        "participants": {
-            "provider": "DB01"
+    });
+    var playAndAddLoop = function(data) {
+        if(data.length != 0) {
+            eventChain.add(data).play();
         }
-    },
-    "eventType": "WSActivityExecuted",
-    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
-}]);
-	    }
-	};//*/
-	
-    
-		$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp(), instance: eventChain.getWorkflow().getID()}, function(data) {
-			eventChain.add(data).play();
-		});
-		//setTimeout(loop, DELAY_BETWEEN_POLLS);
-	
+        setTimeout(ajax, DELAY_BETWEEN_POLLS, playAndAddLoop);
+    }
+    setTimeout(ajax, DELAY_BETWEEN_POLLS, playAndAddLoop);
+    $("body").ajaxError(function() {
+        times++;
+        if(times >= 3) {
+            alert("Verbindung zum Server verloren!");
+        } else {
+            setTimeout(ajax, DELAY_BETWEEN_POLLS, playAndAddLoop);
+        }
+    });
 };

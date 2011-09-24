@@ -23,7 +23,7 @@ var dir = "src/"
     "Model/Workflow.js",
     "Model/EventCommands.js",
     "Model/EventChain.js",
-    "AjaxUpdaterMockup.js"
+    "AjaxUpdater.js"
 ];
 
 var code = files.map(function(file) {
