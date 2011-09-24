@@ -60,7 +60,7 @@ body {
     clear: both;
 }
 
-#instancesvg {
+.svg {
     overflow: scroll;
     position: absolute;
     height: auto;
@@ -125,13 +125,13 @@ div#runtime{
     display: block;
 }
 
-.timeslider-entry-MarkFinishedEvent {
+.timeslider-entry-FinishingTaskEvent {
     background: cornflowerblue;
 }
 .timeslider-entry-SpecifyingParticipantEvent {
     background: white;
 }
-.timeslider-entry-HighlightingEvent {
+.timeslider-entry-StartingTaskEvent {
     background: darkorange;
 }
 .timeslider-entry-TransferingDataEvent {
@@ -166,7 +166,6 @@ div#infoboxes {
     width:auto;
     height:auto;
     padding:3px 3px;
-    display:marker;
     overflow: hidden;
     visibility: visible;
     margin: 4px 0px;
