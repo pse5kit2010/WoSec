@@ -20,3 +20,6 @@ var a = new A;
 
 console.log("a instanceof A: " + (a instanceof A));
 console.log("a instanceof B: " + (a instanceof B));
+
+console.log("!{}: " + !{});
+console.log("{} == {}: " + {} == {});

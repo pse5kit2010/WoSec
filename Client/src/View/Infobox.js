@@ -17,8 +17,11 @@ var CSS_CLASS_INFOBOX = "infobox"
 ,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY = "infobox-attachment-entry"
 ,   CSS_CLASS_INFOBOX_ATTACHMENT_ENTRY_NAME = "infobox-attachment-entry-name"
 ,   CSS_CLASS_INFOBOX_ENTRY_USAGEREASON = "infobox-entry-usageReason"
-,   CSS_CLASS_INFOBOX_DATA = "infobox-data"
-,   INFOBOX_HIDE_DELAY_MS = 7000;
+,   CSS_CLASS_INFOBOX_ENTRY_OUTGOING = "infobox-entry-outgoing"
+,   CSS_CLASS_INFOBOX_ENTRY_INCOMING = "infobox-entry-incoming"
+,   CSS_CLASS_INFOBOX_DATA = "infobox-data";
+
+var INFOBOX_HIDE_DELAY_MS = 3000;
 
 
 var infoboxPrototype; // lazy creation when DOM ready
@@ -96,7 +99,7 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * @param {Task} task beobachteter Task
          */
         refresh: function(task) {
-            this.setContent(task.getInformation());
+            this.setContent(task.getInformation(), task);
         },
         /**
          * Zeigt die Informationsfläche.
@@ -141,9 +144,8 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
          * @param {Object} information
          * @return {Infobox} self
          */
-        setContent: function(information) {
+        setContent: function(information, task) {
             infobox.find("." + CSS_CLASS_INFOBOX_ENTRY).remove();
-            console.log(information)
             information.forEach(function(i) {
                 var entry = getInfoboxEntryPrototype().clone();
                 var date = new Date(i.timestamp * 1000);
@@ -166,6 +168,12 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
                     empty = false;
                 }
                 entry.find("." + CSS_CLASS_INFOBOX_ENTRY_USAGEREASON).text(i.usageReason);
+                
+                if (i.fromTask === task.getID() && i.fromWorkflow === task.getWorkflow().getID()) {
+                    entry.addClass(CSS_CLASS_INFOBOX_ENTRY_OUTGOING);
+                } else {
+                    entry.addClass(CSS_CLASS_INFOBOX_ENTRY_INCOMING);
+                }
                 
                 infobox.append(entry);
             });

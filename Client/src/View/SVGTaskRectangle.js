@@ -7,18 +7,20 @@ var CSS_ID_COLORSTORE = 'color-store'
 ,	CSS_ID_COLORSTORE_UNOBTRUSIVE_COLOR = 'rect-unobtrusive'
 ,   CSS_ID_COLORSTORE_OBTRUSIVE_COLOR = 'rect-obtrusive'
 ,   CSS_ID_COLORSTORE_RESET_COLOR = 'rect-reset';
+var BPMN_ACTIVITY_ID = 'bpmn:activity-id'
+,   BPMN_OTHER_WORKFLOW = "bpmn:other-workflow";
 var SCROLL_ANIMATION_MS = 100
 ,   SCROLL_SUPPRESS_PIXEL = 100;
 
 function getJQuerySVGRectanglesByActivityID($svg, activityID) {
     return $svg.find('svg rect').filter(function() {
-        return $(this).attr('bpmn:activity-id') == activityID;// && $(this).attr('fill') == 'white';
+        return $(this).attr(BPMN_ACTIVITY_ID) == activityID;// && $(this).attr('fill') == 'white';
     });
 }
     
 function getJQuerySVGCircles($svg, activityID) {
     return $svg.find('svg circle').filter(function() {
-        return $(this).attr('bpmn:activity-id') == activityID;// && $(this).attr('fill') == 'white';
+        return $(this).attr(BPMN_ACTIVITY_ID) == activityID;// && $(this).attr('fill') == 'white';
     });
 }
 
@@ -103,6 +105,9 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
             case "Finished":
                 this.markUnobtrusive();
                 this.scrollTo();
+                break;
+            case "TransferingData":
+                
                 break;
         }
     };
@@ -200,6 +205,17 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
             $(this).hover(handler);
         })
         return this;
+    };
+    
+    that.getOtherWorkflowID = function() {
+        var id;
+        rectangles.each(function() {
+            var link = $(this).attr(BPMN_OTHER_WORKFLOW);
+            if (link) {
+                id = link;
+            }
+        });
+        return id;
     };
 
     return that;
