@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+    <head>
+        <meta charset="utf-8" />
+        
+        <link type="text/css" href="media/styles/singleview.css" rel="stylesheet" />
+        <link type="text/css" href="media/jquery-ui/jquery-ui-1.8.7.custom.css" rel="stylesheet" />
+        
+        <script type="text/javascript" src="lib/jquery-1.6.2.js"></script>
+        <script type="text/javascript" src="lib/jquery-ui-1.8.9.custom.js"></script>
+        <script type="text/javascript" src="lib/dragscrollable.js"></script>
+        <script type="text/javascript" src="lib/jquery.svg.js"></script>
+        <script type="text/javascript" src="lib/jquery.svgdom.js"></script>
+        <script type="text/javascript" src="lib/jquery.svganim.js"></script>
+        <!--<script type="text/javascript" src="build/WoSec.min.js"></script>-->
+        <script type="text/javascript" src="src/WoSec.js"></script>
+        <script type="text/javascript" src="src/View/SVG.js"></script>
+        <script type="text/javascript" src="src/View/SVGTaskRectangle.js"></script>
+        <script type="text/javascript" src="src/View/SVGTaskLaneRectangle.js"></script>
+        <script type="text/javascript" src="src/View/SVGDataAnimation.js"></script>
+        <script type="text/javascript" src="src/View/HTMLGUI.js"></script>
+        <script type="text/javascript" src="src/View/Infobox.js"></script>
+        <script type="text/javascript" src="src/View/TimeSlider.js"></script>
+        <script type="text/javascript" src="src/Model/MixinObservable.js"></script>
+        <script type="text/javascript" src="src/Model/Task.js"></script>
+        <script type="text/javascript" src="src/Model/TaskLane.js"></script>
+        <script type="text/javascript" src="src/Model/Workflow.js"></script>
+        <script type="text/javascript" src="src/Model/EventCommands.js"></script>
+        <script type="text/javascript" src="src/Model/EventChain.js"></script>
+        <script type="text/javascript" src="src/AJAXUpdaterMockUp.js"></script>
+        <!--<script type="text/javascript" src="singleview.js"></script>-->
+    
+        <title>Einzelansicht</title>
+        <meta name="description" content="WoSec" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        
+        <script>
+            $(function() {
+                
+                var svg = $("#svginline").svg("get");
+                svg.load("svg/_BCoSEIBxEd-3VeNHLWdQXA.svg");
+            });
+        </script>
+    </head>
+    <body>
+        <div>
+            <div id="color-store"><!--just for css storage--><span id="rect-obtrusive"></span><span id="rect-unobtrusive"></span><span id="rect-reset"></span></div>
+
+            <div id="header">
+                <h1>Praktikumsvermittlung</h1>
+                <div id="headerright">
+                    <div id="userinfo">
+                        <span>Angemeldet als Alice</span>
+                        <a href="UserController?action=logout">Logout</a>
+                    </div>
+                    <div id="timeslider-play-button"><div id="timeslider-play-button-overlay"></div></div>
+                    <div id="slider">
+                        <div id="timeslider"></div>
+                    </div>
+    
+                </div>
+            </div>
+
+            <div id="container">
+                
+                <!--<div id="databox">
+                    <div id="databox-hover"></div>
+                </div>-->
+        
+                <div id="instancesvg">
+                    <div id="base" class="dragger">
+                        <div id="infoboxes"></div>
+                        <div id="svginline"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
