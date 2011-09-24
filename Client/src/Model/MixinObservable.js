@@ -32,4 +32,4 @@ WoSec.MixinObservable = function Observable() {
     };
 };
 
-})()
+})();

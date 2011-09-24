@@ -27,6 +27,15 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
 	that.getID = function() {
 		return id;
 	};
+	
+	/**
+	 * Gibt den zugehörigen Workflow zurück
+	 * @return {Workflow}
+	 */
+	that.getWorkflow = function() {
+	    return workflow;
+	};
+	
 	/**
 	 * Gibt den korrespondierenden Task zurück
 	 * @return {Task} korrespondierender Task

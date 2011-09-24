@@ -67,7 +67,7 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
              throw new Error("Unknown workflowID[" + workflowID +"]");
         }
         $(this).click(function() {
-             switchWorkflow($(this).attr("href"));
+             switchWorkflow($(this).attr("href").substr(1));
         });
     });
     function switchWorkflow(id) {
