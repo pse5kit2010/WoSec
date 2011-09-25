@@ -30,6 +30,6 @@ $(function() {
     var gui = new WoSec.HTMLGUI([eventChain]);
     
     
-    new WoSec.AJAXUpdater(eventChain, 0);
+    new WoSec.AJAXUpdater(eventChain, 0, gui);
 
 });

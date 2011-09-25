@@ -7,11 +7,13 @@ var SVG = WoSec.SVG;
 
 var CSS_CLASS_INFOBOXES = "infoboxes"
 ,   CSS_CLASS_SVG = "svg"
+,   CSS_ID_SLIDER = "slider"
 ,   CSS_CLASS_WORKFLOW_LINK = "workflow-link"
 ,   CSS_CLASS_CURRENT_WORKFLOW = "current-workflow";
 var DELAY_WORKFLOW_SWITCH = 2000;
 
 
+                    
 /**
  * Kontrolliert das Interface
  */
@@ -28,6 +30,7 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
     var timeSlider = {};
     
     var workflowIDs = [];
+    var currentWorkflowID = eventChains[0].getWorkflow().getID();
     
     /**
      * Aktualisiere-Methode des Beobachter Musters
@@ -43,8 +46,9 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
         var w = e.getWorkflow()
         var wID = w.getID();
         workflowIDs.push(wID);
-        //timeSlider[wID] = that.newTimeSlider(that, e);
-        //e.registerObserver(timeSlider[wID]);
+        timeSlider[wID] = new that.TimeSlider(that, e);
+        timeSlider[wID].appendTo("#" + CSS_ID_SLIDER);
+        e.registerObserver(timeSlider[wID]);
         w.registerObserver(that);
     });
     
@@ -74,6 +78,9 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
         $("." + CSS_CLASS_SVG).each(function() {
              $(this).hide();
         });
+        timeSlider[currentWorkflowID].hide();
+        timeSlider[id].show();
+        currentWorkflowID = id;
         $("." + CSS_CLASS_WORKFLOW_LINK).each(function() {
             $(this).removeClass(CSS_CLASS_CURRENT_WORKFLOW);
             if ($(this).attr("href").substr(1) === id) {

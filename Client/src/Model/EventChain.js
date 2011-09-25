@@ -90,10 +90,14 @@ WoSec.newEventChain = function EventChain(workflow) {
 				}
 				events.push(eventCommands.usingWorkflow(workflow)[event.eventCommand].create(event)); // factory method
 			});
-			events.sort(function(e, next) {
+			/*events.sort(function(e, next) { // potenziell gefährlich
 			    e.timestamp - next.timestamp;
-			});
-			this.notifyObservers(this);
+			});*/
+			this.notifyObservers(this, "add");
+			if (!this.isLocked() && currentPosition > 0) {
+			    currentPosition++;
+			    this.notifyObservers(this, "position");
+			}
 			return this;
         },
 		/**
@@ -108,17 +112,14 @@ WoSec.newEventChain = function EventChain(workflow) {
         seek: function(strategy, backwards) {
             var direction = backwards ? -1 : 1;
 			var i = currentPosition;
-			if (i == events.length) { // in case we are at the end of the chain
-				i--;
-			}
             while (0 <= i && i < events.length) {
 				currentPosition = i;
 				if (strategy(events[i], i) === false) {
 					break;
 				}
-				i += direction
+			    this.notifyObservers(this, "position");
+				i += direction;
 			}
-			this.notifyObservers(this);
 			return this;
         },
 		/**
@@ -140,9 +141,6 @@ WoSec.newEventChain = function EventChain(workflow) {
 				eventCommand.later(after, "execute");
 				after += PLAY_TIME_BETWEEN_EVENTS_MS;
 			});
-			setTimeout(function(){
-				currentPosition = events.length;
-			}, after);
 			return this;
         },
 		/**

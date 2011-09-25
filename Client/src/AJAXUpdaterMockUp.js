@@ -16,7 +16,7 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
     "eventCommand": "EventCommand",
     "information": {},
     "eventType": "createInstance"
-}, */{
+}, * /{
     "timestamp": 1314373858,
     "eventCommand": "FinishingTask",
     "information": {},
@@ -104,6 +104,37 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
     },
     "eventType": "WSActivityExecuted",
     "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
+}]);//*/
+{ 
+    "timestamp": 1316956414, 
+    "eventCommand": "TransferingData", 
+    "information": { 
+        "data": "Name, ", 
+        "participant": "Datenbank 01", 
+        "participants": { 
+            "provider": "Datenbank 01" 
+        }, 
+        "usageReason": "Test, ob der Benutzer schon registriert ist", 
+        "fromWorkflow": "_BCoSEIBxEd-3VeNHLWdQXA", 
+        "fromTask": "_P2HHwNq2Ed-AhcDaNoYiNA" 
+    }, 
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA", 
+    "activityID": "_mJVSMNq2Ed-AhcDaNoYiNA" 
+}, { 
+    "timestamp": 1316956420, 
+    "eventCommand": "TransferingData", 
+    "information": { 
+        "data": "", 
+        "participant": "Datenbank 01", 
+        "participants": { 
+            "provider": "Datenbank 01" 
+        }, 
+        "usageReason": "Test, ob der Benutzer schon registriert ist", 
+        "fromWorkflow": "_BCoSEIBxEd-3VeNHLWdQXA", 
+        "fromTask": "_mJVSMNq2Ed-AhcDaNoYiNA" 
+    }, 
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA", 
+    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA" 
 }]);
 	    }
 	};//*/
