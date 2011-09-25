@@ -140,10 +140,12 @@ WoSec.SVG.prototype.getTaskRectangle = function(activityID) {
 WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
     
     var $svg = this.$svg;
-
+    
+    var isCircle = false;
     var rectangles = getJQuerySVGRectanglesByActivityID($svg, activityID);
     if(!rectangles.length) {
         rectangles = getJQuerySVGCircles($svg, activityID);
+        isCircle = true;
     }
     if(rectangles.length == 0) {
         throw new Error("No rectangles/circles with activityID:[" + activityID + "] found");
@@ -215,6 +217,22 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
      * @return {Object} Position mit x,y,width und height- Eigenschaften (Integer), sowie getCenter()-Methode, welche den Mittelpunkt des Rechtecks zurück gibt
      */
     that.getPosition = function() {
+        if (isCircle) {
+            var r = parseInt($(rectangles[0]).attr("r"));
+            return {
+                x : parseInt($(rectangles[0]).attr("cx")),
+                y : parseInt($(rectangles[0]).attr("cy")),
+                width : r*2,
+                height : r*2,
+                getCenter : function() {
+                    return {
+                        x : this.x,
+                        y : this.y
+                    };
+                }
+            }
+        }
+        
         return {
             x : parseInt($(rectangles[0]).attr("x")),
             y : parseInt($(rectangles[0]).attr("y")),
@@ -491,11 +509,13 @@ var SVG = WoSec.SVG;
 
 var CSS_CLASS_INFOBOXES = "infoboxes"
 ,   CSS_CLASS_SVG = "svg"
+,   CSS_ID_SLIDER = "slider"
 ,   CSS_CLASS_WORKFLOW_LINK = "workflow-link"
 ,   CSS_CLASS_CURRENT_WORKFLOW = "current-workflow";
 var DELAY_WORKFLOW_SWITCH = 2000;
 
 
+                    
 /**
  * Kontrolliert das Interface
  */
@@ -512,6 +532,7 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
     var timeSlider = {};
     
     var workflowIDs = [];
+    var currentWorkflowID = eventChains[0].getWorkflow().getID();
     
     /**
      * Aktualisiere-Methode des Beobachter Musters
@@ -527,8 +548,9 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
         var w = e.getWorkflow()
         var wID = w.getID();
         workflowIDs.push(wID);
-        //timeSlider[wID] = that.newTimeSlider(that, e);
-        //e.registerObserver(timeSlider[wID]);
+        timeSlider[wID] = new that.TimeSlider(that, e);
+        timeSlider[wID].appendTo("#" + CSS_ID_SLIDER);
+        e.registerObserver(timeSlider[wID]);
         w.registerObserver(that);
     });
     
@@ -558,6 +580,9 @@ WoSec.HTMLGUI = function HTMLGUI(eventChains) {
         $("." + CSS_CLASS_SVG).each(function() {
              $(this).hide();
         });
+        timeSlider[currentWorkflowID].hide();
+        timeSlider[id].show();
+        currentWorkflowID = id;
         $("." + CSS_CLASS_WORKFLOW_LINK).each(function() {
             $(this).removeClass(CSS_CLASS_CURRENT_WORKFLOW);
             if ($(this).attr("href").substr(1) === id) {
@@ -876,15 +901,28 @@ WoSec.HTMLGUI.prototype.newInfobox = function Infobox(position) {
 
 })();
 
-
-(function() {
+(function () {
 
 var $ = jQuery;
 
-var CSS_ID_TIMESLIDER = "timeslider"
+var CSS_CLASS_TIMESLIDER = "timeslider"
 ,   CSS_CLASS_TIMESLIDER_EVENT_LINK = "timeslider-entry"
-,   CSS_ID_TIMESLIDER_PLAY_BUTTON = "timeslider-play-button"
-,   CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY = "timeslider-play-button-overlay";
+,   CSS_CLASS_TIMESLIDER_BACKWARD_BUTTON = "timeslider-backward-button"
+,   CSS_CLASS_TIMESLIDER_PLAY_PAUSE_BUTTON = "timeslider-play-pause-button"
+,   CSS_CLASS_TIMESLIDER_PLAY_BUTTON = "timeslider-play-button"
+,   CSS_CLASS_TIMESLIDER_PAUSE_BUTTON = "timeslider-pause-button"
+,   CSS_CLASS_TIMESLIDER_FORWARD_BUTTON = "timeslider-forward-button"
+,   CSS_CLASS_TIMESLIDER_PLAY_BUTTON_OVERLAY = "timeslider-play-pause-button-overlay"
+,   CSS_CLASS_TIMESLIDER_ENTRY_EVENTCOMMAND = "timeslider-entry-";
+
+
+var timeSliderPrototype;
+function getTimeSliderPrototype() {
+    if (!timeSliderPrototype) {
+        timeSliderPrototype = $("<div class='" + CSS_CLASS_TIMESLIDER + "'></div>");
+    }
+    return timeSliderPrototype;
+}
 
 var timeSliderEventPrototype;
 function getTimeSliderEventPrototype() {
@@ -893,24 +931,25 @@ function getTimeSliderEventPrototype() {
     }
     return timeSliderEventPrototype;
 }
-    
-WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(gui, eventChain) {
-    $("#" + CSS_ID_TIMESLIDER_PLAY_BUTTON).click(function() {
-        gui.enableAnimations();
-        eventChain.unlock().play();
-    });
-    var timeSliderEvents = [];
-    var timeSlider = $("#" + CSS_ID_TIMESLIDER).slider({
+
+WoSec.HTMLGUI.prototype.TimeSlider = function TimeSlider(gui, eventChain) {
+    var events = [];
+    var paused = false;
+    var sliding = false;
+    var $node = getTimeSliderPrototype().clone();
+    var slider = $node.slider({
         slide : function(event, ui) {
-            var value = timeSlider.slider("option", "value");
+            var value = slider("option", "value");
             var backwards = ui.value < value;
             var searchedEventCommand;
-            timeSliderEvents.forEach(function(e) {
+            events.forEach(function(e) {
                 if(e.timestamp <= ui.value) {
                     searchedEventCommand = e.eventCommand;
                 }
             });
             gui.disableAnimations(eventChain);
+            pause();
+            sliding = true;
             eventChain.lock().seek(function(eventCommand) {
                 if(!backwards) {
                     eventCommand.execute();
@@ -921,77 +960,113 @@ WoSec.HTMLGUI.prototype.newTimeSlider = function TimeSlider(gui, eventChain) {
                     return false;
                 }
             }, backwards);
+            sliding = false;
         }
     });
-
-    return {
-        adjustSize : function(eventChain) {
-            var startTime;
-            var endTime;
-            var min = timeSlider.slider("option", "min");
-            var max = timeSlider.slider("option", "max");
-            var intervalChanged = false;
-            eventChain.forEach(function(eventCommand, i) {
-                if(!timeSliderEvents[i]) {// if not yet created
-                    var event = {};
-                    event.eventCommand = eventCommand;
-                    event.timestamp = eventCommand.getTimestamp();
-                    event.entry = getTimeSliderEventPrototype().clone().appendTo('#' + CSS_ID_TIMESLIDER);
-                    // create new entry
-                    event.entry.addClass("timeslider-entry-" + eventCommand.getClass());
-                    timeSliderEvents.push(event);
-                }
-                var time = eventCommand.getTimestamp();
-                if(!startTime || time < startTime) {
-                    startTime = time;
-                }
-                if(!endTime || time > endTime) {
-                    endTime = time;
-                }
-                if(startTime) {
-                    timeSlider.slider("option", "min", startTime);
-                    intervalChanged = true;
-                }
-                if(endTime) {
-                    timeSlider.slider("option", "max", endTime);
-                    intervalChanged = true;
-                }
-            });
-            if(startTime == min && endTime == max) {
-                intervalChanged = false;
-            }
-            if(intervalChanged) {
-                var interval = endTime - startTime;
-                timeSliderEvents.forEach(function(e) {
-                    rightPercent = (endTime - e.timestamp) / interval * 100;
-                    e.entry.css("left", (100 - rightPercent) + "%");
+    slider = slider.slider.bind(slider);
+    
+    $("." + CSS_CLASS_TIMESLIDER_PLAY_PAUSE_BUTTON).click(function() {
+        if (paused) {
+            gui.enableAnimations(eventChain);
+            unpause();
+            eventChain.unlock().play();
+        } else {
+            eventChain.lock();
+            pause();
+        }
+    });
+    
+    $("." + CSS_CLASS_TIMESLIDER_FORWARD_BUTTON).click(function() {
+        gui.disableAnimations(eventChain);
+        eventChain.seek(function(eventCommand) {
+            eventCommand.execute();
+        });
+        if (!paused) {
+            gui.enableAnimations(eventChain);
+        }
+    });
+    
+    $("." + CSS_CLASS_TIMESLIDER_BACKWARD_BUTTON).click(function() {
+        gui.disableAnimations(eventChain);
+        eventChain.seek(function(eventCommand) {
+            eventCommand.execute();
+        }, true);
+        if (!paused) {
+            gui.enableAnimations(eventChain);
+        }
+    });
+    
+    function pause() {
+        paused = true;
+        $node.find("." + CSS_CLASS_TIMESLIDER_PLAY_PAUSE_BUTTON)
+            .removeClass(CSS_CLASS_TIMESLIDER_PAUSE_BUTTON)
+            .addClass(CSS_CLASS_TIMESLIDER_PLAY_BUTTON);
+        
+    }
+    
+    function unpause() {
+        paused = false;
+        $node.find("." + CSS_CLASS_TIMESLIDER_PLAY_PAUSE_BUTTON)
+            .removeClass(CSS_CLASS_TIMESLIDER_PLAY_BUTTON)
+            .addClass(CSS_CLASS_TIMESLIDER_PAUSE_BUTTON);
+    }
+    
+    function adjustSize() {
+        var startTime = eventChain.getLength() > 0 ? eventChain.getEventCommand(0).getTimestamp() : 0;
+        var endTime = eventChain.last().getTimestamp();
+        
+        slider("option", "min", startTime);
+        slider("option", "max", endTime);
+        
+        var interval = endTime - startTime;
+        events.forEach(function(e) {
+            rightPercent = (endTime - e.timestamp) / interval * 100;
+            e.entry.css("left", (100 - rightPercent) + "%");
+        });
+    }
+    
+    this.refresh = function(eventChain, event) {
+        switch (event) {
+            case "add":
+                eventChain.forEach(function(eventCommand, i) {
+                    if(!events[i]) {// if not yet created
+                        var event = {};
+                        event.eventCommand = eventCommand;
+                        event.timestamp = eventCommand.getTimestamp();
+                        event.entry = getTimeSliderEventPrototype().clone().appendTo($node);
+                        // create new entry
+                        event.entry.addClass(CSS_CLASS_TIMESLIDER_ENTRY_EVENTCOMMAND + eventCommand.getClass());
+                        events.push(event);
+                    }
                 });
-            }
-            return this;
-        },
-        /**
-         * Teil des Beobachtermusters, setzt den TimeSlider in Kenntnis, dass sich die EventChain geändert hat.
-         * @param {EventChain} eventChain
-         */
-        refresh : function(eventChain) {
-            if(eventChain.getLength() != timeSliderEvents.length) {
-                this.adjustSize(eventChain);
+                adjustSize();
                 if(eventChain.isLocked()) {// animation on the play button if new events arrieved and the chain is locked
-                    $('#' + CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY).show();
-                    $('#' + CSS_ID_TIMESLIDER_PLAY_BUTTON).effect('pulsate', {
+                    $node.find('.' + CSS_CLASS_TIMESLIDER_PLAY_BUTTON_OVERLAY).show();
+                    $node.find('.' + CSS_CLASS_TIMESLIDER_PLAY_PAUSE_BUTTON).effect('pulsate', {
                         times : 10
                     }, 1000)
                     setTimeout(function() {
-                        $('#' + CSS_ID_TIMESLIDER_PLAY_BUTTON_OVERLAY).hide();
+                        $node.find('.' + CSS_CLASS_TIMESLIDER_PLAY_BUTTON_OVERLAY).hide();
                     }, 10000);
                 }
-            }
-            timeSlider.slider("option", "value", eventChain.getEventCommand(eventChain.getCurrentPosition()).getTimestamp());
+                break;
+            case "position":
+                if (!sliding) {
+                    slider("option", "value", eventChain.getEventCommand(eventChain.getCurrentPosition()).getTimestamp());
+                }
+                break;
+            
             return this;
         }
     };
-}
-})(); 
+    
+    this.appendTo = $node.appendTo.bind($node);
+    this.hide = $node.hide.bind($node);
+    this.show = $node.show.bind($node);
+};
+
+})();
+
 (function() {
 
 /**
@@ -1653,10 +1728,14 @@ WoSec.newEventChain = function EventChain(workflow) {
 				}
 				events.push(eventCommands.usingWorkflow(workflow)[event.eventCommand].create(event)); // factory method
 			});
-			events.sort(function(e, next) {
+			/*events.sort(function(e, next) { // potenziell gefährlich
 			    e.timestamp - next.timestamp;
-			});
-			this.notifyObservers(this);
+			});*/
+			this.notifyObservers(this, "add");
+			if (!this.isLocked() && currentPosition > 0) {
+			    currentPosition++;
+			    this.notifyObservers(this, "position");
+			}
 			return this;
         },
 		/**
@@ -1671,17 +1750,14 @@ WoSec.newEventChain = function EventChain(workflow) {
         seek: function(strategy, backwards) {
             var direction = backwards ? -1 : 1;
 			var i = currentPosition;
-			if (i == events.length) { // in case we are at the end of the chain
-				i--;
-			}
             while (0 <= i && i < events.length) {
 				currentPosition = i;
 				if (strategy(events[i], i) === false) {
 					break;
 				}
-				i += direction
+			    this.notifyObservers(this, "position");
+				i += direction;
 			}
-			this.notifyObservers(this);
 			return this;
         },
 		/**
@@ -1703,9 +1779,6 @@ WoSec.newEventChain = function EventChain(workflow) {
 				eventCommand.later(after, "execute");
 				after += PLAY_TIME_BETWEEN_EVENTS_MS;
 			});
-			setTimeout(function(){
-				currentPosition = events.length;
-			}, after);
 			return this;
         },
 		/**
@@ -1729,7 +1802,7 @@ WoSec.newEventChain = function EventChain(workflow) {
  * Singleton zum Abfragen neuer Eventdaten alle paar Sekunden (Default 5).
  * Empfangene Eventdaten werden an die EventChain weitergegeben.
  */
-WoSec.AJAXUpdater = function AJAXUpdater(eventChain, lastVisitedTimestamp) {
+WoSec.AJAXUpdater = function AJAXUpdater(eventChain, lastVisitedTimestamp, gui) {
     var DELAY_BETWEEN_POLLS = 5000
     ,   POLL_URL = "UpdateController?type=Event";
 
@@ -1746,10 +1819,13 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain, lastVisitedTimestamp) {
 
     ajax(function(data) {
         if(data.length != 0) {
+            gui.disableAnimations(eventChain);
             eventChain.add(data).seek(function(eventCommand) {
                 return eventCommand.getTimestamp() <= lastVisitedTimestamp && eventCommand.execute();
                 // seek forward until the timestamp is newer than the lastVisited
-            }).play();
+            });
+            gui.enableAnimations(eventChain);
+            eventChain.play();
         }
     });
     var playAndAddLoop = function(data) {
