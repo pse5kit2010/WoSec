@@ -41,10 +41,12 @@ WoSec.SVG.prototype.getTaskRectangle = function(activityID) {
 WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
     
     var $svg = this.$svg;
-
+    
+    var isCircle = false;
     var rectangles = getJQuerySVGRectanglesByActivityID($svg, activityID);
     if(!rectangles.length) {
         rectangles = getJQuerySVGCircles($svg, activityID);
+        isCircle = true;
     }
     if(rectangles.length == 0) {
         throw new Error("No rectangles/circles with activityID:[" + activityID + "] found");
@@ -116,6 +118,22 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
      * @return {Object} Position mit x,y,width und height- Eigenschaften (Integer), sowie getCenter()-Methode, welche den Mittelpunkt des Rechtecks zurück gibt
      */
     that.getPosition = function() {
+        if (isCircle) {
+            var r = parseInt($(rectangles[0]).attr("r"));
+            return {
+                x : parseInt($(rectangles[0]).attr("x")),
+                y : parseInt($(rectangles[0]).attr("y")),
+                width : r*2,
+                height : r*2,
+                getCenter : function() {
+                    return {
+                        x : this.x,
+                        y : this.y
+                    };
+                }
+            }
+        }
+        
         return {
             x : parseInt($(rectangles[0]).attr("x")),
             y : parseInt($(rectangles[0]).attr("y")),
