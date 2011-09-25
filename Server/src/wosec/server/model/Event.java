@@ -1,122 +1,80 @@
 package wosec.server.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
-@Entity
-@Table(name = "Events")
+
 public class Event {
-	private int id;
-	private String type;
-	private java.util.Date time;
-	private String description;
+	
+	private EventId eventId;
 	private Instance instance;
-	private Activity activity;
-	private Activity destActivity;
-	private ActivityGroup group;
-	private Provider provider;
-	private User user;
+	private Set<ActivityType> activityTypes = new HashSet<ActivityType>(0);
+	private EventInformation eventInformation;
 
-	
-	@Id
-	@GeneratedValue(strategy=GenerationType.AUTO)
-	public int getId() {
-		return this.id;
+	public Event() {
 	}
 
-	public void setId(int id) {
-		this.id = id;
+	public Event(EventId eventId, Instance instances) {
+		this.eventId = eventId;
+		this.instance = instances;
 	}
 
-	public String getType() {
-		return this.type;
+	public Event(EventId eventId, Instance instances, Set activityTypeses,
+			EventInformation eventInformation) {
+		this.eventId = eventId;
+		this.instance = instances;
+		this.activityTypes = activityTypeses;
+		this.eventInformation = eventInformation;
 	}
 
-	public void setType(String type) {
-		this.type = type;
+	public EventId getId() {
+		return this.eventId;
 	}
 
-	public java.util.Date getTime() {
-		return this.time;
+	public void setId(EventId eventId) {
+		this.eventId = eventId;
 	}
 
-	public void setTime(java.util.Date time) {
-		this.time = time;
-	}
-
-	public String getDescription() {
-		return this.description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-
-	@ManyToOne
-	@JoinColumn(name = "instanceID", nullable = false)
 	public Instance getInstance() {
-		return instance;
+		return this.instance;
 	}
 
-	public void setInstance(Instance instance) {
-		this.instance = instance;
+	public void setInstance(Instance instances) {
+		this.instance = instances;
+	}
+        
+        public String getActivityTypesString() {
+            String returnValue = "";
+            
+            Set<ActivityType> types = this.getActivityTypes();
+            
+            //Iterator<ActivityTyp> it = types.iterator();
+            
+            for(Iterator<ActivityType> it = types.iterator(); it.hasNext();) {
+                ActivityType type = it.next();
+                returnValue += type.getName();
+                if (it.hasNext()) {
+                    returnValue += ",";
+                }
+            }
+            
+            return returnValue;
+        }
+
+	public Set<ActivityType> getActivityTypes() {
+		return this.activityTypes;
 	}
 
-	@ManyToOne
-	@JoinColumn(name = "activityID")
-	public Activity getActivity() {
-		return activity;
+	public void setActivityTypes(Set<ActivityType> activityTypes) {
+		this.activityTypes = activityTypes;
 	}
 
-	public void setActivity(Activity activity) {
-		this.activity = activity;
+	public EventInformation getEventInformation() {
+		return this.eventInformation;
 	}
 
-	@ManyToOne
-	@JoinColumn(name = "destActivityID")
-	public Activity getDestActivity() {
-		return destActivity;
-	}
-
-	public void setDestActivity(Activity destActivity) {
-		this.destActivity = destActivity;
-	}
-
-	@ManyToOne
-	@JoinColumn(name = "groupID")
-	public ActivityGroup getGroup() {
-		return group;
-	}
-
-	public void setGroup(ActivityGroup group) {
-		this.group = group;
-	}
-
-	@ManyToOne
-	@JoinColumn(name = "providerID")
-	public Provider getProvider() {
-		return provider;
-	}
-
-	public void setProvider(Provider provider) {
-		this.provider = provider;
-	}
-
-
-	@ManyToOne
-	@JoinColumn(name = "userID")
-	public User getUser() {
-		return user;
-	}
-
-	public void setUser(User user) {
-		this.user = user;
-	}
-	
-	
+	public void setEventInformation(EventInformation eventInformation) {
+		this.eventInformation = eventInformation;
+	} 	
 }

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 21.08.2011 18:54:31 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="wosec.server.model.EventInformation" table="event_information" catalog="WoSec2">
+        <composite-id name="id" class="wosec.server.model.EventId">
+            <key-property name="eventId" type="string">
+                <column name="event_id" length="50" />
+            </key-property>
+            <key-property name="instanceId" type="string">
+                <column name="instance_id" />
+            </key-property>
+        </composite-id>
+        <many-to-one name="executingUser" class="wosec.server.model.User" fetch="select">
+            <column name="executing_user" />
+        </many-to-one>
+        <one-to-one name="event" class="wosec.server.model.Event" constrained="true"></one-to-one>
+        <many-to-one name="fromActivity" class="wosec.server.model.Activity" fetch="select">
+            <column name="from_activity_id" />
+            <column name="from_workflow_id" />
+        </many-to-one>
+        <many-to-one name="dataProvider" class="wosec.server.model.DataProvider" fetch="select">
+            <column name="provider_id" />
+        </many-to-one>
+        <many-to-one name="evokingUser" class="wosec.server.model.User" fetch="select">
+            <column name="evoking_user" />
+        </many-to-one>
+        <property name="eventTime" type="timestamp">
+            <column name="event_time" length="19" not-null="true" />
+        </property>
+        <many-to-one name="activity" class="wosec.server.model.Activity" fetch="select">
+            <column name="activity_id" />
+            <column name="workflow_id" />
+        </many-to-one>
+        <one-to-one name="eventData" class="wosec.server.model.EventData"></one-to-one>
+    </class>
+</hibernate-mapping>

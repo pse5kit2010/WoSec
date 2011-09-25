@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 21.08.2011 18:54:31 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="wosec.server.model.DataProvider" table="data_provider" catalog="WoSec2">
+        <id name="id" type="java.lang.Integer">
+            <column name="id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one name="workflow" class="wosec.server.model.Workflow" fetch="select">
+            <column name="workflow_id" not-null="true" />
+        </many-to-one>
+        <property name="name" type="string">
+            <column name="name" not-null="true" />
+        </property>
+        <set name="eventInformations" table="event_information" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="provider_id" />
+            </key>
+            <one-to-many class="wosec.server.model.EventInformation" />
+        </set>
+    </class>
+</hibernate-mapping>

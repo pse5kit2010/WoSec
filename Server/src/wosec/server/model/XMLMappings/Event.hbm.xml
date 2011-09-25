@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 16.08.2011 03:37:48 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="wosec.server.model.Event" table="events" catalog="WoSec2">
+        <composite-id name="id" class="wosec.server.model.EventId">
+            <key-property name="eventId" type="string">
+                <column name="event_id" length="50" />
+            </key-property>
+            <key-property name="instanceId" type="string">
+                <column name="instance_id" />
+            </key-property>
+        </composite-id>
+        <many-to-one name="instance" class="wosec.server.model.Instance" update="false" insert="false" fetch="select">
+            <column name="instance_id" not-null="true" />
+        </many-to-one>
+        <set name="activityTypes" table="event_types" inverse="false" lazy="true" fetch="select" cascade="save-update">
+            <key>
+                <column name="event_id" not-null="true" />
+                <column name="instance_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="wosec.server.model.ActivityType">
+                <column name="type_id" not-null="true" />
+            </many-to-many>
+        </set>
+        <one-to-one name="eventInformation" class="wosec.server.model.EventInformation" cascade="save-update"></one-to-one>
+    </class>
+</hibernate-mapping>

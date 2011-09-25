@@ -12,6 +12,7 @@ import org.hibernate.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import wosec.server.controllers.eventhandling.UserManagementEventHandler;
 import wosec.server.model.User;
 import wosec.util.Configuration;
 import wosec.util.HashGenerator;
@@ -45,24 +46,30 @@ public class UserController extends HttpServlet {
 		Transaction tx = null;
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		try {
-			tx = session.beginTransaction();
+			tx = session.beginTransaction();			
 
 			User user = (User) session.createQuery("from User where identifier = ?").setString(0, username)
 					.uniqueResult();
-			String passHash = HashGenerator.SHA256(password);
+			String passHash = HashGenerator.SHA256(password);						
+			
 			if (user == null || user.getPasswordHash() == null || !user.getPasswordHash().equals(passHash)) {
 				// Benutzer nicht in Datenbank oder kein Passwort oder falsches Passwort:
+				System.out.println("Login not successful.");
 				request.setAttribute("error", Configuration.getProperties().getProperty("LoginFailedErrorMessage"));
 				request.getRequestDispatcher("Login.jsp").forward(request, response);
 				return;
 			} else {
 				// Login erfolgreich:
+				System.out.println("Login successful.");
 				HttpSession httpsession = request.getSession(true);
 				httpsession.setAttribute("user", user);
 				response.sendRedirect("InstancesController");
 			}
 			tx.commit();
 		} catch (Exception e) {
+			// added by Thorsten
+			e.printStackTrace();			
+			// Error handling written by the PSE students 
 			if (tx != null && tx.isActive()) {
 				try {
 					tx.rollback();

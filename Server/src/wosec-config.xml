@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
 <properties>
-	<entry key="staticXMLWorkflowDataDirectory">/home/david/Eclipse workspace/WoSecServer/WebContent/WorkflowData/</entry>
-	<entry key="SVGDirectory">/home/david/Eclipse workspace/WoSecServer/WebContent/WorkflowData/</entry>
+	<entry key="staticXMLWorkflowDataDirectory">D:\Eigene Dateien\Eigene Dokumente\uni\semester 6\bachelor-arbeit\WoSec\WoSec\Server\WebContent\WorkflowData\</entry>
+	<entry key="SVGDirectory">D:\Eigene Dateien\Eigene Dokumente\uni\semester 6\bachelor-arbeit\WoSec\WoSec\Server\WebContent\WorkflowData\</entry>
 	<entry key="LoginFailedErrorMessage">Login fehlgeschlagen!</entry>
+        <entry key="cometPort">8585</entry>
 </properties>

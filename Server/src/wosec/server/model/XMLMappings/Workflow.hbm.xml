@@ -1,8 +1,53 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
-<hibernate-mapping package="wosec.server.model">
- <class entity-name="XMLWorkflow" node="workflow" table="Workflows">
-     <id name="workflow-id" column="id" type="string" node="@workflow-id" />
-     <property name="workflow-name" column="name" type="string" node="@workflow-name" />
- </class>
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 16.08.2011 03:37:48 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="wosec.server.model.Workflow" table="workflows" catalog="WoSec2">
+        <id name="workflowId" type="string">
+            <column name="workflow_id" />
+            <generator class="assigned" />
+        </id>
+        <many-to-one name="relatedWorkflow" class="wosec.server.model.Workflow" fetch="select">
+            <column name="related_to_workflow" />
+        </many-to-one>
+        <property name="name" type="string">
+            <column name="name" not-null="true" />
+        </property>
+        <property name="securityLevel" type="byte">
+            <column name="security_level" not-null="true" />
+        </property>
+        <set name="activities" table="activities" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="workflow_id" not-null="true" />
+            </key>
+            <one-to-many class="wosec.server.model.Activity" />
+        </set>
+        <set name="instances" table="instances" inverse="true" lazy="true" fetch="select" order-by="last_visited DESC">
+            <key>
+                <column name="workflow_id" not-null="true" />
+            </key>
+            <one-to-many class="wosec.server.model.Instance" />
+        </set>
+        <set name="dataProviders" table="data_provider" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="workflow_id" not-null="true" />
+            </key>
+            <one-to-many class="wosec.server.model.DataProvider" />
+        </set>
+        <set name="workflowLanguages" table="workflow_languages" inverse="true" lazy="true" fetch="select" cascade="save-update">
+            <key>
+                <column name="workflow_id" not-null="true" />
+            </key>
+            <one-to-many class="wosec.server.model.WorkflowLanguage" />
+        </set>
+        <set name="users" table="user_has_workflow_access" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="workflow_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="wosec.server.model.User">
+                <column name="user_id" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
 </hibernate-mapping>

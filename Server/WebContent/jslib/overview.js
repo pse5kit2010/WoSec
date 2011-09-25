@@ -54,7 +54,7 @@ $(function(){
     var overview = (function(){
         var instances = {};
         var instancestable = $("#instancestable");
-        var entryPrototype = $("<tr><td><a/></td><td/><td/><td/></tr>");
+        var entryPrototype = $("<tr><td>Instanz starten: <a/></td><td/><td/><td/></tr>");
         function newInstance(data){
             var that = {};
             var entry = entryPrototype.clone();

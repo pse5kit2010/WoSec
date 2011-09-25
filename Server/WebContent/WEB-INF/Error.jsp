@@ -2,6 +2,9 @@
 
 <jsp:include page="/WEB-INF/templates/header.jsp">
 	<jsp:param name="title" value="Fehler | WoSec" />
+        <jsp:param name="page" value="error" />
+    <jsp:param name="usr" value="" />
+    <jsp:param name="additional" value="" />
 </jsp:include>
 </head>
 <body>

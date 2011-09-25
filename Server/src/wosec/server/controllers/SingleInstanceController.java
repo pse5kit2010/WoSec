@@ -27,110 +27,125 @@ import wosec.util.Configuration;
  * Einzelansicht einer Workflow-Instanz nötig sind, ohne sich um die dazu
  * zugehörigen Events zu kümmern.
  */
-
 public class SingleInstanceController extends SessionServlet {
-	private static final long serialVersionUID = 1L;
 
-	/**
-	 * Übernimmt die Vorbereitung der für die Einzelansicht benötigten Daten
-	 * anhand des get-Parameters instance unter Überprüfung des Zugriffsrechts
-	 * des angemeldeten Users. getInstance() leitet die Anfrage an die View
-	 * SingleInstance weiter
-	 * 
-	 * @param request
-	 *            HttpServletRequest
-	 * @param response
-	 *            HttpServletResponse
-	 * @throws ServletException
-	 *             wird gegebenenfalls bei der Weiterleitung an die View
-	 *             geworfen
-	 * @throws IOException
-	 *             wird gegebenenfalls bei der Weiterleitung an die View
-	 *             geworfen
-	 */
-	private void getInstance(HttpServletRequest request, HttpServletResponse response) throws ServletException,
-			IOException {
-		if (request.getParameter("instance") == null)
-			return;
+    private static final long serialVersionUID = 1L;
 
-		Instance instance = null;
-		String svgdata = "";
-		String svginline = "";
+    /**
+     * Übernimmt die Vorbereitung der für die Einzelansicht benötigten Daten
+     * anhand des get-Parameters instance unter Überprüfung des Zugriffsrechts
+     * des angemeldeten Users. getInstance() leitet die Anfrage an die View
+     * SingleInstance weiter
+     * 
+     * @param request
+     *            HttpServletRequest
+     * @param response
+     *            HttpServletResponse
+     * @throws ServletException
+     *             wird gegebenenfalls bei der Weiterleitung an die View
+     *             geworfen
+     * @throws IOException
+     *             wird gegebenenfalls bei der Weiterleitung an die View
+     *             geworfen
+     */
+    private void getInstance(HttpServletRequest request, HttpServletResponse response) throws ServletException,
+            IOException {
 
-		Transaction tx = null;
-		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
-		try {
+        System.out.println("entering SingleInstanceController.getInstance");
 
-			tx = session.beginTransaction();
-			tx.begin();
-			instance = (Instance) session.load(Instance.class, request.getParameter("instance"));
+        if (request.getParameter("instance") == null) {
+            System.err.println("'instance' parameter = null");
+            return;
+        }
 
-			// Reading svg and deleting <?xml ... ?> Tag
-			String svgFileName = Configuration.getProperties().getProperty("SVGDirectory")
-					+ instance.getWorkflow().getId() + ".svg";
-			File file = new File(svgFileName);
-			StringBuffer contents = new StringBuffer();
-			BufferedReader reader = null;
+        Instance instance = null;
+        String svgdata = "";
+        String svginline = "";
 
-			try {
-				//reader = new InputStreamReader(new FileInputStream("file"), "UTF-8"));
+        Transaction tx = null;
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        try {
 
-				reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
-				String text = null;
+            tx = session.beginTransaction();
+            tx.begin();
+            System.out.println(request.getParameter("instance"));
+            instance = (Instance) session.load(Instance.class, request.getParameter("instance"));
 
-				// read all lines
-				while ((text = reader.readLine()) != null) {
-					contents.append(text).append(System.getProperty("line.separator"));
-				}
-				
-				
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+            // Reading svg and deleting <?xml ... ?> Tag
+            System.out.println(Configuration.getProperties());
+            String svgFileName = Configuration.getProperties().getProperty("SVGDirectory")
+                    + instance.getWorkflow().getWorkflowId() + ".svg";
+            File file = new File(svgFileName);
+            StringBuffer contents = new StringBuffer();
+            BufferedReader reader = null;
 
-			svgdata = contents.toString();
-			svginline = svgdata.replaceFirst("<\\?xml.*?\\?>", "");
+            try {
+                //reader = new InputStreamReader(new FileInputStream("file"), "UTF-8"));
 
-		} catch (RuntimeException e1) {
-			if (tx != null && tx.isActive()) {
-				try {
-					// Second try catch as the rollback could fail as well
-					tx.rollback();
-				} catch (HibernateException e2) {
-					// logger.debug("Error rolling back transaction");
-				}
-				// throw again the first exception
-				throw e1;
-			}
-		}
-		
+                reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8"));
+                String text = null;
 
-		if (instance != null) {
-			Workflow workflow = instance.getWorkflow();
-			request.setAttribute("workflow", workflow);
-			request.setAttribute("instance", instance);
-			
-    		@SuppressWarnings("unchecked")
-    		List<Activity> activityList = session.createQuery(
-    				"select a from Activity as a left join a.activityGroup as ag where ag.workflow = ?")
-    				.setEntity(0, workflow).list();
-    		
-    		
-    		request.setAttribute("activities", activityList);
-			
-		}
+                // read all lines
+                while ((text = reader.readLine()) != null) {
+                    contents.append(text).append(System.getProperty("line.separator"));
+                }
 
-		tx.commit();
 
-		request.setAttribute("svginline", svginline);
-		
-		request.getRequestDispatcher("SingleInstance.jsp").forward(request, response);
-	}
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-		getInstance(req, resp);
-	}
+            svgdata = contents.toString();
+            svginline = svgdata.replaceFirst("<\\?xml.*?\\?>", "");
+
+        } catch (RuntimeException e1) {
+            e1.printStackTrace();
+            if (tx != null && tx.isActive()) {
+                try {
+                    // Second try catch as the rollback could fail as well
+                    tx.rollback();
+                } catch (HibernateException e2) {
+                    // logger.debug("Error rolling back transaction");
+                }
+                // throw again the first exception
+                throw e1;
+            }
+        }
+
+
+        if (instance != null) {
+            Workflow workflow = instance.getWorkflow();
+            System.out.println("WF-Model: " + workflow);
+            System.out.println("WF-Instanz: " + instance);
+            request.setAttribute("workflow", workflow);
+            request.setAttribute("instance", instance);
+
+            /*//@SuppressWarnings("unchecked")
+            List<Activity> activityList = session.createQuery(
+                    "select a from Activity as a left join a.activityGroup as ag where ag.workflow = ?").setEntity(0, workflow).list();*/
+            List<Activity> activityList = session.createQuery(
+                    "select a from Activity as a left join a.groupActivity as ag where ag.workflow = ? order by a.groupActivity").setEntity(0, workflow).list();
+
+
+            System.out.println("activityList - Size: " + activityList.size());
+            System.out.println("activityList - Content: " + activityList.toString());
+            request.setAttribute("activities", activityList);
+
+        }
+
+        tx.commit();
+
+        request.setAttribute("svginline", svginline);
+
+        System.out.println("Aufruf folgt: SingleInstance.jsp");
+
+        request.getRequestDispatcher("SingleInstance.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        getInstance(req, resp);
+    }
 }

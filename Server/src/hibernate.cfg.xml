@@ -1,15 +1,13 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE hibernate-configuration PUBLIC
-          "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
-          "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
-<session-factory>
-    <property name="connection.url">jdbc:mysql://localhost/WoSec</property>
+  <session-factory>
+    <property name="connection.url">jdbc:mysql://localhost/wosec2</property>
     <property name="connection.username">root</property>
     <property name="connection.driver_class">com.mysql.jdbc.Driver</property>
     <property name="dialect">org.hibernate.dialect.MySQLDialect</property>
-    <property name="connection.password">admi06</property>
- <property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
+    <property name="connection.password"/>
+    <property name="transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
     <!--  thread is the short name for
       org.hibernate.context.ThreadLocalSessionContext
       and let Hibernate bind the session automatically to the thread
@@ -17,22 +15,36 @@
     <property name="current_session_context_class">thread</property>
     <!-- this will show us all sql statements -->
     <property name="hibernate.show_sql">true</property>
-    
     <property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
-
     <!-- mapping files for XML to database mapping -->
-    <mapping resource="wosec/server/model/XMLMappings/Workflow.hbm.xml" />
-    <mapping resource="wosec/server/model/XMLMappings/Activity.hbm.xml" />
-    <mapping resource="wosec/server/model/XMLMappings/ActivityGroup.hbm.xml" />
-    
+    <mapping resource="wosec/server/model/XMLMappings/Activity.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/ActivityInformation.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/ActivityType.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/DataProvider.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/Event.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/EventAttachment.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/EventData.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/EventInformation.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/Instance.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/User.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/UserRole.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/Workflow.hbm.xml"/>
+    <mapping resource="wosec/server/model/XMLMappings/WorkflowLanguage.hbm.xml"/>
     <!-- mapping files-->
+    <!--
     <mapping class="wosec.server.model.Activity"/>
-    <mapping class="wosec.server.model.ActivityGroup"/>
+    <mapping class="wosec.server.model.ActivityInformation"/>
+    <mapping class="wosec.server.model.ActivityType"/>
+    <mapping class="wosec.server.model.DataProvider"/>
     <mapping class="wosec.server.model.Event"/>
+    <mapping class="wosec.server.model.EventAttachment"/>
+    <mapping class="wosec.server.model.EventData"/>
+    <mapping class="wosec.server.model.EventInformation"/>
     <mapping class="wosec.server.model.Instance"/>
-    <mapping class="wosec.server.model.Provider"/>
     <mapping class="wosec.server.model.User"/>
+    <mapping class="wosec.server.model.UserRole"/>
     <mapping class="wosec.server.model.Workflow"/>
-
-</session-factory>
+    <mapping class="wosec.server.model.WorkflowLanguage"/>
+    -->
+  </session-factory>
 </hibernate-configuration>

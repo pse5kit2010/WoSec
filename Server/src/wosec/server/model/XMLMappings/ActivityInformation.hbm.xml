@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 21.08.2011 18:54:31 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="wosec.server.model.ActivityInformation" table="activity_information" catalog="WoSec2">
+        <composite-id name="id" class="wosec.server.model.ActivityId">
+            <key-property name="activityId" type="string">
+                <column name="activity_id" />
+            </key-property>
+            <key-property name="workflowId" type="string">
+                <column name="workflow_id" />
+            </key-property>
+        </composite-id>
+        <one-to-one name="activity" class="wosec.server.model.Activity" constrained="true"></one-to-one>
+        <property name="name" type="string">
+            <column name="name" not-null="true" />
+        </property>
+        <property name="information" type="string">
+            <column name="information" />
+        </property>
+    </class>
+</hibernate-mapping>

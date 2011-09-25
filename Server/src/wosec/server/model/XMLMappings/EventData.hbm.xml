@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 21.08.2011 18:54:31 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="wosec.server.model.EventData" table="event_data" catalog="WoSec2">
+        <composite-id name="id" class="wosec.server.model.EventId">
+            <key-property name="eventId" type="string">
+                <column name="event_id" length="50" />
+            </key-property>
+            <key-property name="instanceId" type="string">
+                <column name="instance_id" />
+            </key-property>
+        </composite-id>
+        <one-to-one name="eventInformation" class="wosec.server.model.EventInformation" constrained="true"></one-to-one>
+        <property name="dataUsed" type="string">
+            <column name="data_used" not-null="true" />
+        </property>
+        <property name="usageReason" type="string">
+            <column name="usage_reason" not-null="true" />
+        </property>
+        <set name="eventAttachments" table="event_has_attachment" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="event_id" not-null="true" />
+                <column name="instance_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="wosec.server.model.EventAttachment">
+                <column name="attachment_id" not-null="true" />
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

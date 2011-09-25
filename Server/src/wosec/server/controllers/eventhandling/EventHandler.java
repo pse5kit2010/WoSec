@@ -2,6 +2,7 @@ package wosec.server.controllers.eventhandling;
 
 import java.util.Arrays;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * Stellt einen EventHandler dar.
@@ -22,7 +23,7 @@ public abstract class EventHandler {
 	 *            Anfrage, deren Parameter die Daten des zu verarbeitenden
 	 *            Events enthalten.
 	 */
-	public final void handleOrRelay(HttpServletRequest req) {
+	public final void handleOrRelay(HttpServletRequest req, HttpServletResponse resp) {
 		String eventType = req.getParameter("eventType");
 		// Falls nicht spezifiziert wurde, um was für ein Event es sich handelt,
 		// breche ab:
@@ -32,11 +33,11 @@ public abstract class EventHandler {
 		// Falls dieser Handler für den übergebenen Eventtyp zuständig ist:
 		if (Arrays.asList(validEvents).contains(eventType)) {
 			// Verarbeite das Event:
-			handle(eventType, req);
+			handle(eventType, req, resp);
 			// Ansonsten, falls es einen Nachfolger gibt...
 		} else if (next != null) {
 			// ... überlasse diesem die Verarbeitung:
-			next.handleOrRelay(req);
+			next.handleOrRelay(req, resp);
 		}
 	}
 
@@ -50,7 +51,7 @@ public abstract class EventHandler {
 	 * @param req
 	 *            siehe handleOrRelay()
 	 */
-	protected abstract void handle(String eventType, HttpServletRequest req);
+	protected abstract void handle(String eventType, HttpServletRequest req, HttpServletResponse resp);
 
 	/**
 	 * Erzeugt einen neuen EventHandler und speichert eine Referenz auf seinen

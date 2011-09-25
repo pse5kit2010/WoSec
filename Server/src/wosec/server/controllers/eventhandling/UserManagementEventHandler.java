@@ -13,6 +13,8 @@ import wosec.server.model.User;
 import wosec.util.HashGenerator;
 
 import java.util.logging.*;
+import javax.servlet.http.HttpServletResponse;
+import wosec.server.model.UserRole;
 
 /**
  * Ein EventHandler für Operationen wie das Anlegen und Löschen von Benutzers.
@@ -31,7 +33,7 @@ public class UserManagementEventHandler extends EventHandler {
 	}
 
 	@Override
-	public void handle(String eventType, HttpServletRequest req) {
+	public void handle(String eventType, HttpServletRequest req, HttpServletResponse resp) {
 		String identifier = req.getParameter("identifier");
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 
@@ -44,9 +46,13 @@ public class UserManagementEventHandler extends EventHandler {
 				} else {
 					// Speichere Nutzer in Datenbank:
 					User user = new User();
+                                        UserRole role = (UserRole)session.createQuery("from UserRole where name = ?").setString(0, UserRole.ROLE_USER).uniqueResult();
+                                        System.out.println(role.getRoleId() + " == "+role.getName());
+                                        user.setUserRole(role);
 					user.setIdentifier(identifier);
-					user.setDisplayname(req.getParameter("displayName"));
+					user.setDisplayName(req.getParameter("displayName"));
 					user.setPasswordHash(HashGenerator.SHA256(req.getParameter("password")));
+                                        log.info("saving the user...");
 					session.save(user);
 					log.info("createUser: Created user " + identifier);
 				}
@@ -61,7 +67,7 @@ public class UserManagementEventHandler extends EventHandler {
 			if (req.getParameter("newIdentifier") != null)
 				user.setIdentifier(req.getParameter("newIdentifier"));
 			if (req.getParameter("newDisplayName") != null)
-				user.setDisplayname(req.getParameter("newDisplayName"));
+				user.setDisplayName(req.getParameter("newDisplayName"));
 			if (req.getParameter("newPassword") != null)
 				try {
 					user.setPasswordHash(HashGenerator.SHA256(req.getParameter("newPassword")));

@@ -20,40 +20,44 @@ import wosec.server.view.JsonView;
  * SearchController ist für die Verarbeitung der Suchanfragen zuständig.
  */
 public class SearchController extends SessionServlet {
-	private static final long serialVersionUID = 1L;
 
-	/**
-	 * veranlasst eine Volltextsuche über die Instanzen des Benutzers und leitet
-	 * die Ergebnisse der Suche an die View SearchResults weiter
-	 * 
-	 * @param request
-	 *            HttpServletRequest
-	 * @param response
-	 *            HttpServletResponse
-	 */
-	private void search(HttpServletRequest request, HttpServletResponse response) {
-		String q = request.getParameter("q");
-		if (q == null || q.length() < 2)
-			return;
-		q = "%" + q + "%";
+    private static final long serialVersionUID = 1L;
 
-		Session session = HibernateUtil.getSessionFactory().openSession();
-		Transaction tx = session.getTransaction();
-		tx.begin();
+    /**
+     * veranlasst eine Volltextsuche über die Instanzen des Benutzers und leitet
+     * die Ergebnisse der Suche an die View SearchResults weiter
+     * 
+     * @param request
+     *            HttpServletRequest
+     * @param response
+     *            HttpServletResponse
+     */
+    private void search(HttpServletRequest request, HttpServletResponse response) {
+        String q = request.getParameter("q");
+        if (q == null || q.length() < 2) {
+            return;
+        }
+        q = "%" + q + "%";
 
-		HttpSession httpSession = request.getSession(false);
-		User user = (User) httpSession.getAttribute("user");
+        // XXX wieder zurückändern
+        //Session session = HibernateUtil.getSessionFactory().openSession();
+        Session session = HibernateUtil.getSessionFactory().getCurrentSession();
+        Transaction tx = session.getTransaction();
+        tx.begin();
 
-		List<Event> events = session
-				.createQuery("select distinct e from Event e where e.instance.user = :loginUser and (e.description like :q or e.instance.workflow.name like :q)")
-				.setEntity("loginUser", user).setParameter("q", q).list(); 
+        HttpSession httpSession = request.getSession(false);
+        User user = (User) httpSession.getAttribute("user");
 
-		tx.commit();		
-		JsonView.createJSONSearchResults(response, events);
-	}
+        List<Event> events = session //.createQuery("select distinct e from Event e where e.instance.user = :loginUser and (e.description like :q or e.instance.workflow.name like :q)")
+                .createQuery("select distinct e from Event e where e.instance.user = :loginUser and e.instance.workflow.name like :q")
+                .setEntity("loginUser", user).setParameter("q", q).list();
 
-	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		search(request, response);
-	}
+        tx.commit();
+        JsonView.createJSONSearchResults(response, events);
+    }
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        search(request, response);
+    }
 }

@@ -11,99 +11,106 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
 	var $ = {
 	    getJSON: function(mock, it, callback) {
 		callback(
-[/*{
-    "timestamp": 1314317905,
+[{
+    "timestamp": 1316877284,
     "eventCommand": "EventCommand",
-    "information": {},
-    "eventType": "createInstance"
-}, */{
-    "timestamp": 1314373858,
+    "information": {}
+}, {
+    "timestamp": 1316877470,
     "eventCommand": "FinishingTask",
     "information": {},
-    "eventType": "humanActivityExecuted",
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
     "activityID": "__fX4gedbEd-f6JWMxJDGcQ"
 }, {
-    "timestamp": 1314373863,
+    "timestamp": 1316877497,
     "eventCommand": "FinishingTask",
     "information": {},
-    "eventType": "eventActivityExecuted",
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
     "activityID": "_ggEwYYBxEd-3VeNHLWdQXA"
 }, {
-    "timestamp": 1314373864,
+    "timestamp": 1316877502,
     "eventCommand": "SpecifyingParticipant",
     "information": {},
-    "eventType": "HumanTaskExecutorSelected",
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
     "activityGroupID": "_7kTKEOdbEd-f6JWMxJDGcQ"
 }, {
-    "timestamp": 1314373864,
+    "timestamp": 1316877509,
     "eventCommand": "SpecifyingParticipant",
     "information": {
+        "participant": "DB01",
         "participants": {
             "provider": "DB01"
         }
     },
-    "eventType": "WSProviderSelected",
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
     "activityGroupID": "_1UFV4ItpEd-U-Z7QjvIBEA"
 }, {
-    "timestamp": 1314373865,
-    "eventCommand": "TransferingData",
-    "information": {
-        "data": "Name, Adresse",
-        "participants": {
-            "provider": "DB01",
-            "evokUser": "Alice",
-            "execUser": "Ich"
-        },
-        "attachments": [
-            {
-                "link": "http://somewhereIbelong",
-                "name": "Das ist ein Anhang!",
-                "type": "Ein Link der nirgends hinführt..."
-            }
-        ],
-        "usageReason": "wie bestellt"
-    },
-    "eventType": "DataTransferredToWS",
-    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
-}, {
-    "timestamp": 1314373865,
+    "timestamp": 1316877514,
     "eventCommand": "StartingTask",
     "information": {},
-    "eventType": "startActivityExecution",
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
     "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
 }, {
-    "timestamp": 1314373866,
+    "timestamp": 1316878340,
+    "eventCommand": "TransferingData",
+    "information": {
+        "data": "UserID: _sDfw47sd33saeF",
+        "participant": "DB01",
+        "participants": {
+            "provider": "DB01"
+        },
+        "usageReason": ""
+    },
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
+    "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
+}, {
+    "timestamp": 1316878356,
     "eventCommand": "TransferingData",
     "information": {
         "data": "",
+        "participant": "DB01",
         "participants": {
             "provider": "DB01"
         },
-        "usageReason": "an die Datenbank geschickt, weil deshalb",
-        "attachments": [
-            {
-                "link": "http://blabla",
-                "name": "Anschreiben",
-                "type": "Word-Dokument"
-            }, {
-                "link": "http://blablub",
-                "name": "Ausschreibung",
-                "type": "PDF-Datei"
-            }
-        ]
+        "usageReason": ""
     },
-    "eventType": "DataTransferredFromWS",
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
     "activityID": "_mJVSMNq2Ed-AhcDaNoYiNA"
 }, {
-    "timestamp": 1314373867,
+    "timestamp": 1316878365,
     "eventCommand": "FinishingTask",
     "information": {
+        "participant": "DB01",
         "participants": {
             "provider": "DB01"
         }
     },
-    "eventType": "WSActivityExecuted",
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
     "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
+}, {
+    "timestamp": 1316878367,
+    "eventCommand": "StartingTask",
+    "information": {},
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
+    "activityID": "_WwJSsMpEEd-l67V0iNGzSg"
+}, {
+    "timestamp": 1316878377,
+    "eventCommand": "TransferingData",
+    "information": {
+        "data": "",
+        "usageReason": ""
+    },
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
+    "activityID": "_WwJSsMpEEd-l67V0iNGzSg"
+}, {
+    "timestamp": 1316878402,
+    "eventCommand": "TransferingData",
+    "information": {
+        "data": "Registrierungsdaten: murat",
+        "usageReason": ""
+    },
+    "workflowID": "_BCoSEIBxEd-3VeNHLWdQXA",
+    "activityID": "_EdDTcOdcEd-f6JWMxJDGcQ"
 }]);
 	    }
 	};//*/

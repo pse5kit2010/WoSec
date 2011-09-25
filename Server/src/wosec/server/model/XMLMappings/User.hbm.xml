@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 16.08.2011 03:37:48 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="wosec.server.model.User" table="users">
+        <id name="userId" type="java.lang.Integer">
+            <column name="user_id" />
+            <generator class="identity" />
+        </id>
+        <many-to-one class="wosec.server.model.UserRole" lazy="false" fetch="select" name="userRole">
+            <column name="role_id" not-null="true"/>
+        </many-to-one>
+        <property name="identifier" type="string">
+            <column name="identifier" not-null="true"/>
+        </property>
+        <property name="passwordHash" type="string">
+            <column length="64" name="password_hash" not-null="true"/>
+        </property>
+        <property name="displayName" type="string">
+            <column name="display_name"/>
+        </property>
+        <set name="eventDatasForEvokingUser" table="event_data" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="evoking_user" />
+            </key>
+            <one-to-many class="wosec.server.model.EventData" />
+        </set>
+        <set name="eventDatasForExecutingUser" table="event_data" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="executing_user" />
+            </key>
+            <one-to-many class="wosec.server.model.EventData" />
+        </set>
+        <set fetch="select" inverse="true" lazy="true" name="instances" table="instances">
+            <key>
+                <column name="user_id" not-null="true"/>
+            </key>
+            <one-to-many class="wosec.server.model.Instance"/>
+        </set>
+        <set fetch="select" inverse="false" lazy="true" name="workflows" table="user_has_workflow_access">
+            <key>
+                <column name="user_id" not-null="true"/>
+            </key>
+            <many-to-many entity-name="wosec.server.model.Workflow">
+                <column name="workflow_id" not-null="true"/>
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>

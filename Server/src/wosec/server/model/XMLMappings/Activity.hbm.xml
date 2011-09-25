@@ -1,14 +1,68 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
-<hibernate-mapping package="wosec.server.model">
- <class entity-name="XMLActivity" node="activity" table="Activities">
-     <id name="activity-id" column="id" type="string" node="@activity-id" />
-     <property name="name" column="name" type="string" node="@name"></property>
-     <property name="activity_type" column="type" type="string" node="@activity_type" />
-     <property name="corresponding_activity" column="correspondingActivityID" type="string" node="@corresponding_activity" />
-     
-     <!-- Die folgenden Attribute werden dynamisch durch NewInstanceEventHandler erzeugt! -->
-     <property name="activity_group" column="groupID" type="integer" node="@groupID" />
-     <property name="lane" column="inWorkflowPool" type="boolean" node="@inWorkflowPool" />
- </class>
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 21.08.2011 18:54:31 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="wosec.server.model.Activity" table="activities" catalog="WoSec2">
+        <composite-id name="id" class="wosec.server.model.ActivityId">
+            <key-property name="activityId" type="string">
+                <column name="activity_id" />
+            </key-property>
+            <key-property name="workflowId" type="string">
+                <column name="workflow_id" />
+            </key-property>
+        </composite-id>
+        <many-to-one name="groupActivity" class="wosec.server.model.Activity"  lazy="false" fetch="select" cascade="save-update" >
+            <column name="group_id" />
+            <column name="group_workflow_id" />
+        </many-to-one>
+        <many-to-one name="workflow" class="wosec.server.model.Workflow" update="false" insert="false" fetch="select">
+            <column name="workflow_id" not-null="true" />
+        </many-to-one>
+        <many-to-one name="refActivity" class="wosec.server.model.Activity" fetch="select" cascade="save-update" >
+            <column name="ref_activity_id" />
+            <column name="ref_workflow_id" />
+        </many-to-one>
+        <property name="isGroup" type="byte">
+            <column name="is_group" not-null="true" />
+        </property>
+        <one-to-one name="activityInformation" class="wosec.server.model.ActivityInformation" cascade="save-update" ></one-to-one>
+        <set name="destActivities" table="event_information" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="dest_activity_id" />
+                <column name="dest_workflow_id" />
+            </key>
+            <one-to-many class="wosec.server.model.EventInformation" />
+        </set>
+        <set name="eventInformations" table="event_information" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="activity_id" />
+                <column name="workflow_id" />
+            </key>
+            <one-to-many class="wosec.server.model.EventInformation" />
+        </set>
+        <set name="activityTypes" table="activity_is_activity_type" inverse="false" lazy="true" fetch="select">
+            <key>
+                <column name="activity_id" not-null="true" />
+                <column name="workflow_id" not-null="true" />
+            </key>
+            <many-to-many entity-name="wosec.server.model.ActivityType">
+                <column name="type_id" not-null="true" />
+            </many-to-many>
+        </set>
+        <set name="refActivities" table="activities" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="ref_activity_id" />
+                <column name="workflow_id" not-null="true" />
+            </key>
+            <one-to-many class="wosec.server.model.Activity" />
+        </set>
+        <set name="groupIds" table="activities" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="group_id" />
+                <column name="workflow_id" not-null="true" />
+            </key>
+            <one-to-many class="wosec.server.model.Activity" />
+        </set>
+    </class>
 </hibernate-mapping>

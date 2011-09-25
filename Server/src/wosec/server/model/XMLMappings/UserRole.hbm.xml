@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 16.08.2011 03:37:48 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class name="wosec.server.model.UserRole" table="user_roles" catalog="WoSec2">
+        <id name="roleId" type="java.lang.Integer">
+            <column name="role_id" />
+            <generator class="identity" />
+        </id>
+        <property name="name" type="string">
+            <column name="name" not-null="true" />
+        </property>
+        <set name="users" table="users" inverse="true" lazy="true" fetch="select">
+            <key>
+                <column name="role_id" not-null="true" />
+            </key>
+            <one-to-many class="wosec.server.model.User" />
+        </set>
+    </class>
+</hibernate-mapping>

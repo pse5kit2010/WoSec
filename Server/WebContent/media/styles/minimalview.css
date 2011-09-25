@@ -1,0 +1,314 @@
+
+body {
+    padding: 0;
+    margin: 0;
+    overflow: hidden;
+}
+
+#timeslider-play-button-overlay {
+    background-color: orange;
+    border-radius: 15px 15px 15px 15px;
+    height: 30px;
+    opacity: 0.5;
+    width: 30px;
+    z-index: 3;
+    display: none;
+}
+
+/*timeslider-header {
+    font-family: sans-serif;
+    position: fixed;
+    width: 100%;
+    height: 60px;
+    top: 0;
+    background: #000 url(../images/dock-bg.gif) repeat-x;
+    z-index: 1;
+    color: #fff;
+}*/
+
+#timeslider-header {
+    height: 50px;
+    float: right;
+    display: inline;
+    margin: 0 15px 0 0;
+    width: 50%;
+}
+/*
+#userinfo {
+    float: right;
+    margin-bottom: 10px;
+}
+#userinfo a {
+    margin-left: 10px;
+    text-decoration: none;
+    color: #66f;
+}
+#userinfo a:hover {
+    text-decoration: underline;
+    color: #33f;
+}
+#slider {
+    clear: both;
+}*/
+
+#slider {
+    margin-top:7px;
+    margin-left: 40px;
+}
+
+.svg {
+    overflow: scroll;
+    position: absolute;
+    height: auto;
+    bottom: 0px;
+    top: 50px;
+    left: 0px;
+    right: 0px;
+    margin-top:0px;
+
+}
+
+#header {
+    position: static;
+    height: 200px;
+}
+
+/*
+#navigation {
+    width: 100%;
+    position:fixed;
+    margin-bottom: 0;
+    height:60px;
+    bottom:0;
+    left:0;
+    background: url(../images/dock-bg.gif) repeat-x;
+}
+
+#controls {
+    float: left;
+    position:relative;
+    top:15px;
+}*/
+
+#timeslider-play-button {
+    width: 30px;
+    height: 30px;
+    margin: 0;
+    padding: 0;
+    background: url("../images/play.png") center center no-repeat;
+    background-size: 24px;
+    -moz-background-size: 24px;
+    cursor: pointer;
+    float: left;
+}
+#timeslider-play-button:hover {
+    background-size: 30px;
+    -moz-background-size: 30px;
+}
+
+#timeslider-play-button span, a#fast span, a#pause span {
+    display:none;
+}
+
+
+
+/*Runtime Messages*/
+div#runtime{
+    padding: 5px 0 5px 0;
+}
+
+.timeslider-entry {
+    position: absolute;
+    z-index: 0;
+    width: 0.3em;
+    height: 0.9em;
+    top: -0.05em;
+    display: block;
+}
+
+.timeslider-entry-MarkFinishedEvent {
+    background: #DFFEDD;
+}
+.timeslider-entry-SpecifyingParticipantEvent {
+    background: white;
+}
+.timeslider-entry-HighlightingEvent {
+    background: #FF5100;
+}
+.timeslider-entry-TransferingDataEvent {
+    background: white;
+}
+
+
+#rect-obtrusive {
+    /*color: darkorange;*/
+    color: #FF5100;
+}
+#rect-unobtrusive {
+    /*color: cornflowerblue;*/
+    color: #DFFEDD;
+}
+#rect-reset {
+    color: white;
+}
+
+div#infoboxes {
+    position: absolute;
+}
+
+#headerright {
+    display: none;
+}
+
+/** INFOBOX */
+
+.infobox {
+    position: absolute;
+    color:#ffffff;
+    background-color: #BFE4FF;
+    border: 4px groove #FF5100;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    width:auto;
+    height:auto;
+    padding:3px 3px;
+    font-size: normal;
+    overflow: hidden;
+    visibility: visible;
+    margin: 4px 0px;
+    padding: 0px;
+    z-index:1;
+}
+
+
+.infobox-participant {
+    background:#974a4a;
+    text-decoration:none;
+    display:block;
+    padding:5px;
+    width:auto;
+    height:auto;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border:1px solid black;
+}
+
+.infobox-data {
+    background:#974a4a;
+    text-decoration:none;
+    display:block;
+    width:auto;
+    height:auto;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    padding:5px;
+    border:1px solid black;
+}
+
+
+.infobox {
+    width: 250px;
+    height: 200px;
+    overflow: auto;
+    z-index: 3;
+}
+
+span.infobox-pin-button {
+    display:block;
+}
+
+.infobox-pin-button {
+    display: block;
+    text-align: right;
+    width: 100%;
+    height: 17px;
+    background-image: url("../images/lock.png");
+    margin-right: 10px;
+    background-position: right;
+    background-repeat: no-repeat;
+}
+
+.infobox-pin-text {
+    display:none;
+}
+
+.infobox-entry {
+    margin: 0px;
+}
+
+.infobox-entry:hover {
+    background-color: #FFF;
+}
+
+.infobox-entry-header {
+}
+
+.infobox-entry-content {
+    border-top: 1px dotted;
+}
+
+.infobox-entry-incoming {
+    color: #005500;
+}
+
+.infobox-entry-outgoing .infobox-entry-content {
+    display: none;
+}
+
+.infobox-entry-outgoing {
+
+    color: #550000;
+}
+
+.infobox-entry-incoming, .infobox-entry-outgoing {
+    border-bottom: 5px solid;
+    margin-top: 5px;
+}
+
+.infobox-entry-incoming:before{
+    content: "\21D2"; /* Das gleiche wie &rarr; */
+}
+.infobox-entry-outgoing:before{
+    content: "\21D0"; /* Das gleiche wie &larr; */
+}
+
+.infobox-entry-execUser:before {
+    content: "von: ";
+    font-variant: small-caps;
+    font-size: xx-small;
+}
+
+.infobox-entry-evokUser:before {
+    content: "eingeleitet durch: ";
+    font-variant: small-caps;
+    font-size: xx-small;
+}
+
+.infobox-entry-data:before {
+    content : "folgende Daten wurden genutzt:";
+    font-variant: small-caps;
+    font-size: xx-small;
+    border-bottom: 1px solid;
+    padding-left: 0px;
+    display: block;
+}
+.infobox-entry-data {
+    display: block;
+    padding-left: 10px;
+}
+
+.infobox-entry-usageReason:before {
+    content : "Nutzungsgrund: ";
+    font-variant: small-caps;
+    font-size: xx-small;
+    border-bottom: 1px solid;
+    padding-left: 0px;
+    display: block;
+}
+.infobox-entry-usageReason {
+    display: block;
+    padding-left: 10px;
+}

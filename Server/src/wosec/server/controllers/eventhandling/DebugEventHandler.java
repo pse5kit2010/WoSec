@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+import javax.servlet.http.HttpServletResponse;
 import org.hibernate.HibernateUtil;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -28,7 +29,7 @@ public class DebugEventHandler extends EventHandler {
 	}
 
 	@Override
-	protected void handle(String eventType, HttpServletRequest req) {
+	protected void handle(String eventType, HttpServletRequest req, HttpServletResponse resp) {
 		try {
 			String instanceID = req.getParameter("instanceID");
 			if (instanceID == null){

@@ -21,6 +21,11 @@
 	<from>^/Instanz/(.+)$</from>
 	<to type="redirect">%{context-path}/SingleInstanceController?instance=$1</to>
 	</rule>
+        
+        <rule>
+	<from>^/Minimal/(.+)$</from>
+	<to type="redirect">%{context-path}/MinimalView?instance=$1</to>
+	</rule>
 	
 <!--
 	<rule>

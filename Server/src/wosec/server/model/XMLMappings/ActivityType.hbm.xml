@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- Generated 16.08.2011 03:37:48 by Hibernate Tools 3.4.0.CR1 -->
+<hibernate-mapping>
+    <class catalog="WoSec2" name="wosec.server.model.ActivityType" table="activity_types">
+        <id name="typeId" type="java.lang.Integer">
+            <column name="type_id" />
+            <generator class="identity" />
+        </id>
+        <property name="name" type="string">
+            <column name="name" not-null="true"/>
+        </property>
+        <set fetch="select" inverse="true" lazy="true" name="activities" table="activity_is_activity_type">
+            <key>
+                <column name="type_id" not-null="true"/>
+            </key>
+            <many-to-many entity-name="wosec.server.model.Activity">
+                <column name="activity_id" not-null="true"/>
+                <column name="workflow_id" not-null="true"/>
+            </many-to-many>
+        </set>
+        <set fetch="select" inverse="true" lazy="true" name="events" table="event_types">
+            <key>
+                <column name="type_id" not-null="true"/>
+            </key>
+            <many-to-many entity-name="wosec.server.model.Event">
+                <column name="event_id" not-null="true"/>
+                <column name="instance_id" not-null="true"/>
+            </many-to-many>
+        </set>
+    </class>
+</hibernate-mapping>
