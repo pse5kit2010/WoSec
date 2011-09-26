@@ -87,7 +87,7 @@ WoSec.HTMLGUI.prototype.TimeSlider = function TimeSlider(gui, eventChain) {
     $("." + CSS_CLASS_TIMESLIDER_BACKWARD_BUTTON).click(function() {
         gui.disableAnimations(eventChain);
         eventChain.seek(function(eventCommand) {
-            eventCommand.execute();
+            eventCommand.unwind();
         }, true);
         if (!paused) {
             gui.enableAnimations(eventChain);

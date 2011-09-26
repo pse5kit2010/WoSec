@@ -99,14 +99,16 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
                 break;
             case "Started":
                 this.markObtrusive();
-                this.scrollTo();
                 if (enableAnimations) {
+                    this.scrollTo();
                     this.highlight();
                 }
                 break;
             case "Finished":
                 this.markUnobtrusive();
-                this.scrollTo();
+                if (enableAnimations) {
+                    this.scrollTo();
+                }
                 break;
             case "TransferingData":
                 

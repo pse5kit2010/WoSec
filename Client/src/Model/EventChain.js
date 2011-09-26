@@ -19,6 +19,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 	var events = [];
 	var currentPosition = 0;
 	var locked = false;
+	var playing = false;
 
     var that = Object.create(WoSec.baseObject)
     MixinObservable.call(that);
@@ -133,14 +134,23 @@ WoSec.newEventChain = function EventChain(workflow) {
 		 * @return {EventChain} self
 		 */
         play: function() {
+            if (playing) {
+                return this;
+            }
 			if (locked) {
 				return this;
 			}
+			playing = true;
 			var after = 0;
 			this.seek(function(eventCommand) {
 				eventCommand.later(after, "execute");
 				after += PLAY_TIME_BETWEEN_EVENTS_MS;
 			});
+			setTimeout(function() {
+			    playing = false;
+			}, after);
+			// try playing again in case new events came in while it was playing
+			this.later(after, "play"); 
 			return this;
         },
 		/**

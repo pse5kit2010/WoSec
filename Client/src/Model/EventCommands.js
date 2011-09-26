@@ -5,6 +5,10 @@ var WorkflowClass = WoSec.newWorkflow;
 
 
 var workflow;
+var defaultMemento = {
+    state: "Reset",
+    information: []
+};
 /**
  * Ein kleiner Workaround um die Workflowobjektabhängigkeit
  * Die Factories benötigen jeweils einen Workflow dem das zu erstellende Event zugeordnet wird.
@@ -106,10 +110,10 @@ StartingTaskEvent.prototype.execute = function() {
  * @see EventCommand.unwind
  */
 StartingTaskEvent.prototype.unwind = function() {
-    this.task.setMemento(this.taskMemento);
+    this.task.setMemento(this.taskMemento || defaultMemento);
     var cTask = this.task.getCorrespondingTask();
     if (cTask) {
-        cTask.setMemento(this.correspondingTaskMemento);
+        cTask.setMemento(this.correspondingTaskMemento || defaultMemento);
     }
     return this;
 }
@@ -158,10 +162,10 @@ FinishingTaskEvent.prototype.execute = function() {
  * @see EventCommand.unwind
  */
 FinishingTaskEvent.prototype.unwind = function() {
-	this.task.setMemento(this.taskMemento);
+	this.task.setMemento(this.taskMemento || defaultMemento);
 	var cTask = this.task.getCorrespondingTask();
 	if (cTask) {
-	    cTask.setMemento(this.correspondingTaskMemento);
+	    cTask.setMemento(this.correspondingTaskMemento || defaultMemento);
 	}
     return this;
 }
@@ -209,10 +213,10 @@ TransferingDataEvent.prototype.execute = function() {
     return this;
 };
 TransferingDataEvent.prototype.unwind = function() {
-    this.task.setMemento(this.taskMemento);
+    this.task.setMemento(this.taskMemento || defaultMemento);
     var cTask = this.task.getCorrespondingTask();
     if (cTask) {
-        cTask.setMemento(this.correspondingTaskMemento);
+        cTask.setMemento(this.correspondingTaskMemento || defaultMemento);
     }
     return this;
 };
@@ -241,6 +245,7 @@ function SpecifyingParticipantEvent(taskLane, information, timestamp) {
     this.taskLane = taskLane;
     this.information = information || {};
     this.information.timestamp = timestamp;
+    this.taskMementos = [];
 }
 WoSec.inherit(SpecifyingParticipantEvent, EventCommand);
 SpecifyingParticipantEvent.prototype.classname = "SpecifyingParticipantEvent";
@@ -255,8 +260,9 @@ SpecifyingParticipantEvent.prototype.execute = function() {
 	return this;
 };
 SpecifyingParticipantEvent.prototype.unwind = function() {
+    var that = this;
     this.taskLane.getTasks().forEach(function(task, i) {
-        task.setMemento(this.taskMementos[i]);
+        task.setMemento(that.taskMementos[i] || defaultMemento);
     });
     return this;
 };
