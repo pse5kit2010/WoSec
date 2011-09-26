@@ -198,14 +198,16 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
                 break;
             case "Started":
                 this.markObtrusive();
-                this.scrollTo();
                 if (enableAnimations) {
+                    this.scrollTo();
                     this.highlight();
                 }
                 break;
             case "Finished":
                 this.markUnobtrusive();
-                this.scrollTo();
+                if (enableAnimations) {
+                    this.scrollTo();
+                }
                 break;
             case "TransferingData":
                 
@@ -989,7 +991,7 @@ WoSec.HTMLGUI.prototype.TimeSlider = function TimeSlider(gui, eventChain) {
     $("." + CSS_CLASS_TIMESLIDER_BACKWARD_BUTTON).click(function() {
         gui.disableAnimations(eventChain);
         eventChain.seek(function(eventCommand) {
-            eventCommand.execute();
+            eventCommand.unwind();
         }, true);
         if (!paused) {
             gui.enableAnimations(eventChain);
@@ -1193,7 +1195,7 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
 	that.getMemento = function() {
 	    return {
 	        state: state,
-	        information: information
+	        information: information.slice()
 	    };
 	}
 	
@@ -1355,6 +1357,10 @@ var WorkflowClass = WoSec.newWorkflow;
 
 
 var workflow;
+var defaultMemento = {
+    state: "Reset",
+    information: []
+};
 /**
  * Ein kleiner Workaround um die Workflowobjektabhängigkeit
  * Die Factories benötigen jeweils einen Workflow dem das zu erstellende Event zugeordnet wird.
@@ -1456,10 +1462,10 @@ StartingTaskEvent.prototype.execute = function() {
  * @see EventCommand.unwind
  */
 StartingTaskEvent.prototype.unwind = function() {
-    this.task.setMemento(this.taskMemento);
+    this.task.setMemento(this.taskMemento || defaultMemento);
     var cTask = this.task.getCorrespondingTask();
     if (cTask) {
-        cTask.setMemento(this.correspondingTaskMemento);
+        cTask.setMemento(this.correspondingTaskMemento || defaultMemento);
     }
     return this;
 }
@@ -1508,10 +1514,10 @@ FinishingTaskEvent.prototype.execute = function() {
  * @see EventCommand.unwind
  */
 FinishingTaskEvent.prototype.unwind = function() {
-	this.task.setMemento(this.taskMemento);
+	this.task.setMemento(this.taskMemento || defaultMemento);
 	var cTask = this.task.getCorrespondingTask();
 	if (cTask) {
-	    cTask.setMemento(this.correspondingTaskMemento);
+	    cTask.setMemento(this.correspondingTaskMemento || defaultMemento);
 	}
     return this;
 }
@@ -1559,10 +1565,10 @@ TransferingDataEvent.prototype.execute = function() {
     return this;
 };
 TransferingDataEvent.prototype.unwind = function() {
-    this.task.setMemento(this.taskMemento);
+    this.task.setMemento(this.taskMemento || defaultMemento);
     var cTask = this.task.getCorrespondingTask();
     if (cTask) {
-        cTask.setMemento(this.correspondingTaskMemento);
+        cTask.setMemento(this.correspondingTaskMemento || defaultMemento);
     }
     return this;
 };
@@ -1591,6 +1597,7 @@ function SpecifyingParticipantEvent(taskLane, information, timestamp) {
     this.taskLane = taskLane;
     this.information = information || {};
     this.information.timestamp = timestamp;
+    this.taskMementos = [];
 }
 WoSec.inherit(SpecifyingParticipantEvent, EventCommand);
 SpecifyingParticipantEvent.prototype.classname = "SpecifyingParticipantEvent";
@@ -1605,8 +1612,9 @@ SpecifyingParticipantEvent.prototype.execute = function() {
 	return this;
 };
 SpecifyingParticipantEvent.prototype.unwind = function() {
+    var that = this;
     this.taskLane.getTasks().forEach(function(task, i) {
-        task.setMemento(this.taskMementos[i]);
+        task.setMemento(that.taskMementos[i] || defaultMemento);
     });
     return this;
 };
@@ -1657,6 +1665,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 	var events = [];
 	var currentPosition = 0;
 	var locked = false;
+	var playing = false;
 
     var that = Object.create(WoSec.baseObject)
     MixinObservable.call(that);
@@ -1771,14 +1780,23 @@ WoSec.newEventChain = function EventChain(workflow) {
 		 * @return {EventChain} self
 		 */
         play: function() {
+            if (playing) {
+                return this;
+            }
 			if (locked) {
 				return this;
 			}
+			playing = true;
 			var after = 0;
 			this.seek(function(eventCommand) {
 				eventCommand.later(after, "execute");
 				after += PLAY_TIME_BETWEEN_EVENTS_MS;
 			});
+			setTimeout(function() {
+			    playing = false;
+			}, after);
+			// try playing again in case new events came in while it was playing
+			this.later(after, "play"); 
 			return this;
         },
 		/**
