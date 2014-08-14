@@ -99,14 +99,16 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
                 break;
             case "Started":
                 this.markObtrusive();
-                this.scrollTo();
                 if (enableAnimations) {
+                    this.scrollTo();
                     this.highlight();
                 }
                 break;
             case "Finished":
                 this.markUnobtrusive();
-                this.scrollTo();
+                if (enableAnimations) {
+                    this.scrollTo();
+                }
                 break;
             case "TransferingData":
                 
@@ -121,8 +123,8 @@ WoSec.SVG.prototype.newTaskRectangle = function SVGTaskRectangle(activityID) {
         if (isCircle) {
             var r = parseInt($(rectangles[0]).attr("r"));
             return {
-                x : parseInt($(rectangles[0]).attr("x")),
-                y : parseInt($(rectangles[0]).attr("y")),
+                x : parseInt($(rectangles[0]).attr("cx")),
+                y : parseInt($(rectangles[0]).attr("cy")),
                 width : r*2,
                 height : r*2,
                 getCenter : function() {

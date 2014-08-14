@@ -65,7 +65,11 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
     },
     "eventType": "DataTransferredToWS",
     "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
-}, {
+}]);
+setTimeout(function() {
+    
+
+callback([{
     "timestamp": 1314373865,
     "eventCommand": "StartingTask",
     "information": {},
@@ -105,8 +109,9 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain) {
     "eventType": "WSActivityExecuted",
     "activityID": "_P2HHwNq2Ed-AhcDaNoYiNA"
 }]);
-	    }
-	};//*/
+}, 2000);
+
+}};
 	
     
 		$.getJSON(POLL_URL, {since: eventChain.last().getTimestamp(), instance: eventChain.getWorkflow().getID()}, function(data) {

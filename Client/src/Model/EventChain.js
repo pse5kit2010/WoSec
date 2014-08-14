@@ -19,6 +19,7 @@ WoSec.newEventChain = function EventChain(workflow) {
 	var events = [];
 	var currentPosition = 0;
 	var locked = false;
+	var playing = false;
 
     var that = Object.create(WoSec.baseObject)
     MixinObservable.call(that);
@@ -90,10 +91,14 @@ WoSec.newEventChain = function EventChain(workflow) {
 				}
 				events.push(eventCommands.usingWorkflow(workflow)[event.eventCommand].create(event)); // factory method
 			});
-			events.sort(function(e, next) {
+			/*events.sort(function(e, next) { // potenziell gefährlich
 			    e.timestamp - next.timestamp;
-			});
-			this.notifyObservers(this);
+			});*/
+			this.notifyObservers(this, "add");
+			if (!this.isLocked() && currentPosition > 0) {
+			    currentPosition++;
+			    this.notifyObservers(this, "position");
+			}
 			return this;
         },
 		/**
@@ -108,17 +113,14 @@ WoSec.newEventChain = function EventChain(workflow) {
         seek: function(strategy, backwards) {
             var direction = backwards ? -1 : 1;
 			var i = currentPosition;
-			if (i == events.length) { // in case we are at the end of the chain
-				i--;
-			}
             while (0 <= i && i < events.length) {
 				currentPosition = i;
 				if (strategy(events[i], i) === false) {
 					break;
 				}
-				i += direction
+			    this.notifyObservers(this, "position");
+				i += direction;
 			}
-			this.notifyObservers(this);
 			return this;
         },
 		/**
@@ -132,17 +134,23 @@ WoSec.newEventChain = function EventChain(workflow) {
 		 * @return {EventChain} self
 		 */
         play: function() {
+            if (playing) {
+                return this;
+            }
 			if (locked) {
 				return this;
 			}
+			playing = true;
 			var after = 0;
 			this.seek(function(eventCommand) {
 				eventCommand.later(after, "execute");
 				after += PLAY_TIME_BETWEEN_EVENTS_MS;
 			});
-			setTimeout(function(){
-				currentPosition = events.length;
+			setTimeout(function() {
+			    playing = false;
 			}, after);
+			// try playing again in case new events came in while it was playing
+			this.later(after, "play"); 
 			return this;
         },
 		/**

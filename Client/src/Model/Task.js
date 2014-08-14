@@ -88,7 +88,7 @@ WoSec.newTask = function Task(id, correspondingActivityID, workflow) {
 	that.getMemento = function() {
 	    return {
 	        state: state,
-	        information: information
+	        information: information.slice()
 	    };
 	}
 	

@@ -2,7 +2,7 @@
  * Singleton zum Abfragen neuer Eventdaten alle paar Sekunden (Default 5).
  * Empfangene Eventdaten werden an die EventChain weitergegeben.
  */
-WoSec.AJAXUpdater = function AJAXUpdater(eventChain, lastVisitedTimestamp) {
+WoSec.AJAXUpdater = function AJAXUpdater(eventChain, lastVisitedTimestamp, gui) {
     var DELAY_BETWEEN_POLLS = 5000
     ,   POLL_URL = "UpdateController?type=Event";
 
@@ -19,10 +19,13 @@ WoSec.AJAXUpdater = function AJAXUpdater(eventChain, lastVisitedTimestamp) {
 
     ajax(function(data) {
         if(data.length != 0) {
+            gui.disableAnimations(eventChain);
             eventChain.add(data).seek(function(eventCommand) {
                 return eventCommand.getTimestamp() <= lastVisitedTimestamp && eventCommand.execute();
                 // seek forward until the timestamp is newer than the lastVisited
-            }).play();
+            });
+            gui.enableAnimations(eventChain);
+            eventChain.play();
         }
     });
     var playAndAddLoop = function(data) {
